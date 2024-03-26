@@ -1,5 +1,5 @@
 import React from 'react';
-import { array, bool, node, object, string } from 'prop-types';
+import { array, bool, node, object, string, func } from 'prop-types';
 import classNames from 'classnames';
 
 import { propTypes } from '../../../util/types';
@@ -16,8 +16,13 @@ const SearchResultsPanel = props => {
     search,
     setActiveListing,
     isMapVariant,
+    setDeliveryAddress,
   } = props;
   const classes = classNames(rootClassName || css.root, className);
+
+  if (search && search.address) {
+    setDeliveryAddress(search.address);
+  }
 
   const paginationLinks =
     pagination && pagination.totalPages > 1 ? (
@@ -81,6 +86,7 @@ SearchResultsPanel.defaultProps = {
   rootClassName: null,
   search: null,
   isMapVariant: true,
+  setDeliveryAddress: null,
 };
 
 SearchResultsPanel.propTypes = {
@@ -91,6 +97,7 @@ SearchResultsPanel.propTypes = {
   rootClassName: string,
   search: object,
   isMapVariant: bool,
+  setDeliveryAddress: func,
 };
 
 export default SearchResultsPanel;

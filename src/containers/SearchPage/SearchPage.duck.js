@@ -30,6 +30,10 @@ export const SEARCH_MAP_LISTINGS_ERROR = 'app/SearchPage/SEARCH_MAP_LISTINGS_ERR
 
 export const SEARCH_MAP_SET_ACTIVE_LISTING = 'app/SearchPage/SEARCH_MAP_SET_ACTIVE_LISTING';
 
+export const SET_CUSTOMER_DELIVERY_ADDRESS = 'app/SearchPage/SET_CUSTOMER_DELIVERY_ADDRESS';
+export const SET_CUSTOMER_DELIVERY_ADDRESS_SUCCESS = 'app/SearchPage/SET_CUSTOMER_DELIVERY_ADDRESS_SUCCESS';
+export const SET_CUSTOMER_DELIVERY_ADDRESS_ERROR = 'app/SearchPage/SET_CUSTOMER_DELIVERY_ADDRESS_ERROR';
+
 // ================ Reducer ================ //
 
 const initialState = {
@@ -64,7 +68,11 @@ const listingPageReducer = (state = initialState, action = {}) => {
       // eslint-disable-next-line no-console
       console.error(payload);
       return { ...state, searchInProgress: false, searchListingsError: payload };
-
+    case SET_CUSTOMER_DELIVERY_ADDRESS_SUCCESS:
+      return {
+        ...state,
+        deliveryAddress: payload,
+      };
     case SEARCH_MAP_SET_ACTIVE_LISTING:
       return {
         ...state,
@@ -78,6 +86,22 @@ const listingPageReducer = (state = initialState, action = {}) => {
 export default listingPageReducer;
 
 // ================ Action creators ================ //
+
+export const setCustomerDeliveryAddress = deliveryAddress => ({
+  type: SET_CUSTOMER_DELIVERY_ADDRESS,
+  payload: { deliveryAddress },
+});
+
+export const setCustomerDeliveryAddressSuccess = deliveryAddress => ({
+  type: SET_CUSTOMER_DELIVERY_ADDRESS_SUCCESS,
+  payload: { deliveryAddress },
+});
+
+export const setCustomerDeliveryAddressError = e => ({
+  type: SET_CUSTOMER_DELIVERY_ADDRESS_ERROR,
+  error: true,
+  payload: e,
+});
 
 export const searchListingsRequest = searchParams => ({
   type: SEARCH_LISTINGS_REQUEST,
@@ -95,9 +119,21 @@ export const searchListingsError = e => ({
   payload: e,
 });
 
+export const setDeliveryAddress = (deliveryAddress) => (dispatch, getState, sdk) => {
+  dispatch(setCustomerDeliveryAddress(deliveryAddress));
+  return sdk.currentUser.updateProfile({ publicData: { deliveryAddress } })
+    .then(response => {
+      dispatch(setCustomerDeliveryAddressSuccess(response.data.data));
+      return response;
+    })
+    .catch(e => {
+      dispatch(setCustomerDeliveryAddressError(storableError(e)));
+      throw e;
+    });
+};
+
 export const searchListings = (searchParams, config) => (dispatch, getState, sdk) => {
   dispatch(searchListingsRequest(searchParams));
-
   // SearchPage can enforce listing query to only those listings with valid listingType
   // NOTE: this only works if you have set 'enum' type search schema to listing's public data fields
   //       - listingType
@@ -233,6 +269,10 @@ export const setActiveListing = listingId => ({
   type: SEARCH_MAP_SET_ACTIVE_LISTING,
   payload: listingId,
 });
+
+export const loadDeliveryAddressData = () => (address) => {
+  return setDeliveryAddress(address);
+};
 
 export const loadData = (params, search, config) => {
   const queryParams = parse(search, {
