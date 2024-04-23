@@ -66,13 +66,7 @@ const listingPageReducer = (state = initialState, action = {}) => {
       };
     case SEARCH_LISTINGS_ERROR:
       // eslint-disable-next-line no-console
-      console.error(payload);
       return { ...state, searchInProgress: false, searchListingsError: payload };
-    case SET_CUSTOMER_DELIVERY_ADDRESS_SUCCESS:
-      return {
-        ...state,
-        deliveryAddress: payload,
-      };
     case SEARCH_MAP_SET_ACTIVE_LISTING:
       return {
         ...state,
@@ -87,17 +81,17 @@ export default listingPageReducer;
 
 // ================ Action creators ================ //
 
-export const setCustomerDeliveryAddress = deliveryAddress => ({
+export const setBookingDeliveryAddress = deliveryAddress => ({
   type: SET_CUSTOMER_DELIVERY_ADDRESS,
   payload: { deliveryAddress },
 });
 
-export const setCustomerDeliveryAddressSuccess = deliveryAddress => ({
+export const setBookingDeliveryAddressSuccess = deliveryAddress => ({
   type: SET_CUSTOMER_DELIVERY_ADDRESS_SUCCESS,
   payload: { deliveryAddress },
 });
 
-export const setCustomerDeliveryAddressError = e => ({
+export const setBookingDeliveryAddressError = e => ({
   type: SET_CUSTOMER_DELIVERY_ADDRESS_ERROR,
   error: true,
   payload: e,
@@ -120,16 +114,7 @@ export const searchListingsError = e => ({
 });
 
 export const setDeliveryAddress = (deliveryAddress) => (dispatch, getState, sdk) => {
-  dispatch(setCustomerDeliveryAddress(deliveryAddress));
-  return sdk.currentUser.updateProfile({ publicData: { deliveryAddress } })
-    .then(response => {
-      dispatch(setCustomerDeliveryAddressSuccess(response.data.data));
-      return response;
-    })
-    .catch(e => {
-      dispatch(setCustomerDeliveryAddressError(storableError(e)));
-      throw e;
-    });
+  dispatch(setBookingDeliveryAddress(deliveryAddress));
 };
 
 export const searchListings = (searchParams, config) => (dispatch, getState, sdk) => {

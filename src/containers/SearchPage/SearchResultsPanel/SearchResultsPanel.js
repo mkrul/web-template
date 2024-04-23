@@ -1,9 +1,11 @@
 import React from 'react';
+import { useSelector } from 'react-redux';
 import { array, bool, node, object, string, func } from 'prop-types';
 import classNames from 'classnames';
-
+import _ from 'lodash';
 import { propTypes } from '../../../util/types';
 import { ListingCard, PaginationLinks } from '../../../components';
+import { getBookingDeliveryAddress } from '../../../selectors/searchResultsSelectors';
 
 import css from './SearchResultsPanel.module.css';
 
@@ -20,7 +22,15 @@ const SearchResultsPanel = props => {
   } = props;
   const classes = classNames(rootClassName || css.root, className);
 
-  if (search && search.address) {
+  // check if the deliveryAddress state has changed
+  const deliveryAddress = useSelector(getBookingDeliveryAddress);
+  const searchAddressIsPresent = !_.isNull(search?.address) && !_.isUndefined(search?.address);
+
+  console.log('deliveryAddress', deliveryAddress)
+  console.log('search.?address', search?.address)
+
+  // if the deliveryAddress state has changed, set the delivery address
+  if (searchAddressIsPresent && search.address !== deliveryAddress) {
     setDeliveryAddress(search.address);
   }
 
