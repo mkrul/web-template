@@ -12,6 +12,7 @@ import { createImageVariantConfig } from '../../util/sdkLoader';
 import { isOriginInUse, isStockInUse } from '../../util/search';
 import { parse } from '../../util/urlHelpers';
 import { addMarketplaceEntities } from '../../ducks/marketplaceData.duck';
+import { updateCurrentUserDeliveryAddress } from '../../ducks/user.duck';
 
 // Pagination page size might need to be dynamic on responsive page layouts
 // Current design has max 3 columns 12 is divisible by 2 and 3
@@ -66,7 +67,11 @@ const listingPageReducer = (state = initialState, action = {}) => {
       };
     case SEARCH_LISTINGS_ERROR:
       // eslint-disable-next-line no-console
-      return { ...state, searchInProgress: false, searchListingsError: payload };
+      return {
+        ...state,
+        searchInProgress: false,
+        searchListingsError: payload,
+      };
     case SEARCH_MAP_SET_ACTIVE_LISTING:
       return {
         ...state,
@@ -82,19 +87,6 @@ const listingPageReducer = (state = initialState, action = {}) => {
       return {
         ...state,
         settingDeliveryAddress: false,
-        currentUser: {
-          ...state.currentUser,
-          attributes: {
-            ...state.currentUser.attributes,
-            profile: {
-              ...state.currentUser.attributes.profile,
-              publicData: {
-                ...state.currentUser.attributes.profile.publicData,
-                deliveryAddress: action.payload.address,
-              },
-            },
-          },
-        },
       };
     case SET_DELIVERY_ADDRESS_ERROR:
       return {
@@ -159,8 +151,10 @@ export const setDeliveryAddress = address => (dispatch, getState, sdk) => {
     )
     .then(() => {
       dispatch(setDeliveryAddressSuccess());
+      dispatch(updateCurrentUserDeliveryAddress(address));
     })
     .catch(e => {
+      console.log('error', e);
       dispatch(setDeliveryAddressError(storableError(e)));
     });
 };
@@ -296,10 +290,6 @@ export const searchListings = (searchParams, config) => (dispatch, getState, sdk
       dispatch(searchListingsError(storableError(e)));
       throw e;
     });
-};
-
-export const loadDeliveryAddressData = () => (address) => {
-  return setDeliveryAddress(address);
 };
 
 export const setActiveListing = listingId => ({
