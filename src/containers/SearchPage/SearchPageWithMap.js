@@ -26,7 +26,7 @@ import { manageDisableScrolling, isScrollingDisabled } from '../../ducks/ui.duck
 import { H3, H5, ModalInMobile, Page } from '../../components';
 import TopbarContainer from '../../containers/TopbarContainer/TopbarContainer';
 
-import { setActiveListing, setDeliveryAddress } from './SearchPage.duck';
+import { setActiveListing } from './SearchPage.duck';
 import {
   groupListingFieldConfigs,
   initialValues,
@@ -245,7 +245,6 @@ export class SearchPageComponent extends Component {
       searchParams,
       activeListingId,
       onActivateListing,
-      onSetDeliveryAddress,
       routeConfiguration,
       config,
     } = this.props;
@@ -509,7 +508,6 @@ export class SearchPageComponent extends Component {
                   pagination={listingsAreLoaded ? pagination : null}
                   search={parse(location.search)}
                   setActiveListing={onActivateListing}
-                  setDeliveryAddress={onSetDeliveryAddress}
                   isMapVariant
                 />
               </div>
@@ -559,7 +557,6 @@ SearchPageComponent.defaultProps = {
 SearchPageComponent.propTypes = {
   listings: array,
   onActivateListing: func.isRequired,
-  onSetDeliveryAddress: func.isRequired,
   onManageDisableScrolling: func.isRequired,
   pagination: propTypes.pagination,
   scrollingDisabled: bool.isRequired,
@@ -630,7 +627,6 @@ const mapDispatchToProps = dispatch => ({
   onManageDisableScrolling: (componentId, disableScrolling) =>
     dispatch(manageDisableScrolling(componentId, disableScrolling)),
   onActivateListing: listingId => dispatch(setActiveListing(listingId)),
-  onSetDeliveryAddress: address => dispatch(setDeliveryAddress(address)),
 });
 
 // Note: it is important that the withRouter HOC is **outside** the

@@ -1,11 +1,9 @@
 import React from 'react';
-import { useSelector } from 'react-redux';
 import { array, bool, node, object, string, func } from 'prop-types';
 import classNames from 'classnames';
 import _ from 'lodash';
 import { propTypes } from '../../../util/types';
 import { ListingCard, PaginationLinks } from '../../../components';
-import { getBookingDeliveryAddress } from '../../../selectors/searchResultsSelectors';
 
 import css from './SearchResultsPanel.module.css';
 
@@ -18,21 +16,8 @@ const SearchResultsPanel = props => {
     search,
     setActiveListing,
     isMapVariant,
-    setDeliveryAddress,
   } = props;
   const classes = classNames(rootClassName || css.root, className);
-
-  // check if the deliveryAddress state has changed
-  const deliveryAddress = useSelector(getBookingDeliveryAddress);
-  const searchAddressIsPresent = !_.isNull(search?.address) && !_.isUndefined(search?.address);
-
-  console.log('deliveryAddress', deliveryAddress)
-  console.log('search.?address', search?.address)
-
-  // if the deliveryAddress state has changed, set the delivery address
-  if (searchAddressIsPresent && search.address !== deliveryAddress) {
-    setDeliveryAddress(search.address);
-  }
 
   const paginationLinks =
     pagination && pagination.totalPages > 1 ? (
@@ -95,8 +80,7 @@ SearchResultsPanel.defaultProps = {
   pagination: null,
   rootClassName: null,
   search: null,
-  isMapVariant: true,
-  setDeliveryAddress: null,
+  isMapVariant: true
 };
 
 SearchResultsPanel.propTypes = {
@@ -106,8 +90,7 @@ SearchResultsPanel.propTypes = {
   pagination: propTypes.pagination,
   rootClassName: string,
   search: object,
-  isMapVariant: bool,
-  setDeliveryAddress: func,
+  isMapVariant: bool
 };
 
 export default SearchResultsPanel;

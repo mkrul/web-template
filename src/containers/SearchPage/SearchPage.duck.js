@@ -30,9 +30,9 @@ export const SEARCH_MAP_LISTINGS_ERROR = 'app/SearchPage/SEARCH_MAP_LISTINGS_ERR
 
 export const SEARCH_MAP_SET_ACTIVE_LISTING = 'app/SearchPage/SEARCH_MAP_SET_ACTIVE_LISTING';
 
-export const SET_CUSTOMER_DELIVERY_ADDRESS = 'app/SearchPage/SET_CUSTOMER_DELIVERY_ADDRESS';
-export const SET_CUSTOMER_DELIVERY_ADDRESS_SUCCESS = 'app/SearchPage/SET_CUSTOMER_DELIVERY_ADDRESS_SUCCESS';
-export const SET_CUSTOMER_DELIVERY_ADDRESS_ERROR = 'app/SearchPage/SET_CUSTOMER_DELIVERY_ADDRESS_ERROR';
+export const SET_DELIVERY_ADDRESS_REQUEST = 'app/SearchPage/SET_DELIVERY_ADDRESS_REQUEST';
+export const SET_DELIVERY_ADDRESS_SUCCESS = 'app/SearchPage/SET_DELIVERY_ADDRESS_SUCCESS';
+export const SET_DELIVERY_ADDRESS_ERROR = 'app/SearchPage/SET_DELIVERY_ADDRESS_ERROR';
 
 // ================ Reducer ================ //
 
@@ -72,6 +72,36 @@ const listingPageReducer = (state = initialState, action = {}) => {
         ...state,
         activeListingId: payload,
       };
+    case SET_DELIVERY_ADDRESS_REQUEST:
+      return {
+        ...state,
+        settingDeliveryAddress: true,
+        setDeliveryAddressError: null,
+      };
+    case SET_DELIVERY_ADDRESS_SUCCESS:
+      return {
+        ...state,
+        settingDeliveryAddress: false,
+        currentUser: {
+          ...state.currentUser,
+          attributes: {
+            ...state.currentUser.attributes,
+            profile: {
+              ...state.currentUser.attributes.profile,
+              publicData: {
+                ...state.currentUser.attributes.profile.publicData,
+                deliveryAddress: action.payload.address,
+              },
+            },
+          },
+        },
+      };
+    case SET_DELIVERY_ADDRESS_ERROR:
+      return {
+        ...state,
+        settingDeliveryAddress: false,
+        setDeliveryAddressError: action.payload,
+      };
     default:
       return state;
   }
@@ -81,18 +111,17 @@ export default listingPageReducer;
 
 // ================ Action creators ================ //
 
-export const setBookingDeliveryAddress = deliveryAddress => ({
-  type: SET_CUSTOMER_DELIVERY_ADDRESS,
-  payload: { deliveryAddress },
+export const setDeliveryAddressRequest = address => ({
+  type: SET_DELIVERY_ADDRESS_REQUEST,
+  payload: { address },
 });
 
-export const setBookingDeliveryAddressSuccess = deliveryAddress => ({
-  type: SET_CUSTOMER_DELIVERY_ADDRESS_SUCCESS,
-  payload: { deliveryAddress },
+export const setDeliveryAddressSuccess = () => ({
+  type: SET_DELIVERY_ADDRESS_SUCCESS,
 });
 
-export const setBookingDeliveryAddressError = e => ({
-  type: SET_CUSTOMER_DELIVERY_ADDRESS_ERROR,
+export const setDeliveryAddressError = e => ({
+  type: SET_DELIVERY_ADDRESS_ERROR,
   error: true,
   payload: e,
 });
@@ -113,8 +142,27 @@ export const searchListingsError = e => ({
   payload: e,
 });
 
-export const setDeliveryAddress = (deliveryAddress) => (dispatch, getState, sdk) => {
-  dispatch(setBookingDeliveryAddress(deliveryAddress));
+// ================ Thunk ================ //
+
+export const setDeliveryAddress = address => (dispatch, getState, sdk) => {
+  dispatch(setDeliveryAddressRequest(address));
+  // Make API call to update the user's delivery address
+
+  return sdk.currentUser
+    .updateProfile(
+      {
+        publicData: {
+          deliveryAddress: address,
+        },
+      },
+      { expand: true }
+    )
+    .then(() => {
+      dispatch(setDeliveryAddressSuccess());
+    })
+    .catch(e => {
+      dispatch(setDeliveryAddressError(storableError(e)));
+    });
 };
 
 export const searchListings = (searchParams, config) => (dispatch, getState, sdk) => {
@@ -250,14 +298,14 @@ export const searchListings = (searchParams, config) => (dispatch, getState, sdk
     });
 };
 
+export const loadDeliveryAddressData = () => (address) => {
+  return setDeliveryAddress(address);
+};
+
 export const setActiveListing = listingId => ({
   type: SEARCH_MAP_SET_ACTIVE_LISTING,
   payload: listingId,
 });
-
-export const loadDeliveryAddressData = () => (address) => {
-  return setDeliveryAddress(address);
-};
 
 export const loadData = (params, search, config) => {
   const queryParams = parse(search, {

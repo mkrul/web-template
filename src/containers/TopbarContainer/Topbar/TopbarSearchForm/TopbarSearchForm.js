@@ -1,7 +1,9 @@
 import React, { Component } from 'react';
+import { connect } from 'react-redux';
 import { bool, func, object, string } from 'prop-types';
 import { Form as FinalForm, Field } from 'react-final-form';
 import classNames from 'classnames';
+import { setDeliveryAddress } from '../../../SearchPage/SearchPage.duck';
 
 import { intlShape, injectIntl } from '../../../../util/reactIntl';
 import { isMainSearchTypeKeywords } from '../../../../util/search';
@@ -97,13 +99,17 @@ class TopbarSearchFormComponent extends Component {
     };
   }
 
+
   onChange(location) {
-    const { appConfig, onSubmit } = this.props;
+    const { appConfig, onSubmit, dispatch } = this.props;
     if (!isMainSearchTypeKeywords(appConfig) && location.selectedPlace) {
       // Note that we use `onSubmit` instead of the conventional
       // `handleSubmit` prop for submitting. We want to autosubmit
       // when a place is selected, and don't require any extra
-      // validations for the form.
+      // validations for the form.)
+
+      dispatch(setDeliveryAddress(location.selectedPlace));
+
       onSubmit({ location });
       // blur search input to hide software keyboard
       this.searchInput?.blur();
@@ -189,11 +195,14 @@ TopbarSearchFormComponent.propTypes = {
   onSubmit: func.isRequired,
   isMobile: bool,
   appConfig: object.isRequired,
-
   // from injectIntl
   intl: intlShape.isRequired,
 };
 
-const TopbarSearchForm = injectIntl(TopbarSearchFormComponent);
+const mapStateToProps = state => ({
+  deliveryAddress: state.SearchPage.deliveryAddress,
+});
+
+const TopbarSearchForm = injectIntl(connect(mapStateToProps)(TopbarSearchFormComponent));
 
 export default TopbarSearchForm;
