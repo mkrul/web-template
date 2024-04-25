@@ -10,6 +10,10 @@ import { util as sdkUtil } from '../util/sdkLoader';
 
 // ================ Action types ================ //
 
+//Added new action type
+export const UPDATE_CURRENT_USER_DELIVERY_ADDRESS =
+  'app/user/UPDATE_CURRENT_USER_DELIVERY_ADDRESS';
+
 export const CURRENT_USER_SHOW_REQUEST = 'app/user/CURRENT_USER_SHOW_REQUEST';
 export const CURRENT_USER_SHOW_SUCCESS = 'app/user/CURRENT_USER_SHOW_SUCCESS';
 export const CURRENT_USER_SHOW_ERROR = 'app/user/CURRENT_USER_SHOW_ERROR';
@@ -34,16 +38,21 @@ export const FETCH_CURRENT_USER_HAS_ORDERS_REQUEST =
   'app/user/FETCH_CURRENT_USER_HAS_ORDERS_REQUEST';
 export const FETCH_CURRENT_USER_HAS_ORDERS_SUCCESS =
   'app/user/FETCH_CURRENT_USER_HAS_ORDERS_SUCCESS';
-export const FETCH_CURRENT_USER_HAS_ORDERS_ERROR = 'app/user/FETCH_CURRENT_USER_HAS_ORDERS_ERROR';
+export const FETCH_CURRENT_USER_HAS_ORDERS_ERROR =
+  'app/user/FETCH_CURRENT_USER_HAS_ORDERS_ERROR';
 
-export const SEND_VERIFICATION_EMAIL_REQUEST = 'app/user/SEND_VERIFICATION_EMAIL_REQUEST';
-export const SEND_VERIFICATION_EMAIL_SUCCESS = 'app/user/SEND_VERIFICATION_EMAIL_SUCCESS';
-export const SEND_VERIFICATION_EMAIL_ERROR = 'app/user/SEND_VERIFICATION_EMAIL_ERROR';
+export const SEND_VERIFICATION_EMAIL_REQUEST =
+  'app/user/SEND_VERIFICATION_EMAIL_REQUEST';
+export const SEND_VERIFICATION_EMAIL_SUCCESS =
+  'app/user/SEND_VERIFICATION_EMAIL_SUCCESS';
+export const SEND_VERIFICATION_EMAIL_ERROR =
+  'app/user/SEND_VERIFICATION_EMAIL_ERROR';
 
 // ================ Reducer ================ //
 
 const mergeCurrentUser = (oldCurrentUser, newCurrentUser) => {
-  const { id: oId, type: oType, attributes: oAttr, ...oldRelationships } = oldCurrentUser || {};
+  const { id: oId, type: oType, attributes: oAttr, ...oldRelationships } =
+    oldCurrentUser || {};
   const { id, type, attributes, ...relationships } = newCurrentUser || {};
 
   // Passing null will remove currentUser entity.
@@ -72,10 +81,33 @@ const initialState = {
 export default function reducer(state = initialState, action = {}) {
   const { type, payload } = action;
   switch (type) {
+    // Added new update current user delivery address case
+    case UPDATE_CURRENT_USER_DELIVERY_ADDRESS:
+      console.log(payload);
+      return {
+        ...state,
+        currentUser: {
+          ...state.currentUser,
+          attributes: {
+            ...state.currentUser.attributes,
+            profile: {
+              ...state.currentUser.attributes.profile,
+              publicData: {
+                ...state.currentUser.attributes.profile.publicData,
+                deliveryAddress: action.payload.address,
+              },
+            },
+          },
+        },
+      };
+
     case CURRENT_USER_SHOW_REQUEST:
       return { ...state, currentUserShowError: null };
     case CURRENT_USER_SHOW_SUCCESS:
-      return { ...state, currentUser: mergeCurrentUser(state.currentUser, payload) };
+      return {
+        ...state,
+        currentUser: mergeCurrentUser(state.currentUser, payload),
+      };
     case CURRENT_USER_SHOW_ERROR:
       // eslint-disable-next-line no-console
       console.error(payload);
@@ -103,7 +135,10 @@ export default function reducer(state = initialState, action = {}) {
     case FETCH_CURRENT_USER_NOTIFICATIONS_REQUEST:
       return { ...state, currentUserNotificationCountError: null };
     case FETCH_CURRENT_USER_NOTIFICATIONS_SUCCESS:
-      return { ...state, currentUserNotificationCount: payload.transactions.length };
+      return {
+        ...state,
+        currentUserNotificationCount: payload.transactions.length,
+      };
     case FETCH_CURRENT_USER_NOTIFICATIONS_ERROR:
       console.error(payload); // eslint-disable-line
       return { ...state, currentUserNotificationCountError: payload };
@@ -157,7 +192,15 @@ export const verificationSendingInProgress = state => {
 
 // ================ Action creators ================ //
 
-export const currentUserShowRequest = () => ({ type: CURRENT_USER_SHOW_REQUEST });
+// Added new action creator
+export const updateCurrentUserDeliveryAddress = newAddress => ({
+  type: UPDATE_CURRENT_USER_DELIVERY_ADDRESS,
+  payload: newAddress,
+});
+
+export const currentUserShowRequest = () => ({
+  type: CURRENT_USER_SHOW_REQUEST,
+});
 
 export const currentUserShowSuccess = user => ({
   type: CURRENT_USER_SHOW_SUCCESS,
@@ -256,7 +299,8 @@ export const fetchCurrentUserHasListings = () => (dispatch, getState, sdk) => {
 
       const hasPublishedListings =
         hasListings &&
-        ensureOwnListing(response.data.data[0]).attributes.state !== LISTING_STATE_DRAFT;
+        ensureOwnListing(response.data.data[0]).attributes.state !==
+          LISTING_STATE_DRAFT;
       dispatch(fetchCurrentUserHasListingsSuccess(!!hasPublishedListings));
     })
     .catch(e => dispatch(fetchCurrentUserHasListingsError(storableError(e))));
@@ -288,7 +332,11 @@ export const fetchCurrentUserHasOrders = () => (dispatch, getState, sdk) => {
 // Notificaiton page size is max (100 items on page)
 const NOTIFICATION_PAGE_SIZE = 100;
 
-export const fetchCurrentUserNotifications = () => (dispatch, getState, sdk) => {
+export const fetchCurrentUserNotifications = () => (
+  dispatch,
+  getState,
+  sdk
+) => {
   const transitionsNeedingAttention = getTransitionsNeedingProviderAttention();
   if (transitionsNeedingAttention.length === 0) {
     // Don't update state, if there's no need to draw user's attention after last transitions.
@@ -312,7 +360,11 @@ export const fetchCurrentUserNotifications = () => (dispatch, getState, sdk) => 
     .catch(e => dispatch(fetchCurrentUserNotificationsError(storableError(e))));
 };
 
-export const fetchCurrentUser = (params = null) => (dispatch, getState, sdk) => {
+export const fetchCurrentUser = (params = null) => (
+  dispatch,
+  getState,
+  sdk
+) => {
   dispatch(currentUserShowRequest());
   const { isAuthenticated } = getState().auth;
 
@@ -347,7 +399,9 @@ export const fetchCurrentUser = (params = null) => (dispatch, getState, sdk) => 
     .then(response => {
       const entities = denormalisedResponseEntities(response);
       if (entities.length !== 1) {
-        throw new Error('Expected a resource in the sdk.currentUser.show response');
+        throw new Error(
+          'Expected a resource in the sdk.currentUser.show response'
+        );
       }
       const currentUser = entities[0];
 
@@ -381,7 +435,9 @@ export const fetchCurrentUser = (params = null) => (dispatch, getState, sdk) => 
 
 export const sendVerificationEmail = () => (dispatch, getState, sdk) => {
   if (verificationSendingInProgress(getState())) {
-    return Promise.reject(new Error('Verification email sending already in progress'));
+    return Promise.reject(
+      new Error('Verification email sending already in progress')
+    );
   }
   dispatch(sendVerificationEmailRequest());
   return sdk.currentUser

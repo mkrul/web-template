@@ -12,6 +12,7 @@ import { createImageVariantConfig } from '../../util/sdkLoader';
 import { isOriginInUse, isStockInUse } from '../../util/search';
 import { parse } from '../../util/urlHelpers';
 import { addMarketplaceEntities } from '../../ducks/marketplaceData.duck';
+import { updateCurrentUserDeliveryAddress } from '../../ducks/user.duck';
 
 // Pagination page size might need to be dynamic on responsive page layouts
 // Current design has max 3 columns 12 is divisible by 2 and 3
@@ -24,15 +25,22 @@ export const SEARCH_LISTINGS_REQUEST = 'app/SearchPage/SEARCH_LISTINGS_REQUEST';
 export const SEARCH_LISTINGS_SUCCESS = 'app/SearchPage/SEARCH_LISTINGS_SUCCESS';
 export const SEARCH_LISTINGS_ERROR = 'app/SearchPage/SEARCH_LISTINGS_ERROR';
 
-export const SEARCH_MAP_LISTINGS_REQUEST = 'app/SearchPage/SEARCH_MAP_LISTINGS_REQUEST';
-export const SEARCH_MAP_LISTINGS_SUCCESS = 'app/SearchPage/SEARCH_MAP_LISTINGS_SUCCESS';
-export const SEARCH_MAP_LISTINGS_ERROR = 'app/SearchPage/SEARCH_MAP_LISTINGS_ERROR';
+export const SEARCH_MAP_LISTINGS_REQUEST =
+  'app/SearchPage/SEARCH_MAP_LISTINGS_REQUEST';
+export const SEARCH_MAP_LISTINGS_SUCCESS =
+  'app/SearchPage/SEARCH_MAP_LISTINGS_SUCCESS';
+export const SEARCH_MAP_LISTINGS_ERROR =
+  'app/SearchPage/SEARCH_MAP_LISTINGS_ERROR';
 
-export const SEARCH_MAP_SET_ACTIVE_LISTING = 'app/SearchPage/SEARCH_MAP_SET_ACTIVE_LISTING';
+export const SEARCH_MAP_SET_ACTIVE_LISTING =
+  'app/SearchPage/SEARCH_MAP_SET_ACTIVE_LISTING';
 
-export const SET_DELIVERY_ADDRESS_REQUEST = 'app/SearchPage/SET_DELIVERY_ADDRESS_REQUEST';
-export const SET_DELIVERY_ADDRESS_SUCCESS = 'app/SearchPage/SET_DELIVERY_ADDRESS_SUCCESS';
-export const SET_DELIVERY_ADDRESS_ERROR = 'app/SearchPage/SET_DELIVERY_ADDRESS_ERROR';
+export const SET_DELIVERY_ADDRESS_REQUEST =
+  'app/SearchPage/SET_DELIVERY_ADDRESS_REQUEST';
+export const SET_DELIVERY_ADDRESS_SUCCESS =
+  'app/SearchPage/SET_DELIVERY_ADDRESS_SUCCESS';
+export const SET_DELIVERY_ADDRESS_ERROR =
+  'app/SearchPage/SET_DELIVERY_ADDRESS_ERROR';
 
 // ================ Reducer ================ //
 
@@ -66,7 +74,11 @@ const listingPageReducer = (state = initialState, action = {}) => {
       };
     case SEARCH_LISTINGS_ERROR:
       // eslint-disable-next-line no-console
-      return { ...state, searchInProgress: false, searchListingsError: payload };
+      return {
+        ...state,
+        searchInProgress: false,
+        searchListingsError: payload,
+      };
     case SEARCH_MAP_SET_ACTIVE_LISTING:
       return {
         ...state,
@@ -82,19 +94,6 @@ const listingPageReducer = (state = initialState, action = {}) => {
       return {
         ...state,
         settingDeliveryAddress: false,
-        currentUser: {
-          ...state.currentUser,
-          attributes: {
-            ...state.currentUser.attributes,
-            profile: {
-              ...state.currentUser.attributes.profile,
-              publicData: {
-                ...state.currentUser.attributes.profile.publicData,
-                deliveryAddress: action.payload.address,
-              },
-            },
-          },
-        },
       };
     case SET_DELIVERY_ADDRESS_ERROR:
       return {
@@ -159,13 +158,19 @@ export const setDeliveryAddress = address => (dispatch, getState, sdk) => {
     )
     .then(() => {
       dispatch(setDeliveryAddressSuccess());
+      dispatch(updateCurrentUserDeliveryAddress(address));
     })
     .catch(e => {
+      console.log('error', e);
       dispatch(setDeliveryAddressError(storableError(e)));
     });
 };
 
-export const searchListings = (searchParams, config) => (dispatch, getState, sdk) => {
+export const searchListings = (searchParams, config) => (
+  dispatch,
+  getState,
+  sdk
+) => {
   dispatch(searchListingsRequest(searchParams));
   // SearchPage can enforce listing query to only those listings with valid listingType
   // NOTE: this only works if you have set 'enum' type search schema to listing's public data fields
@@ -187,7 +192,8 @@ export const searchListings = (searchParams, config) => (dispatch, getState, sdk
   };
 
   const priceSearchParams = priceParam => {
-    const inSubunits = value => convertUnitToSubUnit(value, unitDivisor(config.currency));
+    const inSubunits = value =>
+      convertUnitToSubUnit(value, unitDivisor(config.currency));
     const values = priceParam ? priceParam.split(',') : [];
     return priceParam && values.length === 2
       ? {
@@ -198,7 +204,9 @@ export const searchListings = (searchParams, config) => (dispatch, getState, sdk
 
   const datesSearchParams = datesParam => {
     const searchTZ = 'Etc/UTC';
-    const datesFilter = config.search.defaultFilters.find(f => f.key === 'dates');
+    const datesFilter = config.search.defaultFilters.find(
+      f => f.key === 'dates'
+    );
     const values = datesParam ? datesParam.split(',') : [];
     const hasValues = datesFilter && datesParam && values.length === 2;
     const { dateRangeMode, availability } = datesFilter || {};
@@ -217,7 +225,9 @@ export const searchListings = (searchParams, config) => (dispatch, getState, sdk
     const getProlongedStart = date => subtractTime(date, 14, 'hours', searchTZ);
     const getProlongedEnd = date => addTime(date, 12, 'hours', searchTZ);
 
-    const startDate = hasValues ? parseDateFromISO8601(values[0], searchTZ) : null;
+    const startDate = hasValues
+      ? parseDateFromISO8601(values[0], searchTZ)
+      : null;
     const endRaw = hasValues ? parseDateFromISO8601(values[1], searchTZ) : null;
     const endDate =
       hasValues && isNightlyMode
@@ -233,7 +243,9 @@ export const searchListings = (searchParams, config) => (dispatch, getState, sdk
       startDate.getTime() >= possibleStartDate.getTime() &&
       startDate.getTime() <= endDate.getTime();
 
-    const dayCount = isEntireRangeAvailable ? daysBetween(startDate, endDate) : 1;
+    const dayCount = isEntireRangeAvailable
+      ? daysBetween(startDate, endDate)
+      : 1;
     const day = 1440;
     const hour = 60;
     // When entire range is required to be available, we count minutes of included date range,
@@ -263,14 +275,17 @@ export const searchListings = (searchParams, config) => (dispatch, getState, sdk
     //   2) Add relaxed stockMode: "match-undefined"
     // The latter is used to filter out all the listings that explicitly are out of stock,
     // but keeps bookable and inquiry listings.
-    return hasDatesFilterInUse ? {} : { minStock: 1, stockMode: 'match-undefined' };
+    return hasDatesFilterInUse
+      ? {}
+      : { minStock: 1, stockMode: 'match-undefined' };
   };
 
   const { perPage, price, dates, sort, ...rest } = searchParams;
   const priceMaybe = priceSearchParams(price);
   const datesMaybe = datesSearchParams(dates);
   const stockMaybe = stockFilters(datesMaybe);
-  const sortMaybe = sort === config.search.sortConfig.relevanceKey ? {} : { sort };
+  const sortMaybe =
+    sort === config.search.sortConfig.relevanceKey ? {} : { sort };
 
   const params = {
     ...rest,
@@ -298,7 +313,7 @@ export const searchListings = (searchParams, config) => (dispatch, getState, sdk
     });
 };
 
-export const loadDeliveryAddressData = () => (address) => {
+export const loadDeliveryAddressData = () => address => {
   return setDeliveryAddress(address);
 };
 
