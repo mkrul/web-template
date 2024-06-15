@@ -14,6 +14,192 @@ way to update this template, but currently, we follow a pattern:
 
 ## Upcoming version 2024-XX-XX
 
+- [change] Fix a typo in FR translations.
+  [#407](https://github.com/sharetribe/web-template/pull/407)
+- [add] Add currently available translations for de, es, fr.
+  [#404](https://github.com/sharetribe/web-template/pull/404)
+- [fix] The example files of SignupForm and ConfirmSignupForm had wrong data.
+  [#403](https://github.com/sharetribe/web-template/pull/403)
+- [change] FilterComponent: relax generated name-attribute for inputs: allow camelCase.
+  [#402](https://github.com/sharetribe/web-template/pull/402)
+
+## [v5.2.0] 2024-05-28
+
+- [add] add currently available translations for de, es, fr.
+  [#400](https://github.com/sharetribe/web-template/pull/400)
+- [add] This adds user types. User fields can be tied to user types
+
+  - User fields contain multiple default user fields
+    - Only displayName and phoneNumber can be toggle on/off
+      - You can also toggle wether those are shown on sign up forms.
+  - Custom user fields can be tied to user types.
+  - AuthenticationPage: SignupForm and ConfirmSignupForm show a dropdown to select user type if it's
+    not preselected
+    - Default
+  - New route **_SignupForUserTypePage_** with path `/signup/:userType`
+    - This route preselects one user type for the sign up forms.
+    - If preselected userType is there (`/signup/:userType`), then
+      - Dropdown selector is not shown.
+      - Toggling between login & signup tabs should keep the userType in memory
+      - Using SSO, saves the preselected user type to a temporary cookie (to be used in
+        ConfirmSignupForm after returning from ID provider's website)
+    - An unknown (e.g. outdated) userType in the route will show 404 page.
+
+  [#399](https://github.com/sharetribe/web-template/pull/399)
+
+- [add] Toggle the visibility of unselected options on SectionMultiEnumMaybe through hosted assets.
+  [#382](https://github.com/sharetribe/web-template/pull/382)
+- [fix] Update SDK to v1.21.1. Fixes bug with extended data with a key `length` and a number type
+  value. [#398](https://github.com/sharetribe/web-template/pull/398)
+- [fix] util/sanitize.js: handle publicData = null case which happens with banned user
+  [#397](https://github.com/sharetribe/web-template/pull/397)
+- [fix] en.json: typo on 'ModalMissingInformation.verifyEmailText'
+  [#396](https://github.com/sharetribe/web-template/pull/396)
+- [fix] Ensure that there is listingType, transactionProcessAlias and unitType defined.
+  [#394](https://github.com/sharetribe/web-template/pull/394)
+- [fix] en.json: typo on 'StripeConnectAccountForm.stripeToSText'
+  [#395](https://github.com/sharetribe/web-template/pull/395)
+- [change] StripeConnectAccount: use 'collectionOptions' instead of deprecated 'collect'. The
+  future_requirements uses 'include' by default.
+  [#392](https://github.com/sharetribe/web-template/pull/392)
+- [fix] mergeDefaultTypesAndFieldsForDebugging was set to true, which is wrong. The 0 handling with
+  min and max was wrong. [#393](https://github.com/sharetribe/web-template/pull/393)
+
+  [v5.2.0]: https://github.com/sharetribe/web-template/compare/v5.1.0...v5.2.0
+
+## [v5.1.0] 2024-05-21
+
+- [add] support for extended data fields with type `long`
+  [#364](https://github.com/sharetribe/web-template/pull/364)
+- [change] the login-as feature has changed:
+
+  - Use `sdk.loginAs` instead of `sdk.login`, which is deprecated for this purpose
+  - Use `authInfo.isLoggedInAs` instead of relying on auth token's `scope` to determine if current
+    session is operator user logged in as marketplace user.
+  - Note: when taking update from upstream, check also commit be7e2b9b4.
+
+  [#386](https://github.com/sharetribe/web-template/pull/386)
+
+- [fix] the email template for default-purchase process
+  (purchase-order-canceled-from-disputed-provider-html.html) contained copy-paste related typo.
+  [#390](https://github.com/sharetribe/web-template/pull/389)
+- [add] Autolink text on the UI. Those links must start with 'http' to be recognized.
+
+  - ListingPage > Listing's description
+  - ListingPage > Listing fields with schema type ‘text’
+  - ListingPage > User's bio on <UserCard>
+  - ProfilePage > User's bio
+  - ProfilePage > User fields with schema type ‘text’
+  - TransactionPage > Messages
+  - TransactionPage > inquiryMessage
+
+  [#385](https://github.com/sharetribe/web-template/pull/385)
+
+- [change] handle listings with draft and pending-approval state with login-as feature.
+  [#387](https://github.com/sharetribe/web-template/pull/387)
+- [Add] Get the color of the PrimeryButton from branding asset.
+  [#379](https://github.com/sharetribe/web-template/pull/379)
+- [change] Add preview resolution for listing in PreviewResolverPage
+  [#384](https://github.com/sharetribe/web-template/pull/384)
+- [add] Support for a target path parameter (target_path) in the login as user functionality
+  [#383](https://github.com/sharetribe/web-template/pull/383)
+- [change] listingMinimumPriceSubUnits: update code comments (0 is not valid value in hosted asset).
+  [#381](https://github.com/sharetribe/web-template/pull/381)
+- [fix] Styleguide shows multiple versions of some components. The 'id' attributes need to be
+  unique. [#380](https://github.com/sharetribe/web-template/pull/380)
+- [change] Update SDK to v1.21.0 [#386](https://github.com/sharetribe/web-template/pull/386)
+
+  [v5.1.0]: https://github.com/sharetribe/web-template/compare/v5.0.1...v5.1.0
+
+## [v5.0.1] 2024-04-30
+
+- [fix] Fix: currentUser was not passed to billing details, which resulted email address missing on
+  Stripe side. [#377](https://github.com/sharetribe/web-template/pull/377)
+- [fix] currentUserHasListings info. This is an old bug that emerged when we introduced draft status
+  to listing. The fetched listing might not be a published one but a draft listing. The ownListings
+  API endpoint is not queryable to get only published listings but luckily we have introduced
+  authorId filter to listings end point later on.
+  [#376](https://github.com/sharetribe/web-template/pull/376)
+- [add] Update translations for de.json, es.json, and fr.json.
+  [#374](https://github.com/sharetribe/web-template/pull/374)
+- [change] Update one copy text. [#373](https://github.com/sharetribe/web-template/pull/373)
+- [change] EditListingDetailsForm: pass categoryLevel as argument to translations.
+  [#372](https://github.com/sharetribe/web-template/pull/372)
+- [fix] Fix: when changing categories, clear previously saved ones
+  [#371](https://github.com/sharetribe/web-template/pull/371)
+- [fix] util/search.js: fix pickInitialValuesForFieldSelectTree.
+  [#369](https://github.com/sharetribe/web-template/pull/369)
+
+  [v5.0.1]: https://github.com/sharetribe/web-template/compare/v5.0.0...v5.0.1
+
+## [v5.0.0] 2024-04-23
+
+This major release prepares the codebase for the new concepts: user fields and categories. The
+biggest changes are on PRs: #314 and #337.
+
+Note: We will also introduce user types later on, but that concept might still change a bit from
+what we have in this release.
+
+- [add] Add support for hosted category configuration
+
+  - Prepare for a future asset: listing-categories.json
+  - Prepare for a future changes to assets: listing-search.json and listing-fields.json
+  - Collect (nested) category info on EditListingDetailsPanel
+    - Saved to publicData as categoryLevel1, categoryLelvel2, categoryLevel3.
+    - Allow listing fields to be limited to categories in addition to listing types.
+  - Show listing fields on the ListingPage (category restrictions apply)
+  - Show category filter on the SearchPage
+  - Show listing fields on the SearchPage if category restrictions allow
+
+  [#314](https://github.com/sharetribe/web-template/pull/314)
+
+- [change] Fix a typo in translation keys.
+  [#365](https://github.com/sharetribe/web-template/pull/365)
+- [change] Update browserlist-db aka caniuse-lite.
+  [#363](https://github.com/sharetribe/web-template/pull/363)
+- [change] Update moment-timezone library to v0.5.45
+  [#362](https://github.com/sharetribe/web-template/pull/362)
+- [add] Update translations for de.json, es.json, and fr.json.
+  [#361](https://github.com/sharetribe/web-template/pull/361)
+- [add] Add support for user fields, which will be released later as a new hosted asset.
+
+  - The hosted asset will support enums, multi-enums, and text fields in the same manner as listing
+    fields.
+  - User fields will be stored in public data at this point.
+  - The ProfilePage will display these fields by default.
+  - The ProfileSettingsPage is the default location for adding or editing user fields.
+  - The AuthenticationPage (SignupForm and ConfirmSignupForm) can also collect user field data.
+
+  [#337](https://github.com/sharetribe/web-template/pull/337)
+
+- [change] Update Node.js version to >= 18.20.1 (engine) 20.12.1 (circleci)
+  [#360](https://github.com/sharetribe/web-template/pull/360)
+- [change] formatMoney should use correct formattingOptions (JPY gets correct formatting)
+  [#356](https://github.com/sharetribe/web-template/pull/356)
+- [change] Twitter's brand and logo has changed to X.
+  [#355](https://github.com/sharetribe/web-template/pull/355)
+- [fix] Verify that browser's clock is not more than a minute out of sync.
+  [#354](https://github.com/sharetribe/web-template/pull/354)
+- [change] configStripe.js: update code-comment for dayCountAvailableForBooking.
+  [#352](https://github.com/sharetribe/web-template/pull/352)
+- [add] Add a readme for the Topbar component
+  [#353](https://github.com/sharetribe/web-template/pull/353)
+- [fix] Some email templates were not using the correct helper to format currencies and dates based
+  on localization. [#351](https://github.com/sharetribe/web-template/pull/351)
+
+  [v5.0.0]: https://github.com/sharetribe/web-template/compare/v4.1.2...v5.0.0
+
+## [v4.1.2] 2024-03-26
+
+- [fix] SSO signups didn't show hosted Terms & Privacy policy assets due to missing loadData.
+  [#349](https://github.com/sharetribe/web-template/pull/349)
+- [fix] Input inside sticky element caused scroll effect on keystrokes, when scroll-padding was
+  used. [#347](https://github.com/sharetribe/web-template/pull/347)
+- [fix] KeywordsFilter: add missing attribute: htmlFor
+  [#343](https://github.com/sharetribe/web-template/pull/343)
+
+  [v4.1.2]: https://github.com/sharetribe/web-template/compare/v4.1.1...v4.1.2
+
 ## [v4.1.1] 2024-03-13
 
 - [fix] configDefault.js: fix Fb & twitter examples.

@@ -5,6 +5,7 @@ import * as maps from './configMaps';
 import * as branding from './configBranding';
 import * as layout from './configLayout';
 import * as analytics from './configAnalytics';
+import * as user from './configUser';
 
 // NOTE: only expose configuration that should be visible in the
 // client side, don't add any server secrets to this file.
@@ -22,10 +23,13 @@ const defaultConfig = {
   currency: 'USD',
 
   // Listing minimum price in currency sub units, e.g. cents.
-  // 0 means no restriction to the price
-  // Note 1: The listingMinimumPriceSubUnits comes from transactionSize asset nowadays by default.
-  //         To use this built-in configuration, you need to remove the overwrite from configHelper.js (mergeConfig func)
-  // Note 2: Stripe does have minimum fee that depends on country, currency, etc.
+  // By default, always try to take the value of listingMinimumPriceSubUnits from the transaction-size.json asset.
+  // - If there is no value, we use the value set on this file for listingMinimumPriceSubUnits
+  // - If the value is 0, we use the value set on this file for listingMinimumPriceSubUnits
+  //   This is due to backward compatibility
+  // Note 1: 0 means no restriction to the price (Currently, Console won't show it.)
+  // Note 2: To use only this built-in configuration, you need to remove the overwrite from configHelper.js (mergeConfig func)
+  // Note 3: Stripe does have a minimum fee that depends on country, currency, etc!
   listingMinimumPriceSubUnits: 500,
 
   // Marketplace name is needed for microcopy (aka marketplace texts) and in meta tags (bots and social media sharing reads those)
@@ -41,6 +45,8 @@ const defaultConfig = {
 
   // Modify listing extended data and listing type in configListing.js
   listing,
+
+  user,
   // Modify search settings data in configSearch.js
   search,
   // Modify settings for map providers in configMaps.js
@@ -93,11 +99,14 @@ const defaultConfig = {
     analytics: '/integrations/analytics.json',
     googleSearchConsole: '/integrations/google-search-console.json',
     maps: '/integrations/map.json',
+    categories: '/listings/listing-categories.json',
     // These assets are not yet editable through Console.
     // However, Sharetribe onboarding might generate them.
     // You could still rely on built-in variables and comment these out.
     localization: '/general/localization.json',
     // NOTE: we don't fetch commission configuration here but on the server-side
+    userTypes: '/users/user-types.json',
+    userFields: '/users/user-fields.json',
   },
 
   // Optional
