@@ -133,7 +133,7 @@
     ]
   },
   "engines": {
-    "node": ">=18.20.1"
+    "node": ">=18.18.2"
   },
   "prettier": {
     "singleQuote": true,
