@@ -224,7 +224,7 @@ export const initiateOrder = (
     expand: true,
   };
 
-  const handleSucces = response => {
+  const handleSuccess = response => {
     const entities = denormalisedResponseEntities(response);
     const order = entities[0];
     dispatch(initiateOrderSuccess(order));
@@ -248,24 +248,24 @@ export const initiateOrder = (
   if (isTransition && isPrivilegedTransition) {
     // transition privileged
     return transitionPrivileged({ isSpeculative: false, orderData, bodyParams, queryParams })
-      .then(handleSucces)
+      .then(handleSuccess)
       .catch(handleError);
   } else if (isTransition) {
     // transition non-privileged
     return sdk.transactions
       .transition(bodyParams, queryParams)
-      .then(handleSucces)
+      .then(handleSuccess)
       .catch(handleError);
   } else if (isPrivilegedTransition) {
     // initiate privileged
     return initiatePrivileged({ isSpeculative: false, orderData, bodyParams, queryParams })
-      .then(handleSucces)
+      .then(handleSuccess)
       .catch(handleError);
   } else {
     // initiate non-privileged
     return sdk.transactions
       .initiate(bodyParams, queryParams)
-      .then(handleSucces)
+      .then(handleSuccess)
       .catch(handleError);
   }
 };
@@ -398,12 +398,21 @@ export const speculateTransaction = (
   // initiate.
   const isTransition = !!transactionId;
 
-  const { deliveryMethod, quantity, bookingDates, ...otherOrderParams } = orderParams;
+  const {
+    deliveryMethod,
+    priceVariantName,
+    quantity,
+    bookingDates,
+    ...otherOrderParams
+  } = orderParams;
   const quantityMaybe = quantity ? { stockReservationQuantity: quantity } : {};
   const bookingParamsMaybe = bookingDates || {};
 
   // Parameters only for client app's server
-  const orderData = deliveryMethod ? { deliveryMethod } : {};
+  const orderData = {
+    ...(deliveryMethod ? { deliveryMethod } : {}),
+    ...(priceVariantName ? { priceVariantName } : {}),
+  };
 
   // Parameters for Marketplace API
   const transitionParams = {
@@ -478,8 +487,14 @@ export const speculateTransaction = (
 // We need to fetch currentUser with correct params to include relationship
 export const stripeCustomer = () => (dispatch, getState, sdk) => {
   dispatch(stripeCustomerRequest());
+  const fetchCurrentUserOptions = {
+    callParams: { include: ['stripeCustomer.defaultPaymentMethod'] },
+    updateHasListings: false,
+    updateNotifications: false,
+    enforce: true,
+  };
 
-  return dispatch(fetchCurrentUser({ include: ['stripeCustomer.defaultPaymentMethod'] }))
+  return dispatch(fetchCurrentUser(fetchCurrentUserOptions))
     .then(response => {
       dispatch(stripeCustomerSuccess());
     })

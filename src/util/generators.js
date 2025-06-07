@@ -12,6 +12,8 @@ import {
 // The number returned by "new Date().getDay()" refers to day of week starting from sunday.
 const WEEKDAYS = ['sun', 'mon', 'tue', 'wed', 'thu', 'fri', 'sat'];
 
+const getMinutes = ms => Math.floor(ms / 60000);
+
 /**
  * Omit duplicates from given array according to function
  * that identifies relevant data.
@@ -120,11 +122,11 @@ export const availableRanges = (start, end, exceptions) => {
 /**
  *
  * @param {Date} start of generated Date objects
- * @param {string} unit unit that moment library understands (e.g. 'day')
- * @param {string} timeZone IANA time zone key
- * @param {function} untilFn function to determine, when to stop generator.
- * @param {integer} step when the next yielded Date object should be pointing at.
- * @param {string} stepUnit step unit that moment library understands (e.g. 'days')
+ * @param {String} unit unit that moment library understands (e.g. 'day')
+ * @param {String} timeZone IANA time zone key
+ * @param {Function} untilFn function to determine, when to stop generator.
+ * @param {Integer} step when the next yielded Date object should be pointing at.
+ * @param {String} stepUnit step unit that moment library understands (e.g. 'days')
  */
 const timeUnitGenerator = function*(start, unit, timeZone, untilFn, step = 1, stepUnit = 'days') {
   let s = getStartOf(start, unit, timeZone);
@@ -168,7 +170,7 @@ export const generateMonths = (start, end, timeZone) => {
  * Curry function for 'map'. Connect all the available slots that touch a given day
  * into a new object that has form: { id: '2023-01-22', slots: [] }
  *
- * @param {Array<Objects>} availableSlots [{ start, end }]
+ * @param {Array<Object>} availableSlots [{ start, end }]
  * @param {String} timeZone IANA time zone key (e.g. "Europe/Helsinki")
  * @returns function that gets day and available slots with them
  */
@@ -468,6 +470,107 @@ export const availabilityPerDate = (start, end, plan, exceptions) => {
   return pipe(
     generateDates(s, e, timeZone),
     map(toAvailabilityPerDate(plan, exceptions, timeZone)),
+    toHashMap(x => [x.id, x])
+  );
+};
+
+/**
+ * Filter those timeSlots that touch the given date (00:00 - 23:59.999)
+ * @param {Array<Date>} dateRange array with start of date and end of date
+ * @param {Array<TimeSlot>} timeSlots
+ * @param {String} timeZone IANA time zone key (e.g. "Europe/Helsinki")
+ * @param {Number} minDurationStartingInDay minimum length of time slot. It needs to start in generated day
+ * @returns filtered list of time slots or an empty array
+ */
+const getTimeSlotsOnDate = (dateRange, timeSlots, timeZone, minDurationStartingInDay) => {
+  const [dayStart, dayEnd] = dateRange;
+  return timeSlots.filter(ts => {
+    const timeSlotRange = [ts.attributes.start, ts.attributes.end];
+
+    const inclusiveEndTime = end => new Date(end.getTime() - 1);
+    const dayStartInsideTimeSlot = isInRange(dayStart, ...timeSlotRange, undefined, timeZone);
+    const dayEndInsideTimeSlot = isInRange(
+      inclusiveEndTime(dayEnd),
+      ...timeSlotRange,
+      undefined,
+      timeZone
+    );
+    const dayIsInsideTimeSlot = dayStartInsideTimeSlot && dayEndInsideTimeSlot;
+
+    const timeSlotStartIsInsideDate = isInRange(ts.attributes.start, ...dateRange, timeZone);
+    const timeSlotEndIsInsideDate = isInRange(
+      inclusiveEndTime(ts.attributes.end),
+      ...dateRange,
+      timeZone
+    );
+
+    // Check if the time slot has enough duration to be considered
+    const startingInDay = timeSlotStartIsInsideDate ? timeSlotRange[0] : dayStart;
+    const hasEnoughDuration =
+      getMinutes(timeSlotRange[1] - startingInDay) >= minDurationStartingInDay;
+
+    // Pick slots that overlap with the 'day'.
+    const overlapsWithDay =
+      dayIsInsideTimeSlot || timeSlotStartIsInsideDate || timeSlotEndIsInsideDate;
+    return hasEnoughDuration && overlapsWithDay;
+  });
+};
+
+/**
+ * Curry function that creates data for any "day" Date that the returned function gets.
+ * Returned info: { id: "2023-01-01", timeSlots, hasAvailability }
+ *
+ * @param {Array<TimeSlot>} timeSlots
+ * @param {String} timeZone IANA time zone key (e.g. "Europe/Helsinki")
+ * @param {Number} minSeats timeSlot should have at least this many seats available
+ * @param {Number} minDurationStartingInDay minimum length of time slot. It needs to start in generated day
+ * @returns info of time slots relavant to the given "day" and seats-ranges inside it
+ */
+const toTimeSlotsPerDate = (timeSlots, timeZone, minSeats = 1, minDurationStartingInDay) => day => {
+  const entries = Array.isArray(timeSlots)
+    ? timeSlots.filter(ts => ts.attributes.seats >= minSeats)
+    : [];
+  const dayStart = getStartOf(day, 'day', timeZone);
+  const dayEnd = getStartOf(day, 'day', timeZone, 1, 'day');
+  const dateRange = [dayStart, dayEnd];
+  const timeSlotsOnDate = getTimeSlotsOnDate(
+    dateRange,
+    entries,
+    timeZone,
+    minDurationStartingInDay
+  );
+
+  return {
+    id: stringifyDateToISO8601(day, timeZone), // "2022-12-24"
+    timeSlots: timeSlotsOnDate,
+    hasAvailability: timeSlotsOnDate.length > 0,
+  };
+};
+
+/**
+ * Generates a hashmap of date infos, where each date contains
+ * - *id* (date id string in ISO 8601 format)
+ * - *timeSlots* that touch the date
+ * - *hasAvailability* (boolean) if there are timeSlots on that day
+ *
+ * { "2023-01-01": { id: "2023-01-01", timeSlots, hasAvailability } }
+ *
+ * @param {Date} start of generated range of date infos
+ * @param {Date} end of generated range of date infos
+ * @param {Array<TimeSlot>} timeSlots
+ * @param {String} timeZone
+ * @param {Object} options
+ * @param {number} options.seats minimum number of seats available in time slot
+ * @param {number} options.minDurationStartingInDay minimum length of time slot. It needs to start in the given day
+ * @returns hashmap of date info grouped by date id (e.g. "2023-01-01" )
+ */
+export const timeSlotsPerDate = (start, end, timeSlots, timeZone, options) => {
+  const { seats = 1, minDurationStartingInDay = 5 } = options || {};
+  const s = getStartOf(start, 'day', timeZone);
+  const e = getStartOf(end, 'day', timeZone);
+  return pipe(
+    generateDates(s, e, timeZone),
+    map(toTimeSlotsPerDate(timeSlots, timeZone, seats, minDurationStartingInDay)),
     toHashMap(x => [x.id, x])
   );
 };

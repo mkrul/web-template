@@ -1,7 +1,6 @@
-import React from 'react';
+import React, { act } from 'react';
 import '@testing-library/jest-dom';
 import Decimal from 'decimal.js';
-import 'react-dates/initialize';
 
 import { types as sdkTypes } from '../../util/sdkLoader';
 import {
@@ -114,6 +113,7 @@ describe('TransactionPage', () => {
     onFetchTransactionLineItems: noop,
     nextTransitions: null,
     monthlyTimeSlots: {},
+    timeSlotsForDate: {},
     //transaction,
     //lineItems,
   };
@@ -160,7 +160,7 @@ describe('TransactionPage', () => {
       };
     });
 
-    test.each(purchases)('check purchase: $tr', ({ tr, tx, isReversal, isReceived }) => {
+    test.each(purchases)('check purchase: $tr', async ({ tr, tx, isReversal, isReceived }) => {
       const transactionRole = TX_TRANSITION_ACTOR_PROVIDER;
 
       const stateData = getStateData(
@@ -187,8 +187,9 @@ describe('TransactionPage', () => {
           id: tx.id?.uuid,
         },
       };
-
-      render(<TransactionPageComponent {...props} />);
+      await act(async () => {
+        render(<TransactionPageComponent {...props} />);
+      });
 
       const state = stateData.processState;
       const providerTitle = `TransactionPage.${processName}.${transactionRole}.${state}.title`;
@@ -299,7 +300,7 @@ describe('TransactionPage', () => {
       };
     });
 
-    test.each(purchases)('check purchase: $tr', ({ tr, tx, isReversal, isReceived }) => {
+    test.each(purchases)('check purchase: $tr', async ({ tr, tx, isReversal, isReceived }) => {
       const transactionRole = TX_TRANSITION_ACTOR_CUSTOMER;
       const isInquiry = tr === 'transition/inquire';
 
@@ -328,7 +329,9 @@ describe('TransactionPage', () => {
         },
       };
 
-      render(<TransactionPageComponent {...props} />);
+      await act(async () => {
+        render(<TransactionPageComponent {...props} />);
+      });
 
       const state = stateData.processState;
       const providerTitle = `TransactionPage.${processName}.${transactionRole}.${state}.title`;
@@ -457,7 +460,7 @@ describe('TransactionPage', () => {
       };
     });
 
-    test.each(bookings)('check booking: $tr', ({ tr, tx, isReversal, isReceived }) => {
+    test.each(bookings)('check booking: $tr', async ({ tr, tx, isReversal, isReceived }) => {
       const transactionRole = TX_TRANSITION_ACTOR_PROVIDER;
       const isInquiry = tr === 'transition/inquire';
 
@@ -486,7 +489,9 @@ describe('TransactionPage', () => {
         },
       };
 
-      render(<TransactionPageComponent {...props} />);
+      await act(async () => {
+        render(<TransactionPageComponent {...props} />);
+      });
 
       const state = stateData.processState;
       const txTitle = `TransactionPage.${processName}.${transactionRole}.${state}.title`;
@@ -625,7 +630,7 @@ describe('TransactionPage', () => {
       };
     });
 
-    test.each(bookings)('check booking: $tr', ({ tr, tx, isReversal, isReceived }) => {
+    test.each(bookings)('check booking: $tr', async ({ tr, tx, isReversal, isReceived }) => {
       const transactionRole = TX_TRANSITION_ACTOR_CUSTOMER;
       const isInquiry = tr === 'transition/inquire';
 
@@ -654,7 +659,9 @@ describe('TransactionPage', () => {
         },
       };
 
-      render(<TransactionPageComponent {...props} />);
+      await act(async () => {
+        render(<TransactionPageComponent {...props} />);
+      });
 
       const state = stateData.processState;
       const txTitle = `TransactionPage.${processName}.${transactionRole}.${state}.title`;
@@ -789,7 +796,7 @@ describe('TransactionPage', () => {
       };
     });
 
-    test.each(bookings)('check booking: $tr', ({ tr, tx, isReversal, isReceived }) => {
+    test.each(bookings)('check booking: $tr', async ({ tr, tx, isReversal, isReceived }) => {
       const transactionRole = TX_TRANSITION_ACTOR_PROVIDER;
       const isInquiry = tr === 'transition/inquire';
 
@@ -818,7 +825,9 @@ describe('TransactionPage', () => {
         },
       };
 
-      render(<TransactionPageComponent {...props} />);
+      await act(async () => {
+        render(<TransactionPageComponent {...props} />);
+      });
 
       const state = stateData.processState;
       const txTitle = `TransactionPage.${processName}.${transactionRole}.${state}.title`;
@@ -956,7 +965,7 @@ describe('TransactionPage', () => {
       };
     });
 
-    test.each(bookings)('check purchase: $tr', ({ tr, tx, isReversal, isReceived }) => {
+    test.each(bookings)('check purchase: $tr', async ({ tr, tx, isReversal, isReceived }) => {
       const transactionRole = TX_TRANSITION_ACTOR_CUSTOMER;
       const isInquiry = tr === 'transition/inquire';
 
@@ -985,7 +994,9 @@ describe('TransactionPage', () => {
         },
       };
 
-      render(<TransactionPageComponent {...props} />);
+      await act(async () => {
+        render(<TransactionPageComponent {...props} />);
+      });
 
       const state = stateData.processState;
       const txTitle = `TransactionPage.${processName}.${transactionRole}.${state}.title`;
@@ -1061,15 +1072,6 @@ describe('TransactionPage', () => {
   // With OrderPanel
   // NOTE: OrderPanel is code-splitted away. Due to async nature, it can't be tested with "test.each()"
   describe('Transaction process with OrderPanel', () => {
-    const originalWarn = console.warn.bind(console.warn);
-    beforeAll(() => {
-      console.warn = msg =>
-        !msg.toString().includes('componentWillReceiveProps') && originalWarn(msg);
-    });
-    afterAll(() => {
-      console.warn = originalWarn;
-    });
-
     const createInquiry = (processName, unitType, lastTransition) =>
       createTransaction({
         id: `id-${processName}-inquiry-order`,
@@ -1160,14 +1162,100 @@ describe('TransactionPage', () => {
         // Listing's title (side card)
         expect(getAllByText('listing-item title')).toHaveLength(2);
         // Default unit price is $55
-        expect(getAllByText('$55.00')).toHaveLength(2);
-        expect(getAllByText('OrderPanel.perUnit')).toHaveLength(2);
+        expect(getAllByText('OrderPanel.price')).toHaveLength(1);
+        expect(getAllByText('OrderPanel.priceInMobileCTA')).toHaveLength(1);
+        expect(getAllByText('OrderPanel.perUnit')).toHaveLength(1);
 
         // BookingTimeForm inputs
         expect(getByText('BookingTimeForm.bookingStartTitle')).toBeInTheDocument();
         expect(getByText('FieldDateAndTimeInput.startTime')).toBeInTheDocument();
         expect(getByText('FieldDateAndTimeInput.endTime')).toBeInTheDocument();
         expect(getByText('BookingTimeForm.requestToBook')).toBeInTheDocument();
+      });
+    });
+
+    it('Inquiry with restricted view rights should not show OrderPanel - hour unit', async () => {
+      const config = {
+        ...getHostedConfiguration(),
+        accessControl: { marketplace: { private: true } },
+      };
+
+      const routeConfiguration = getRouteConfiguration(config.layout);
+      const processName = 'default-booking';
+      const bookingInquiry = createInquiry(processName, 'hour', bookingTransitions.INQUIRE);
+      const transactionRole = TX_TRANSITION_ACTOR_CUSTOMER;
+      const nextTransitions = [
+        {
+          id: new UUID('next-transition'),
+          type: 'processTransition',
+          attributes: {
+            name: 'transition/request-payment-after-inquiry',
+            actor: [transactionRole],
+            actions: [],
+            params: {},
+          },
+        },
+      ];
+
+      const stateData = getStateData(
+        {
+          transaction: bookingInquiry,
+          transactionRole,
+          nextTransitions,
+          intl: fakeIntl,
+          transitionInProgress: false,
+          transitionError: null,
+          onTransition: noop,
+          sendReviewInProgress: false,
+          sendReviewError: null,
+          onOpenReviewModal: noop,
+        },
+        getProcess(processName)
+      );
+
+      const currentUser = createCurrentUser(customerId);
+      currentUser.effectivePermissionSet.attributes.read = 'permissions/deny';
+
+      const props = {
+        ...panelBaseProps,
+        currentUser,
+        transaction: bookingInquiry,
+        transactionRole,
+        nextTransitions,
+        params: {
+          id: bookingInquiry.id?.uuid,
+        },
+        lineItems: [],
+      };
+
+      const { getAllByText } = render(<TransactionPageComponent {...props} />, {
+        config,
+        routeConfiguration,
+      });
+
+      await waitFor(() => {
+        const state = stateData.processState;
+        const txTitle = `TransactionPage.${processName}.${transactionRole}.${state}.title`;
+        expect(screen.getByText(txTitle)).toBeInTheDocument();
+
+        expect(screen.getByText('TransactionPage.listingTitleMobile')).toBeInTheDocument();
+
+        // Activity feed (here we just check the heading)
+        expect(screen.getByText('TransactionPanel.activityHeading')).toBeInTheDocument();
+
+        // Show listing's title only (side card)
+        expect(getAllByText('listing-item title')).toHaveLength(1);
+
+        // Don't show listing pricing
+        expect(screen.queryByText('OrderPanel.price')).toBeNull();
+        expect(screen.queryByText('OrderPanel.priceInMobileCTA')).toBeNull();
+        expect(screen.queryByText('OrderPanel.perUnit')).toBeNull();
+
+        // Don't show BookingTimeForm inputs
+        expect(screen.queryByText('BookingTimeForm.bookingStartTitle')).toBeNull();
+        expect(screen.queryByText('FieldDateAndTimeInput.startTime')).toBeNull();
+        expect(screen.queryByText('FieldDateAndTimeInput.endTime')).toBeNull();
+        expect(screen.queryByText('BookingTimeForm.requestToBook')).toBeNull();
       });
     });
 
@@ -1243,13 +1331,98 @@ describe('TransactionPage', () => {
         // Listing's title (side card)
         expect(getAllByText('listing-item title')).toHaveLength(2);
         // Default unit price is $55
-        expect(getAllByText('$55.00')).toHaveLength(2);
-        expect(getAllByText('OrderPanel.perUnit')).toHaveLength(2);
+        expect(getAllByText('OrderPanel.price')).toHaveLength(1);
+        expect(getAllByText('OrderPanel.priceInMobileCTA')).toHaveLength(1);
+        expect(getAllByText('OrderPanel.perUnit')).toHaveLength(1);
 
         // BookingTimeForm inputs
         expect(getByText('BookingDatesForm.bookingStartTitle')).toBeInTheDocument();
         expect(getByText('BookingDatesForm.bookingEndTitle')).toBeInTheDocument();
         expect(getByText('BookingDatesForm.requestToBook')).toBeInTheDocument();
+      });
+    });
+
+    it('Inquiry with restricted view rights should not show OrderPanel - day unit', async () => {
+      const config = {
+        ...getHostedConfiguration(),
+        accessControl: { marketplace: { private: true } },
+      };
+
+      const routeConfiguration = getRouteConfiguration(config.layout);
+      const processName = 'default-booking';
+      const bookingInquiry = createInquiry(processName, 'day', bookingTransitions.INQUIRE);
+      const transactionRole = TX_TRANSITION_ACTOR_CUSTOMER;
+      const nextTransitions = [
+        {
+          id: new UUID('next-transition'),
+          type: 'processTransition',
+          attributes: {
+            name: 'transition/request-payment-after-inquiry',
+            actor: [transactionRole],
+            actions: [],
+            params: {},
+          },
+        },
+      ];
+
+      const stateData = getStateData(
+        {
+          transaction: bookingInquiry,
+          transactionRole,
+          nextTransitions,
+          intl: fakeIntl,
+          transitionInProgress: false,
+          transitionError: null,
+          onTransition: noop,
+          sendReviewInProgress: false,
+          sendReviewError: null,
+          onOpenReviewModal: noop,
+        },
+        getProcess(processName)
+      );
+
+      const currentUser = createCurrentUser(customerId);
+      currentUser.effectivePermissionSet.attributes.read = 'permissions/deny';
+
+      const props = {
+        ...panelBaseProps,
+        currentUser,
+        transaction: bookingInquiry,
+        transactionRole,
+        nextTransitions,
+        params: {
+          id: bookingInquiry.id?.uuid,
+        },
+        lineItems: [],
+      };
+
+      const { getAllByText } = render(<TransactionPageComponent {...props} />, {
+        config,
+        routeConfiguration,
+      });
+
+      await waitFor(() => {
+        const state = stateData.processState;
+        const txTitle = `TransactionPage.${processName}.${transactionRole}.${state}.title`;
+        expect(screen.getByText(txTitle)).toBeInTheDocument();
+
+        expect(screen.getByText('TransactionPage.listingTitleMobile')).toBeInTheDocument();
+
+        // Activity feed (here we just check the heading)
+        expect(screen.getByText('TransactionPanel.activityHeading')).toBeInTheDocument();
+
+        // Show listing's title only (side card)
+        expect(getAllByText('listing-item title')).toHaveLength(1);
+
+        // Don't show listing pricing
+        expect(screen.queryByText('OrderPanel.price')).toBeNull();
+        expect(screen.queryByText('OrderPanel.priceInMobileCTA')).toBeNull();
+        expect(screen.queryByText('OrderPanel.perUnit')).toBeNull();
+
+        // Don't show BookingDatesForm inputs
+        expect(screen.queryByText('BookingDatesForm.bookingStartTitle')).toBeNull();
+        expect(screen.queryByText('BookingDatesForm.bookingEndTitle')).toBeNull();
+        expect(screen.queryByText('BookingDatesForm.requestToBook')).toBeNull();
       });
     });
 
@@ -1325,11 +1498,94 @@ describe('TransactionPage', () => {
         // Listing's title (side card)
         expect(getAllByText('listing-item title')).toHaveLength(2);
         // Default unit price is $55
-        expect(getAllByText('$55.00')).toHaveLength(2);
-        expect(getAllByText('OrderPanel.perUnit')).toHaveLength(2);
+        expect(getAllByText('OrderPanel.price')).toHaveLength(1);
+        expect(getAllByText('OrderPanel.priceInMobileCTA')).toHaveLength(1);
+        expect(getAllByText('OrderPanel.perUnit')).toHaveLength(1);
 
         // Order purchase CTA
         expect(getByText('OrderPanel.ctaButtonMessagePurchase')).toBeInTheDocument();
+      });
+    });
+
+    it('Inquiry with restricted view rights should not show OrderPanel - item unit', async () => {
+      const config = {
+        ...getHostedConfiguration(),
+        accessControl: { marketplace: { private: true } },
+      };
+
+      const routeConfiguration = getRouteConfiguration(config.layout);
+      const processName = 'default-purchase';
+      const inquiry = createInquiry(processName, 'item', purchaseTransitions.INQUIRE);
+      const transactionRole = TX_TRANSITION_ACTOR_CUSTOMER;
+      const nextTransitions = [
+        {
+          id: new UUID('next-transition'),
+          type: 'processTransition',
+          attributes: {
+            name: 'transition/request-payment-after-inquiry',
+            actor: [transactionRole],
+            actions: [],
+            params: {},
+          },
+        },
+      ];
+
+      const stateData = getStateData(
+        {
+          transaction: inquiry,
+          transactionRole,
+          nextTransitions,
+          intl: fakeIntl,
+          transitionInProgress: false,
+          transitionError: null,
+          onTransition: noop,
+          sendReviewInProgress: false,
+          sendReviewError: null,
+          onOpenReviewModal: noop,
+        },
+        getProcess(processName)
+      );
+
+      const currentUser = createCurrentUser(customerId);
+      currentUser.effectivePermissionSet.attributes.read = 'permissions/deny';
+
+      const props = {
+        ...panelBaseProps,
+        currentUser,
+        transaction: inquiry,
+        transactionRole,
+        nextTransitions,
+        params: {
+          id: inquiry.id?.uuid,
+        },
+        lineItems: [],
+      };
+
+      const { getAllByText } = render(<TransactionPageComponent {...props} />, {
+        config,
+        routeConfiguration,
+      });
+
+      await waitFor(() => {
+        const state = stateData.processState;
+        const txTitle = `TransactionPage.${processName}.${transactionRole}.${state}.title`;
+        expect(screen.getByText(txTitle)).toBeInTheDocument();
+
+        expect(screen.getByText('TransactionPage.listingTitleMobile')).toBeInTheDocument();
+
+        // Activity feed (here we just check the heading)
+        expect(screen.getByText('TransactionPanel.activityHeading')).toBeInTheDocument();
+
+        // Show listing's title only (side card)
+        expect(getAllByText('listing-item title')).toHaveLength(1);
+
+        // Don't show listing pricing
+        expect(screen.queryByText('OrderPanel.price')).toBeNull();
+        expect(screen.queryByText('OrderPanel.priceInMobileCTA')).toBeNull();
+        expect(screen.queryByText('OrderPanel.perUnit')).toBeNull();
+
+        // Don't show order purchase CTA
+        expect(screen.queryByText('OrderPanel.ctaButtonMessagePurchase')).toBeNull();
       });
     });
   });

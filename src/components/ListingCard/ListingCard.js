@@ -1,13 +1,11 @@
 import React from 'react';
-import { string, func, bool } from 'prop-types';
 import classNames from 'classnames';
 
 import { useConfiguration } from '../../context/configurationContext';
 
-import { FormattedMessage, intlShape, injectIntl } from '../../util/reactIntl';
-import { displayPrice } from '../../util/configHelpers';
+import { FormattedMessage, useIntl } from '../../util/reactIntl';
+import { displayPrice, isPriceVariationsEnabled } from '../../util/configHelpers';
 import { lazyLoadWithDimensions } from '../../util/uiHelpers';
-import { propTypes } from '../../util/types';
 import { formatMoney } from '../../util/currency';
 import { ensureListing, ensureUser } from '../../util/data';
 import { richText } from '../../util/richText';
@@ -51,32 +49,58 @@ const PriceMaybe = props => {
     return null;
   }
 
+  const isPriceVariationsInUse = isPriceVariationsEnabled(publicData, foundListingTypeConfig);
+  const hasMultiplePriceVariants = isPriceVariationsInUse && publicData?.priceVariants?.length > 1;
+
   const isBookable = isBookingProcessAlias(publicData?.transactionProcessAlias);
   const { formattedPrice, priceTitle } = priceData(price, config.currency, intl);
+
+  const priceValue = <span className={css.priceValue}>{formattedPrice}</span>;
+  const pricePerUnit = isBookable ? (
+    <span className={css.perUnit}>
+      <FormattedMessage id="ListingCard.perUnit" values={{ unitType: publicData?.unitType }} />
+    </span>
+  ) : (
+    ''
+  );
+
   return (
-    <div className={css.price}>
-      <div className={css.priceValue} title={priceTitle}>
-        {formattedPrice}
-      </div>
-      {isBookable ? (
-        <div className={css.perUnit}>
-          <FormattedMessage id="ListingCard.perUnit" values={{ unitType: publicData?.unitType }} />
-        </div>
-      ) : null}
+    <div className={css.price} title={priceTitle}>
+      {hasMultiplePriceVariants ? (
+        <FormattedMessage
+          id="ListingCard.priceStartingFrom"
+          values={{ priceValue, pricePerUnit }}
+        />
+      ) : (
+        <FormattedMessage id="ListingCard.price" values={{ priceValue, pricePerUnit }} />
+      )}
     </div>
   );
 };
 
-export const ListingCardComponent = props => {
+/**
+ * ListingCard
+ *
+ * @component
+ * @param {Object} props
+ * @param {string?} props.className add more style rules in addition to component's own css.root
+ * @param {string?} props.rootClassName overwrite components own css.root
+ * @param {Object} props.listing API entity: listing or ownListing
+ * @param {string?} props.renderSizes for img/srcset
+ * @param {Function?} props.setActiveListing
+ * @param {boolean?} props.showAuthorInfo
+ * @returns {JSX.Element} listing card to be used in search result panel etc.
+ */
+export const ListingCard = props => {
   const config = useConfiguration();
+  const intl = props.intl || useIntl();
   const {
     className,
     rootClassName,
-    intl,
     listing,
     renderSizes,
     setActiveListing,
-    showAuthorInfo,
+    showAuthorInfo = true,
   } = props;
   const classes = classNames(rootClassName || css.root, className);
   const currentListing = ensureListing(listing);
@@ -140,25 +164,4 @@ export const ListingCardComponent = props => {
   );
 };
 
-ListingCardComponent.defaultProps = {
-  className: null,
-  rootClassName: null,
-  renderSizes: null,
-  setActiveListing: null,
-  showAuthorInfo: true,
-};
-
-ListingCardComponent.propTypes = {
-  className: string,
-  rootClassName: string,
-  intl: intlShape.isRequired,
-  listing: propTypes.listing.isRequired,
-  showAuthorInfo: bool,
-
-  // Responsive image sizes hint
-  renderSizes: string,
-
-  setActiveListing: func,
-};
-
-export default injectIntl(ListingCardComponent);
+export default ListingCard;

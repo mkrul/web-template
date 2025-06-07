@@ -1,5 +1,4 @@
 import React, { Component } from 'react';
-import { arrayOf, bool, object, func, shape, string } from 'prop-types';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 import { Switch, Route, withRouter } from 'react-router-dom';
@@ -17,10 +16,16 @@ import NotFoundPage from '../containers/NotFoundPage/NotFoundPage';
 
 import LoadableComponentErrorBoundary from './LoadableComponentErrorBoundary/LoadableComponentErrorBoundary';
 
+const isBanned = currentUser => {
+  const isBrowser = typeof window !== 'undefined';
+  // Future todo: currentUser?.attributes?.state === 'banned'
+  return isBrowser && currentUser?.attributes?.banned === true;
+};
+
 const canShowComponent = props => {
-  const { isAuthenticated, route } = props;
+  const { isAuthenticated, currentUser, route } = props;
   const { auth } = route;
-  return !auth || isAuthenticated;
+  return !auth || (isAuthenticated && !isBanned(currentUser));
 };
 
 const callLoadData = props => {
@@ -72,7 +77,7 @@ const setPageScrollPosition = (location, delayed) => {
       // might affect user initiated scrolling.
       delayed = window.setTimeout(() => {
         const reTry = document.querySelector(location.hash);
-        reTry.scrollIntoView({
+        reTry?.scrollIntoView({
           block: 'start',
           behavior: 'smooth',
         });
@@ -94,6 +99,22 @@ const handleLocationChanged = (dispatch, location, routeConfiguration, delayed) 
  * (aka "auth: true" is set in routeConfiguration.js)
  *
  * This component is a container: it needs to be connected to Redux.
+ *
+ * @component
+ * @param {Object} props - The props
+ * @param {boolean} props.isAuthenticated - Whether the user is authenticated
+ * @param {boolean} props.logoutInProgress - Whether the logout is in progress
+ * @param {propTypes.currentUser} props.currentUser - The current user
+ * @param {propTypes.route} props.route - The route
+ * @param {Array<propTypes.route} props.routeConfiguration - The route configuration
+ * @param {Object} props.match - The match
+ * @param {Object} props.match.params - The match params
+ * @param {string} props.match.url - The match url
+ * @param {Object} props.location - The location
+ * @param {Object} props.location.search - The location search
+ * @param {Object} props.staticContext - The static context
+ * @param {Function} props.dispatch - The dispatch function of
+ * @returns {JSX.Element} The RouteComponentRenderer component
  */
 class RouteComponentRenderer extends Component {
   componentDidMount() {
@@ -124,12 +145,17 @@ class RouteComponentRenderer extends Component {
   }
 
   render() {
-    const { route, match, location, staticContext } = this.props;
+    const { route, match, location, staticContext = {}, currentUser } = this.props;
     const { component: RouteComponent, authPage = 'SignupPage', extraProps } = route;
     const canShow = canShowComponent(this.props);
     if (!canShow) {
       staticContext.unauthorized = true;
     }
+
+    const hasCurrentUser = !!currentUser?.id;
+    const restrictedPageWithCurrentUser = !canShow && hasCurrentUser;
+    // Banned users are redirected to LandingPage
+    const isBannedFromAuthPages = restrictedPageWithCurrentUser && isBanned(currentUser);
     return canShow ? (
       <LoadableComponentErrorBoundary>
         <RouteComponent
@@ -139,6 +165,8 @@ class RouteComponentRenderer extends Component {
           {...extraProps}
         />
       </LoadableComponentErrorBoundary>
+    ) : isBannedFromAuthPages ? (
+      <NamedRedirect name="LandingPage" />
     ) : (
       <NamedRedirect
         name={authPage}
@@ -148,27 +176,10 @@ class RouteComponentRenderer extends Component {
   }
 }
 
-RouteComponentRenderer.defaultProps = { staticContext: {} };
-
-RouteComponentRenderer.propTypes = {
-  isAuthenticated: bool.isRequired,
-  logoutInProgress: bool.isRequired,
-  route: propTypes.route.isRequired,
-  routeConfiguration: arrayOf(propTypes.route).isRequired,
-  match: shape({
-    params: object.isRequired,
-    url: string.isRequired,
-  }).isRequired,
-  location: shape({
-    search: string.isRequired,
-  }).isRequired,
-  staticContext: object,
-  dispatch: func.isRequired,
-};
-
 const mapStateToProps = state => {
   const { isAuthenticated, logoutInProgress } = state.auth;
-  return { isAuthenticated, logoutInProgress };
+  const { currentUser } = state.user;
+  return { isAuthenticated, logoutInProgress, currentUser };
 };
 const RouteComponentContainer = compose(connect(mapStateToProps))(RouteComponentRenderer);
 

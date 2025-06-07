@@ -1,10 +1,10 @@
 import React from 'react';
-import PropTypes from 'prop-types';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
+import { useLocation } from 'react-router-dom';
 
 import { useConfiguration } from '../../context/configurationContext';
-import { FormattedMessage, injectIntl, intlShape } from '../../util/reactIntl';
+import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { propTypes } from '../../util/types';
 import { isPasswordRecoveryEmailNotFoundError } from '../../util/errors';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
@@ -123,8 +123,28 @@ const EmailSubmittedContent = props => {
   );
 };
 
+/**
+ * The password recovery page.
+ *
+ * @param {Object} props
+ * @param {boolean} props.scrollingDisabled - Whether the scrolling is disabled
+ * @param {string} props.initialEmail - The initial email
+ * @param {string} props.submittedEmail - The submitted email
+ * @param {propTypes.error} props.recoveryError - The recovery error
+ * @param {boolean} props.recoveryInProgress - Whether the recovery is in progress
+ * @param {boolean} props.passwordRequested - Whether the password is requested
+ * @param {function} props.onChange - The function to change the email
+ * @param {function} props.onSubmitEmail - The function to submit the email
+ * @param {function} props.onRetypeEmail - The function to retype the email
+ * @returns {JSX.Element} Password recovery page component
+ */
 export const PasswordRecoveryPageComponent = props => {
   const config = useConfiguration();
+  const intl = useIntl();
+  const location = useLocation();
+  const searchParams = new URLSearchParams(location.search);
+  const emailParam = searchParams.get('email');
+
   const {
     scrollingDisabled,
     initialEmail,
@@ -135,12 +155,12 @@ export const PasswordRecoveryPageComponent = props => {
     onChange,
     onSubmitEmail,
     onRetypeEmail,
-    intl,
   } = props;
   const alreadyrequested = submittedEmail || passwordRequested;
+  const emailToUse = emailParam || initialEmail;
   const showPasswordRecoveryForm = (
     <PasswordRecovery
-      initialEmail={initialEmail}
+      initialEmail={emailToUse}
       onChange={onChange}
       onSubmitEmail={onSubmitEmail}
       recoveryInProgress={recoveryInProgress}
@@ -190,30 +210,6 @@ export const PasswordRecoveryPageComponent = props => {
   );
 };
 
-PasswordRecoveryPageComponent.defaultProps = {
-  sendVerificationEmailError: null,
-  initialEmail: null,
-  submittedEmail: null,
-  recoveryError: null,
-};
-
-const { bool, func, string } = PropTypes;
-
-PasswordRecoveryPageComponent.propTypes = {
-  scrollingDisabled: bool.isRequired,
-  initialEmail: string,
-  submittedEmail: string,
-  recoveryError: propTypes.error,
-  recoveryInProgress: bool.isRequired,
-  passwordRequested: bool.isRequired,
-  onChange: func.isRequired,
-  onSubmitEmail: func.isRequired,
-  onRetypeEmail: func.isRequired,
-
-  // from injectIntl
-  intl: intlShape.isRequired,
-};
-
 const mapStateToProps = state => {
   const {
     initialEmail,
@@ -242,8 +238,7 @@ const PasswordRecoveryPage = compose(
   connect(
     mapStateToProps,
     mapDispatchToProps
-  ),
-  injectIntl
+  )
 )(PasswordRecoveryPageComponent);
 
 export default PasswordRecoveryPage;

@@ -19,6 +19,11 @@ require('source-map-support').install();
 // Configure process.env with .env.* files
 require('./env').configureEnv();
 
+// Setup Sentry
+// Note 1: This needs to happen before other express requires
+// Note 2: this doesn't use instrument.js file but log.js
+const log = require('./log');
+
 const fs = require('fs');
 const express = require('express');
 const helmet = require('helmet');
@@ -38,8 +43,7 @@ const sitemapResourceRoute = require('./resources/sitemap');
 const { getExtractors } = require('./importer');
 const renderer = require('./renderer');
 const dataLoader = require('./dataLoader');
-const log = require('./log');
-const csp = require('./csp');
+const { generateCSPNonce, csp } = require('./csp');
 const sdkUtils = require('./api-util/sdk');
 
 const buildPath = path.resolve(__dirname, '..', 'build');
@@ -54,16 +58,39 @@ const TRUST_PROXY = process.env.SERVER_SHARETRIBE_TRUST_PROXY || null;
 const CSP = process.env.REACT_APP_CSP;
 const cspReportUrl = '/csp-report';
 const cspEnabled = CSP === 'block' || CSP === 'report';
+
+// Without these, something will break for sure
+const MANDATORY_ENV_VARIABLES = [
+  'REACT_APP_SHARETRIBE_SDK_CLIENT_ID',
+  'SHARETRIBE_SDK_CLIENT_SECRET',
+  'REACT_APP_MARKETPLACE_NAME',
+  'REACT_APP_MARKETPLACE_ROOT_URL',
+];
+const isEmpty = value => value == null || (value.hasOwnProperty('length') && value.length === 0);
+const checkEnvVariables = variables => {
+  const missingEnvVariables = variables.filter(v => isEmpty(process.env?.[v]));
+  if (missingEnvVariables.length > 0) {
+    console.error(`Required environment variable is not set: ${missingEnvVariables.join(', ')}`);
+    process.exit(9);
+  }
+};
+checkEnvVariables(MANDATORY_ENV_VARIABLES);
+
 const app = express();
 
-const errorPage = fs.readFileSync(path.join(buildPath, '500.html'), 'utf-8');
+const errorPage500 = fs.readFileSync(path.join(buildPath, '500.html'), 'utf-8');
+const errorPage404 = fs.readFileSync(path.join(buildPath, '404.html'), 'utf-8');
 
-// Setup error logger
-log.setup();
-// Add logger request handler. In case Sentry is set up
-// request information is added to error context when sent
-// to Sentry.
-app.use(log.requestHandler());
+// Filter out bot requests that scan websites for php vulnerabilities
+// from paths like /asdf/index.php, //cms/wp-includes/wlwmanifest.xml, etc.
+// There's no need to pass those to React app rendering as it causes unnecessary asset fetches.
+// Note: you might want to do this on the edge server instead.
+app.use(
+  /.*(\.php|\.php7|\/wp-.*\/.*|cgi-bin.*|htdocs\.rar|htdocs\.zip|root\.7z|root\.rar|root\.zip|www\.7z|www\.rar|wwwroot\.7z)$/,
+  (req, res) => {
+    return res.status(404).send(errorPage404);
+  }
+);
 
 // The helmet middleware sets various HTTP headers to improve security.
 // See: https://www.npmjs.com/package/helmet
@@ -73,10 +100,15 @@ app.use(log.requestHandler());
 app.use(
   helmet({
     contentSecurityPolicy: false,
+    referrerPolicy: {
+      policy: 'origin',
+    },
   })
 );
 
 if (cspEnabled) {
+  app.use(generateCSPNonce);
+
   // When a CSP directive is violated, the browser posts a JSON body
   // to the defined report URL and we need to parse this body.
   app.use(
@@ -178,7 +210,7 @@ const noCacheHeaders = {
   'Cache-control': 'no-cache, no-store, must-revalidate',
 };
 
-app.get('*', (req, res) => {
+app.get('*', async (req, res) => {
   if (req.url.startsWith('/static/')) {
     // The express.static middleware only handles static resources
     // that it finds, otherwise passes them through. However, we don't
@@ -211,8 +243,10 @@ app.get('*', (req, res) => {
   dataLoader
     .loadData(req.url, sdk, appInfo)
     .then(data => {
-      const html = renderer.render(req.url, context, data, renderApp, webExtractor);
-
+      const cspNonce = cspEnabled ? res.locals.cspNonce : null;
+      return renderer.render(req.url, context, data, renderApp, webExtractor, cspNonce);
+    })
+    .then(html => {
       if (dev) {
         const debugData = {
           url: req.url,
@@ -251,13 +285,13 @@ app.get('*', (req, res) => {
     })
     .catch(e => {
       log.error(e, 'server-side-render-failed');
-      res.status(500).send(errorPage);
+      res.status(500).send(errorPage500);
     });
 });
 
 // Set error handler. If Sentry is set up, all error responses
 // will be logged there.
-app.use(log.errorHandler());
+log.setupExpressErrorHandler(app);
 
 if (cspEnabled) {
   // Dig out the value of the given CSP report key from the request body.

@@ -3,15 +3,19 @@
  * I.e. dates and other details related to payment decision in receipt format.
  */
 import React from 'react';
-import { oneOf, string } from 'prop-types';
 import classNames from 'classnames';
 
-import { FormattedMessage, intlShape, injectIntl } from '../../util/reactIntl';
+import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import {
-  propTypes,
-  LISTING_UNIT_TYPES,
+  DATE_TYPE_DATE,
+  DATE_TYPE_DATETIME,
+  DATE_TYPE_TIME,
   LINE_ITEM_CUSTOMER_COMMISSION,
+  LINE_ITEM_FIXED,
+  LINE_ITEM_HOUR,
   LINE_ITEM_PROVIDER_COMMISSION,
+  LISTING_UNIT_TYPES,
+  propTypes,
 } from '../../util/types';
 
 import LineItemBookingPeriod from './LineItemBookingPeriod';
@@ -36,11 +40,10 @@ export const OrderBreakdownComponent = props => {
     userRole,
     transaction,
     booking,
-    intl,
-    dateType,
     timeZone,
     currency,
     marketplaceName,
+    intl,
   } = props;
 
   const isCustomer = userRole === 'customer';
@@ -51,8 +54,11 @@ export const OrderBreakdownComponent = props => {
   const unitLineItem = lineItems.find(
     item => LISTING_UNIT_TYPES.includes(item.code) && !item.reversal
   );
-  // Line-item code that matches with base unit: day, night, hour, item
+  // Line-item code that matches with base unit: day, night, hour, fixed, item
   const lineItemUnitType = unitLineItem?.code;
+  const dateType = [LINE_ITEM_HOUR, LINE_ITEM_FIXED].includes(lineItemUnitType)
+    ? DATE_TYPE_DATETIME
+    : DATE_TYPE_DATE;
 
   const hasCommissionLineItem = lineItems.find(item => {
     const hasCustomerCommission = isCustomer && item.code === LINE_ITEM_CUSTOMER_COMMISSION;
@@ -158,29 +164,25 @@ export const OrderBreakdownComponent = props => {
   );
 };
 
-OrderBreakdownComponent.defaultProps = {
-  rootClassName: null,
-  className: null,
-  booking: null,
-  dateType: null,
+/**
+ * Order breakdown aka receipt
+ *
+ * @component
+ * @param {Object} props
+ * @param {string?} props.className add more style rules in addition to component's own css.root
+ * @param {string?} props.rootClassName overwrite components own css.root
+ * @param {string} props.marketplaceName
+ * @param {string} props.timeZone IANA time zone name
+ * @param {string} props.currency E.g. 'USD'
+ * @param {'customer' | 'provider'} props.userRole
+ * @param {propTypes.transaction} props.transaction
+ * @param {propTypes.booking?} props.booking
+ * @param {DATE_TYPE_DATE | DATE_TYPE_TIME | DATE_TYPE_DATETIME} props.dateType
+ * @returns {JSX.Element} the order breakdown component
+ */
+const OrderBreakdown = props => {
+  const intl = useIntl();
+  return <OrderBreakdownComponent intl={intl} {...props} />;
 };
-
-OrderBreakdownComponent.propTypes = {
-  rootClassName: string,
-  className: string,
-
-  marketplaceName: string.isRequired,
-  userRole: oneOf(['customer', 'provider']).isRequired,
-  transaction: propTypes.transaction.isRequired,
-  booking: propTypes.booking,
-  dateType: propTypes.dateType,
-
-  // from injectIntl
-  intl: intlShape.isRequired,
-};
-
-const OrderBreakdown = injectIntl(OrderBreakdownComponent);
-
-OrderBreakdown.displayName = 'OrderBreakdown';
 
 export default OrderBreakdown;

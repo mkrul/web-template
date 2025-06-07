@@ -12,16 +12,530 @@ way to update this template, but currently, we follow a pattern:
 
 ---
 
-## Upcoming version 2024-XX-XX
+## Upcoming version 2025-XX-XX
 
+## [v8.4.2] 2025-06-02
+
+- [fix] Set the font size for the input fields in the Search as CTA component to 16px to prevent
+  unintentional zooming on mobile.[#622](https://github.com/sharetribe/web-template/pull/622)
+- [fix] BookingFixedDurationForm: start time generation didn't count consecutive time-slots
+  correctly when multiple seats were allowed.
+  [#620](https://github.com/sharetribe/web-template/pull/620)
+- [add] Improve one copy text. [#621](https://github.com/sharetribe/web-template/pull/621)
+- [add] Add currently available translations for DE, ES, FR.
+  [#619](https://github.com/sharetribe/web-template/pull/619)
+
+  [v8.4.2]: https://github.com/sharetribe/web-template/compare/v8.4.1...v8.4.2
+
+## [v8.4.1] 2025-05-26
+
+- [fix] Modify two translation keys that were using an incorrect namespace.
+  [#617](https://github.com/sharetribe/web-template/pull/617)
+- [fix] Add missing location prop to grid search page
+  [#615](https://github.com/sharetribe/web-template/pull/615)
+- [fix] Corrected anchor link scrolling behavior on Privacy Policy and Terms of Service pages, when
+  opened as modals (in signup/login). [#612](https://github.com/sharetribe/web-template/pull/612)
+
+  [v8.4.1]: https://github.com/sharetribe/web-template/compare/v8.4.0...v8.4.1
+
+## [v8.4.0] 2025-05-20
+
+- [add] Added a "Search as CTA" component for embedding a search bar on any dynamic content page
+  [#561](https://github.com/sharetribe/web-template/pull/561)
+- [add] Pass email from login to forgot password
+  [#609](https://github.com/sharetribe/web-template/pull/609)
+- [fix] EditListingPhotosForm: removing all images from a listing caused the screen to go blank
+  [#608](https://github.com/sharetribe/web-template/pull/608)
+
+  [v8.4.0]: https://github.com/sharetribe/web-template/compare/v8.3.2...v8.4.0
+
+## [v8.3.2] 2025-05-12
+
+- [fix] SearchPageWithMap: secondary filter count was not taking into use filters that were limited
+  to category or listing type [#606](https://github.com/sharetribe/web-template/pull/606)
+- [fix] Handle multiple search page routes outside search page and clarify path param usage
+  [#605](https://github.com/sharetribe/web-template/pull/605)
+
+  [v8.3.2]: https://github.com/sharetribe/web-template/compare/v8.3.1...v8.3.2
+
+## [v8.3.1] 2025-05-06
+
+- [fix] Fix listing type path param usage
+  [#599](https://github.com/sharetribe/web-template/pull/599)
+- [fix] Avatar: use correct pending-approval variant link when user is pending approval.
+  [#601](https://github.com/sharetribe/web-template/pull/601)
+- [add] Add currently available translations for DE, ES, FR.
+  [#597](https://github.com/sharetribe/web-template/pull/597)
+
+  [v8.3.1]: https://github.com/sharetribe/web-template/compare/v8.3.0...v8.3.1
+
+## [v8.3.0] 2025-04-30
+
+- [add] Add support to search pages for filtering listing search based on listing type
+  [#583](https://github.com/sharetribe/web-template/pull/583)
+- [fix] BookingFixedDurationForm: undefined booking length with single fixed price variant.
+  [#595](https://github.com/sharetribe/web-template/pull/595)
+- [fix] EditListingPricingPanel: Add initial value for the startTimeInterval.
+  [#594](https://github.com/sharetribe/web-template/pull/594)
+- [add] Add currently available translations for DE, ES, FR.
+  [#593](https://github.com/sharetribe/web-template/pull/593)
+
+  [v8.3.0]: https://github.com/sharetribe/web-template/compare/v8.2.0...v8.3.0
+
+## [v8.2.0] 2025-04-29
+
+- [add] Check that some of the environment variables are set (and crash the app if not):
+
+  - REACT_APP_SHARETRIBE_SDK_CLIENT_ID
+  - SHARETRIBE_SDK_CLIENT_SECRET
+  - REACT_APP_MARKETPLACE_NAME
+  - REACT_APP_MARKETPLACE_ROOT_URL
+
+  [#589](https://github.com/sharetribe/web-template/pull/589)
+
+- [add] Separate translation keys for listing with price variations. This affects ListingCard,
+  ManageListingCard, SearchMapInfoCard, SearchMapPriceLabel.
+  [#591](https://github.com/sharetribe/web-template/pull/591)
+- [fix] Convert non-string category URL param to string
+  [#590](https://github.com/sharetribe/web-template/pull/590)
+- [add] Add currently available translations for DE, ES, FR.
+  [#587](https://github.com/sharetribe/web-template/pull/587)
+
+  [v8.2.0]: https://github.com/sharetribe/web-template/compare/v8.1.0...v8.2.0
+
+## [v8.1.0] 2025-04-24
+
+- [add] Add support for price variations for bookable listings.
+  [#582](https://github.com/sharetribe/web-template/pull/582)
+- [add] Add currently available translations for DE, ES.
+  [#584](https://github.com/sharetribe/web-template/pull/584)
+- [change] update deeply nested dependency: path-to-regexp
+  [#580](https://github.com/sharetribe/web-template/pull/580)
+- [fix] SectionDetails (ListingPage & ProfilePage): fix line-height and padding for the details row.
+  [#576](https://github.com/sharetribe/web-template/pull/576)
+- [fix] OrderPanel: purchase and inquiries did not check closed status of the listing.
+  [#573](https://github.com/sharetribe/web-template/pull/573)
+
+  [v8.1.0]: https://github.com/sharetribe/web-template/compare/v8.0.1...v8.1.0
+
+## [v8.0.1] 2025-04-03
+
+- [add] Add currently available translations for FR.
+  [#571](https://github.com/sharetribe/web-template/pull/571)
+- [change] Remove Google Maps legacy Places API support
+  [#570](https://github.com/sharetribe/web-template/pull/569)
+- [fix] Topbar/LinksMenu: align the menu label correctly.
+  [#569](https://github.com/sharetribe/web-template/pull/569)
+- [fix] BookingFixedDurationForm: form was using wrong translation keys.
+  [#568](https://github.com/sharetribe/web-template/pull/568)
+- [fix] Fix the transition of the SavedCardDetails menu.
+  [#567](https://github.com/sharetribe/web-template/pull/567)
+
+  [v8.0.1]: https://github.com/sharetribe/web-template/compare/v8.0.0...v8.0.1
+
+## [v8.0.0] 2025-03-26
+
+This major release adds support for bookings with a fixed duration. The feature is touching so many
+parts of the codebase, that we decided to bump the major version.
+
+- [add] Add support for bookings with a fixed duration.
+  [#560](https://github.com/sharetribe/web-template/pull/560)
+- [fix] Fix the positioning of the camera control otpions on Google Maps
+  [#565](https://github.com/sharetribe/web-template/pull/565)
+- [fix] Fix currently available translations for FR.
+  [#559](https://github.com/sharetribe/web-template/pull/559)
+
+  [v8.0.0]: https://github.com/sharetribe/web-template/compare/v7.3.0...v8.0.0
+
+## [v7.3.0] 2025-02-19
+
+- [fix] Remove obsolete Flex CLI references
+  [#550](https://github.com/sharetribe/web-template/pull/550)
+- [fix] BookingTimeForm (hourly booking): calendar day was not localized causing isDayBlocked fn to
+  choose past day, if listing's time zone was to the west of the browser's location / time zone.
+  [#556](https://github.com/sharetribe/web-template/pull/556)
+- [fix] AuthenticationPage: fix a bug with autenticated users accessing the auth pages.
+  [#555](https://github.com/sharetribe/web-template/pull/555)
+- [fix] CheckoutPageWithPayment & PaymentMethodsPage had a typo in a variable name.
+  [#554](https://github.com/sharetribe/web-template/pull/554)
+- [fix] DatePicker: fix a bug with the calendar transition.
+  [#553](https://github.com/sharetribe/web-template/pull/553)
+- [add] Add fixed bookings and price variant name support to booking process email templates.
+  [#552](https://github.com/sharetribe/web-template/pull/552)
+- [fix] LocationAutocompleteInput: fix a bug with Google Maps API loading order with Webpack Dev
+  Server. [#548](https://github.com/sharetribe/web-template/pull/548)
+
+  [v7.3.0]: https://github.com/sharetribe/web-template/compare/v7.2.0...v7.3.0
+
+## [v7.2.0] 2025-01-30
+
+- [add] Add support for the new Google Places API
+  [#539](https://github.com/sharetribe/web-template/pull/539)
+- [fix] SearchPageWithMap: duplicate class caused positioning issue on localhost:3000.
+  [#546](https://github.com/sharetribe/web-template/pull/546)
+- [fix] TopbarDesktop: fix a typo (non-existent element attribute), when the search form was not
+  shown. [#545](https://github.com/sharetribe/web-template/pull/545)
+- [change] priceForSchemaMaybe: render offer price when price is 0. This helps customizations, but
+  it's not enough for no-code features to support 0 price for inquiries.
+  [#544](https://github.com/sharetribe/web-template/pull/544)
+- [fix] TabNavHorizontal: Dark skin tab focus styles overriding hover font color.
+  [#543](https://github.com/sharetribe/web-template/pull/543)
+- [fix] Private marketplace: allow search crawlers to access the `/sitemap` route.
+  [#541](https://github.com/sharetribe/web-template/pull/541)
+
+  [v7.2.0]: https://github.com/sharetribe/web-template/compare/v7.1.0...v7.2.0
+
+## [v7.1.0] 2025-01-23
+
+- [add] Add support for hiding the Topbar search based on configuration.
+  [#531](https://github.com/sharetribe/web-template/pull/531)
+- [fix] TransactionPage: fetchMonthlyTimeSlots didn't work correctly with day unitType.
+  [#536](https://github.com/sharetribe/web-template/pull/536)
+- [change] Google's search schema requires a price that uses dot as decimal separator.
+  [#535](https://github.com/sharetribe/web-template/pull/535)
+
+  [v7.1.0]: https://github.com/sharetribe/web-template/compare/v7.0.0...v7.1.0
+
+## [v7.0.0] 2025-01-15
+
+This major release takes the React v18.3.1 into use.
+
+- [fix] EditListingWizard: fix a bug with YouTube field.
+  [#533](https://github.com/sharetribe/web-template/pull/533)
+- [fix] CustomExtendedDataField.module.css: add missing customMediaQuery import.
+  [#532](https://github.com/sharetribe/web-template/pull/532)
+- [change] This updates Sharetribe Web Template to use React v18 (v18.3.1). Some highlights:
+
+  - Several dependency libraries have been updated.
+  - Hydration is much more strict now. First render on client-side must match the server-side
+    render.
+
+  [#523](https://github.com/sharetribe/web-template/pull/523)
+
+- [add] Add currently available translations for DE.
+  [#529](https://github.com/sharetribe/web-template/pull/529)
+- [fix] a link inside the inquiry message was invisible for the sender of the inquiry.
+  [#528](https://github.com/sharetribe/web-template/pull/528)
+- [add] Add currently available translations for DE, ES, FR.
+  [#527](https://github.com/sharetribe/web-template/pull/527)
+- [fix] AvailabilityPlanForm had a hard-coded "Delete" text.
+  [#525](https://github.com/sharetribe/web-template/pull/525)
+- [add] Add currently available translations for DE, ES, FR.
+  [#524](https://github.com/sharetribe/web-template/pull/524)
+- [change] Update the wording of the numberTooSmall error message for consistency.
+  [#522](https://github.com/sharetribe/web-template/pull/522)
+
+  [v7.0.0]: https://github.com/sharetribe/web-template/compare/v6.3.0...v7.0.0
+
+## [v6.3.0] 2025-01-08
+
+- [fix] fix a bug with seats handling in email templates.
+  [#518](https://github.com/sharetribe/web-template/pull/518)
+- [add] Add support for using multiple seats on default-booking process.
+  [#502](https://github.com/sharetribe/web-template/pull/502)
+- [fix] ListingPageVariant: the #author anchor was not pointing to ListingPageVariant.
+  [#515](https://github.com/sharetribe/web-template/pull/515)
+- [fix] target element didn't seem to work well with scroll-margin.
+  [#513](https://github.com/sharetribe/web-template/pull/513)
+- [change] Require account type when creating a Stripe account
+  [#512](https://github.com/sharetribe/web-template/pull/512)
+- [add] Add currently available translations for DE, ES, FR.
+  [#511](https://github.com/sharetribe/web-template/pull/511)
+
+  [v6.3.0]: https://github.com/sharetribe/web-template/compare/v6.2.0...v6.3.0
+
+## [v6.2.0] 2024-11-26
+
+- [add] Remove bank account collection from the template, so that it is collected in the Stripe
+  Onboarding flow instead. [#470](https://github.com/sharetribe/web-template/pull/470)
+- [add] Add currently available translations for DE, ES, FR.
+  [#508](https://github.com/sharetribe/web-template/pull/508)
+- [add] Add support for currencies not supported by Stripe in inquiry processes.
+  [#493](https://github.com/sharetribe/web-template/pull/493)
+- SingeDatePicker: don't update value to dateData if it has the same timestamp has not changed.
+  [#507](https://github.com/sharetribe/web-template/pull/507)
+- [change] Node v23.2 is failing. This adds engine rule for node (">=18.20.1 <23.2.0") for now.
+  [#505](https://github.com/sharetribe/web-template/pull/505)
+- [change] Update mapbox-gl-js (v1.0.0 => v3.7.0) and mapbox-sdk-js (0.6.0 => 0.16.1) Note: Mapbox
+  license changed in v2 (and pricing for non-mapbox related map tiles)
+  https://github.com/mapbox/mapbox-gl-js/releases/tag/v2.0.0
+
+  [#488](https://github.com/sharetribe/web-template/pull/488)
+
+- [change] Update default email template copy texts
+  [#501](https://github.com/sharetribe/web-template/pull/501)
+- [fix] ConfirmSignupForm: show spinner. (Handling for confirmInProgress state was missing.)
+  [#504](https://github.com/sharetribe/web-template/pull/504)
+- [fix] Topbar: if multiple custom links has the same text, the virtual DOM is confused.
+  [#502](https://github.com/sharetribe/web-template/pull/502)
+- [fix] PaymentMethodsPage: full page load did not fetch defaultPaymentMethod.
+  [#500](https://github.com/sharetribe/web-template/pull/500)
+- [change] Relax the Referrer-Policy to "origin".
+  [#498](https://github.com/sharetribe/web-template/pull/498)
+- [fix] Open discard modal on ManageListingsPage only if scrolling is disabled. Fixes an issue where
+  opening the discard draft modal on mobile scrolled the page to the very bottom.
+  [#497](https://github.com/sharetribe/web-template/pull/497)
+
+  [v6.2.0]: https://github.com/sharetribe/web-template/compare/v6.1.0...v6.2.0
+
+## [v6.1.0] 2024-11-06
+
+- [add] Add currently available translations for DE, ES, FR.
+  [#495](https://github.com/sharetribe/web-template/pull/495)
+- [add] Add support for discarding draft listings on ManageListingsPage
+  [474](https://github.com/sharetribe/web-template/pull/474)
+- [fix] ManageListingCard: Menu has a regression bug on mobile layout. Note: if Menu component needs
+  to use full screenwidth on mobile, add preferScreenWidthOnMobile.
+  [#494](https://github.com/sharetribe/web-template/pull/494)
+- [change] Refactor SingleDatePicker and DateRangePicker by combining date and its formatting. It
+  updates dateData if passed-in input value changes.
+  [#492](https://github.com/sharetribe/web-template/pull/492)
+
+  [v6.1.0]: https://github.com/sharetribe/web-template/compare/v6.0.1...v6.1.0
+
+## [v6.0.1] 2024-11-01
+
+- [fix] GA4 integration had a copy-paste bug.
+  [#489](https://github.com/sharetribe/web-template/pull/489)
+- [fix] FieldDateTimeInput.module.css: fix typo.
+  [#487](https://github.com/sharetribe/web-template/pull/487)
+- [change] Update default email templates to use ICU's `j` pattern for datetimes.
+  [#478](https://github.com/sharetribe/web-template/pull/478)
+- [change] Update default email templates to get link and button colors from asset.
+  [#478](https://github.com/sharetribe/web-template/pull/478)
+
+  [v6.0.1]: https://github.com/sharetribe/web-template/compare/v6.0.0...v6.0.1
+
+## [v6.0.0] 2024-10-29
+
+This major release takes the React v17.0.2 into use.
+
+The biggest change is taking a new DatePicker into use and removing the outdated datepicker library:
+React Dates. The change was necessary as the React Dates still uses deprecated React life cycle
+functions componentWillReceiveProps & componentWillUpdate.
+
+Another notable change with the React v17 was with the callback functions of useEffect hook, which
+became asynchronous. You should to check other v17 changes from v17 changelog to verify if your
+customizations are affected somehow.
+
+The last highlight is that we started to use nonce for script-src on Content Security Policy.
+
+- [change] This updates Sharetribe Web Template to use React v17.0.2.
+
+  Some highlights:
+
+  - The callback functions of **_useEffect_ hook** has become asynchronous!
+  - There has been changes to event delegation on React component tree.
+
+    - https://legacy.reactjs.org/blog/2020/10/20/react-v17.html#changes-to-event-delegation
+    - This change didn't seem to have practical consequences on this repository.
+
+  [#477](https://github.com/sharetribe/web-template/pull/477)
+
+- [add] CSP: start using nonce with script-src. This also removes data from script-src.
+  [#485](https://github.com/sharetribe/web-template/pull/485)
+- [add] Remove React Dates datepicker library and add a new built-in DatePicker.
+
+  There are 3 new datepicker fields to be used with React Final Forms:
+
+  - FieldDateRangePicker
+  - FieldSingleDatePicker
+  - FieldDateRangeController
+
+  This swap is done because componentWillReceiveProps & componentWillUpdate functions, which are
+  used by the outdated React Dates library, are deprecated and removed from future React versions.
+
+  [#453](https://github.com/sharetribe/web-template/pull/453)
+
+- [fix] UserCard: make the styles of contact link consistent with the other links.
+  [#484](https://github.com/sharetribe/web-template/pull/484)
+- [fix] CheckoutPage.duck.js: fix minor typo with handleSuccess function.
+  [#483](https://github.com/sharetribe/web-template/pull/483)
+- [add] Filter out bot requests that scan websites for vulnerabilities before they reach React app.
+  [#479](https://github.com/sharetribe/web-template/pull/479)
+- [change] Update copy text for Publishing listing permission to Posting listing.
+  [#482](https://github.com/sharetribe/web-template/pull/482)
+
+  [v6.0.0]: https://github.com/sharetribe/web-template/compare/v5.8.0...v6.0.0
+
+## [v5.8.0] 2024-10-22
+
+- [add] Add currently available translations for DE, ES, FR.
+  [#475](https://github.com/sharetribe/web-template/pull/475)
+- [add] Block images can be wrapped in a link if a link is configured via assets.
+  [#464](https://github.com/sharetribe/web-template/pull/464)
+- [add] Add support for aligning content blocks based on asset
+  [#469](https://github.com/sharetribe/web-template/pull/469)
+- [add] Update moment-timezone library to v0.5.46.
+  [#472](https://github.com/sharetribe/web-template/pull/472)
+- [add] Update caniuselite, which is used by browserlist.
+  [#471](https://github.com/sharetribe/web-template/pull/471)
+- [add] Add support for the youtubeVideoUrl schema type: listingPage and profilePage can now display
+  an embedded Youtube video [#467](https://github.com/sharetribe/web-template/pull/467)
+- [add] Add currently available translations for DE, ES, FR.
+  [#466](https://github.com/sharetribe/web-template/pull/466)
+
+  [v5.8.0]: https://github.com/sharetribe/web-template/compare/v5.7.0...v5.8.0
+
+## [v5.7.0] 2024-10-08
+
+- [add] Access control: Viewing rights.
+
+  When a user's viewing rights have been revoked:
+
+  - SearchPage redirects to NoAccessPage
+  - ListingPage redirects to NoAccessPage unless the user is viewing their own listing. Reviews are
+    not displayed.
+  - ProfilePage redirects to NoAccessPage unless the user is viewing their own profile. Reviews are
+    not displayed.
+  - TransactionPage does not show the OrderPanel for transactions at the inquiry state of booking or
+    purchase processes.
+
+  [#459](https://github.com/sharetribe/web-template/pull/459)
+
+  [v5.7.0]: https://github.com/sharetribe/web-template/compare/v5.6.1...v5.7.0
+
+## [v5.6.1] 2024-10-07
+
+- [fix] Updated JSON asset schema structure from Console: Removed the enabled field, now using only
+  the type attribute for CTA status.
+- [add] Add currently available translations for DE, ES, FR.
+  [#461](https://github.com/sharetribe/web-template/pull/461)
+
+  [v5.6.1]: https://github.com/sharetribe/web-template/compare/v5.6.0...v5.6.1
+
+## [v5.6.0] 2024-10-01
+
+- [add] Add support for CTAs on NoAccessPage
+  [#455](https://github.com/sharetribe/web-template/pull/455)
+- [add] Add currently available translations for DE, ES, FR.
+  [#458](https://github.com/sharetribe/web-template/pull/458)
+- [fix] Topbar: malformed custom link causes a 500 error on server.
+  [#457](https://github.com/sharetribe/web-template/pull/457)
+- [fix] ListingPage.shared.js: import for convertMoneyToNumber was not made for priceForSchemaMaybe
+  function. [#456](https://github.com/sharetribe/web-template/pull/456)
+- [add] Access control: Transaction rights
+
+  - When a user does not have the "initiateTransactions" permission in their
+    `effectivePermissionSet` relationship and they try to initiate an order or send an inquiry, they
+    are redirected to the NoAccessPage.
+
+  [#450](https://github.com/sharetribe/web-template/pull/450)
+
+- [fix] InquiryForm: test code was committed earlier.
+  [#452](https://github.com/sharetribe/web-template/pull/452)
+- [fix] EmailVerification: enforce that currentUser is fetched after verification.
+  [#451](https://github.com/sharetribe/web-template/pull/451)
+- [fix] ListingPage: fix 0 as value of listing fields.
+  [#449](https://github.com/sharetribe/web-template/pull/449)
+- [fix] EditListingDetailsPanel: fix 0 as value of listing fields.
+  [#448](https://github.com/sharetribe/web-template/pull/448)
+- [fix] Currencies that the Stripe does not support should not cause 500 errors.
+  [#447](https://github.com/sharetribe/web-template/pull/447)
+
+  [v5.6.0]: https://github.com/sharetribe/web-template/compare/v5.5.0...v5.6.0
+
+## [v5.5.0] 2024-09-03
+
+- [add] Add currently available translations for DE, ES, FR.
+  [#445](https://github.com/sharetribe/web-template/pull/445)
+- [change] Make the propType blockId optional for all Block types.
+  [#444](https://github.com/sharetribe/web-template/pull/444)
+- [change] Update Sentry (v6.19.7 -> v8.26.0). Add ignoreErrors setup, add CSP directives and avoid
+  some errors. [#441](https://github.com/sharetribe/web-template/pull/441)
+- [fix] ListingPage: the optional chaining for processType variable was faulty.
+  [#443](https://github.com/sharetribe/web-template/pull/443)
+- [change] Updates to the configuration script. Marketplace name is now prompted in the mandatory
+  settings. [#440](https://github.com/sharetribe/web-template/pull/440)
+- [change] Update one copy text. [#439](https://github.com/sharetribe/web-template/pull/439)
+
+  [v5.5.0]: https://github.com/sharetribe/web-template/compare/v5.4.0...v5.5.0
+
+## [v5.4.0] 2024-08-20
+
+- [change] auth.duck.js: login flow should wait for currentUser entity be loaded.
+  [#436](https://github.com/sharetribe/web-template/pull/436)
+- [add] Access control: private marketplace mode
+
+  - Fetch a new asset: /general/access-control.json to check private: true/false flag
+  - Make SearchPage, ListingPage, ProfilePage, Styleguide require authentication
+  - Ensure currentUser entity is loaded before loadData on client-side
+  - Restrict data load & add redirections for SearchPage, ListingPage, and ProfilePage
+
+  [#434](https://github.com/sharetribe/web-template/pull/434)
+
+- [add] Access control: 'pending-approval' state for users.
+
+  - Users will get "state", which is exposed through currentUser's attribute
+  - A new state is "pending-approval", which restricts user from initiating transactions and posting
+    listings.
+  - In addition, 'banned' users will also have state 'banned'.
+  - Extra: Routes.js: do not allow banned users to auth pages
+  - [fix]: InboxPage.duck.js: include deleted and banned attributes
+  - [fix]: ModalMissingInformation: only 'active' users get this modal shown
+  - [fix]: Inquiry modal: open the modal after authentication
+  - Some util-file imports have been reordered (might cause conflicts)
+
+  [#428](https://github.com/sharetribe/web-template/pull/428)
+
+- [fix] SearchPage: SearchFiltersMobile (modal) should be above topbar.
+  [#432](https://github.com/sharetribe/web-template/pull/432)
+
+  [v5.4.0]: https://github.com/sharetribe/web-template/compare/v5.3.0...v5.4.0
+
+## [v5.3.0] 2024-08-13
+
+- [change] ProfilePage: redirect Stripe's crawler to landing page (profile page might be empty).
+  [#430](https://github.com/sharetribe/web-template/pull/430)
+- [add] Add currently available translations for DE, ES, FR.
+  [#429](https://github.com/sharetribe/web-template/pull/429)
+- [add] Handle API's new permission model & permission to post listings
+
+  - CurrentUser fetch includes a new relationship: effectivePermissionSet
+  - There is a new Page component: NoAccessPage
+  - If user has no posting rights: they can't create or edit a draft listing and they can't open a
+    previously closed published listing. Instead, they are redirected to NoAccessPage
+
+  [#426](https://github.com/sharetribe/web-template/pull/426)
+
+- [fix] Routes.js: reTry can be undefined in some cases (reTry.scrollIntoView)
+  [#427](https://github.com/sharetribe/web-template/pull/427)
+- [change] ProfilePage: remove withViewport and refactor a bit.
+  [#424](https://github.com/sharetribe/web-template/pull/424)
+- [change] Update express.js (v4.19.2) and nodemon (3.1.4).
+  [#421](https://github.com/sharetribe/web-template/pull/421)
+- [add] richText.js: support parentheses on autolinked URLs.
+  [#419](https://github.com/sharetribe/web-template/pull/419)
+- [fix] Safari has a bug related to reading array directly from JSON-LD script tag.
+  [#418](https://github.com/sharetribe/web-template/pull/418)
+- [fix] There could be rare time-windows when indexing has not caught up with deleted & closed
+  listings. This might result those listings to be included to listing queries.
+  [#417](https://github.com/sharetribe/web-template/pull/417)
+
+  [v5.3.0]: https://github.com/sharetribe/web-template/compare/v5.2.1...v5.3.0
+
+## [v5.2.1] 2024-07-02
+
+- [fix] fix: calculateShippingFee (when shippingPriceInSubunitsAdditionalItems is 0, no shipping fee
+  was included) [#414](https://github.com/sharetribe/web-template/pull/414)
+- [fix] Remove stock from schema if there's no stock in use.
+  [#405](https://github.com/sharetribe/web-template/pull/405)
+- [fix] Remove left-behind slash from inquiry-new-inquiry email template reference.
+  [#406](https://github.com/sharetribe/web-template/pull/406)
+- [fix] The subject line of purchase-new-order email had a wrong variable name.
+  [#413](https://github.com/sharetribe/web-template/pull/413)
+- [change] Fix another typo in FR translations.
+  [#409](https://github.com/sharetribe/web-template/pull/409)
 - [change] Fix a typo in FR translations.
-  [#407](https://github.com/sharetribe/web-template/pull/407)
+  [#408](https://github.com/sharetribe/web-template/pull/408)
 - [add] Add currently available translations for de, es, fr.
   [#404](https://github.com/sharetribe/web-template/pull/404)
 - [fix] The example files of SignupForm and ConfirmSignupForm had wrong data.
   [#403](https://github.com/sharetribe/web-template/pull/403)
 - [change] FilterComponent: relax generated name-attribute for inputs: allow camelCase.
   [#402](https://github.com/sharetribe/web-template/pull/402)
+
+  [v5.2.1]: https://github.com/sharetribe/web-template/compare/v5.2.0...v5.2.1
 
 ## [v5.2.0] 2024-05-28
 

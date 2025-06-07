@@ -11,6 +11,7 @@ import FieldDateAndTimeInput from './FieldDateAndTimeInput';
 const { UUID } = sdkTypes;
 
 const identity = v => v;
+const noop = () => {};
 
 const options = { weekday: 'short', month: 'long', day: 'numeric' };
 const placeholderText = new Intl.DateTimeFormat('en-US', options).format(new Date());
@@ -50,6 +51,7 @@ const today = new Date();
 const currentYear = today.getUTCFullYear();
 const m = today.getUTCMonth() + 1;
 const currentMonth = m < 10 ? `0${m}` : m;
+const currentDay = today.getUTCDate();
 
 const timeSlots = [
   {
@@ -58,6 +60,7 @@ const timeSlots = [
     attributes: {
       start: new Date(`${currentYear}-${currentMonth}-14T09:00:00Z`),
       end: new Date(`${currentYear}-${currentMonth}-14T10:00:00Z`),
+      seats: 1,
       type: TIME_SLOT_TIME,
     },
   },
@@ -67,6 +70,7 @@ const timeSlots = [
     attributes: {
       start: new Date(`${currentYear}-${currentMonth}-14T16:00:00Z`),
       end: new Date(`${currentYear}-${currentMonth}-14T20:00:00Z`),
+      seats: 1,
       type: TIME_SLOT_TIME,
     },
   },
@@ -76,6 +80,7 @@ const timeSlots = [
     attributes: {
       start: new Date(`${currentYear}-${currentMonth}-20T09:00:00Z`),
       end: new Date(`${currentYear}-${currentMonth}-22T18:00:00Z`),
+      seats: 1,
       type: TIME_SLOT_TIME,
     },
   },
@@ -85,6 +90,7 @@ const timeSlots = [
     attributes: {
       start: new Date(`${currentYear}-${currentMonth}-17T09:00:00Z`),
       end: new Date(`${currentYear}-${currentMonth}-17T18:00:00Z`),
+      seats: 1,
       type: TIME_SLOT_TIME,
     },
   },
@@ -94,6 +100,7 @@ const timeSlots = [
     attributes: {
       start: new Date(`${currentYear}-${currentMonth}-28T09:00:00Z`),
       end: new Date(`${currentYear}-${currentMonth + 1}-03T18:00:00Z`),
+      seats: 1,
       type: TIME_SLOT_TIME,
     },
   },
@@ -105,6 +112,15 @@ const monthlyTimeSlots = {
     timeSlots,
     fetchTimeSlotsError: null,
     fetchTimeSlotsInProgress: null,
+  },
+};
+const dayId = `${currentYear}-${currentMonth}-14`;
+const timeSlotsForDate = {
+  [dayId]: {
+    timeSlots: [timeSlots[0], timeSlots[1]],
+    fetchTimeSlotsError: null,
+    fetchTimeSlotsInProgress: null,
+    fetchedAt: today.getTime(),
   },
 };
 
@@ -124,6 +140,7 @@ const FormComponent = props => (
         endDateInputProps,
         timeZone,
         monthlyTimeSlots,
+        timeSlotsForDate,
         values,
         intl,
         dayCountAvailableForBooking,
@@ -147,12 +164,14 @@ const FormComponent = props => (
           <FieldDateAndTimeInput
             {...dateInputProps}
             monthlyTimeSlots={monthlyTimeSlots}
+            timeSlotsForDate={timeSlotsForDate}
             onFetchTimeSlots={onFetchTimeSlots}
             values={values}
             intl={intl}
             form={form}
             pristine={pristine}
             timeZone={timeZone}
+            setSeatsOptions={noop}
             dayCountAvailableForBooking={dayCountAvailableForBooking}
           />
           <Button type="submit" disabled={submitDisabled} style={{ marginTop: '24px' }}>
@@ -175,6 +194,7 @@ export const Empty = {
     endTimeInputProps,
     timeZone: 'Etc/UTC',
     monthlyTimeSlots,
+    timeSlotsForDate,
     initialValues: {
       bookingStartDate: { date: new Date(Date.UTC(currentYear, today.getUTCMonth(), 14)) },
     },
@@ -183,9 +203,7 @@ export const Empty = {
     onSubmit: values => {
       console.log('Submitting a form with values:', values);
     },
-    onFetchTimeSlots: () => {
-      console.log('Fetching timeSlots');
-    },
+    onFetchTimeSlots: () => Promise.resolve(() => console.log('onFetchTimeSlots called')),
   },
   group: 'inputs',
 };

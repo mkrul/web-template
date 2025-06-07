@@ -1,14 +1,28 @@
 import React, { Component } from 'react';
-import { func, object, string } from 'prop-types';
 import classNames from 'classnames';
 
 import { injectIntl, intlShape } from '../../../util/reactIntl';
 import { propTypes } from '../../../util/types';
 import { formatMoney } from '../../../util/currency';
 import { ensureListing } from '../../../util/data';
+import { isPriceVariationsEnabled } from '../../../util/configHelpers';
 
 import css from './SearchMapPriceLabel.module.css';
 
+/**
+ * SearchMapPriceLabel component
+ * TODO: change to functional component
+ *
+ * @component
+ * @param {Object} props
+ * @param {string} [props.className] - Custom class that extends the default class for the root element
+ * @param {string} [props.rootClassName] - Custom class that extends the default class for the root element
+ * @param {propTypes.listing} props.listing - The listing
+ * @param {Function} props.onListingClicked - The function to handle the listing click
+ * @param {Object} props.config - The configuration
+ * @param {intlShape} props.intl - The intl object
+ * @returns {JSX.Element}
+ */
 class SearchMapPriceLabel extends Component {
   shouldComponentUpdate(nextProps) {
     const currentListing = ensureListing(this.props.listing);
@@ -33,7 +47,7 @@ class SearchMapPriceLabel extends Component {
       config,
     } = this.props;
     const currentListing = ensureListing(listing);
-    const { price } = currentListing.attributes;
+    const { price, publicData } = currentListing.attributes;
 
     // Create formatted price if currency is known or alternatively show just the unknown currency.
     const formattedPrice =
@@ -42,6 +56,22 @@ class SearchMapPriceLabel extends Component {
         : price?.currency
         ? price.currency
         : null;
+
+    const priceValue = formattedPrice
+      ? intl.formatMessage({ id: 'SearchMapPriceLabel.price' }, { priceValue: formattedPrice })
+      : null;
+
+    const validListingTypes = config.listing.listingTypes;
+    const foundListingTypeConfig = validListingTypes.find(
+      conf => conf.listingType === publicData?.listingType
+    );
+    const isPriceVariationsInUse = isPriceVariationsEnabled(publicData, foundListingTypeConfig);
+    const hasMultiplePriceVariants =
+      isPriceVariationsInUse && publicData?.priceVariants?.length > 1;
+
+    const priceMessage = hasMultiplePriceVariants
+      ? intl.formatMessage({ id: 'SearchMapInfoCard.priceStartingFrom' }, { priceValue })
+      : intl.formatMessage({ id: 'SearchMapInfoCard.price' }, { priceValue });
 
     const classes = classNames(rootClassName || css.root, className);
     const priceLabelClasses = classNames(css.priceLabel, {
@@ -53,27 +83,11 @@ class SearchMapPriceLabel extends Component {
     return (
       <button className={classes} onClick={() => onListingClicked(currentListing)}>
         <div className={css.caretShadow} />
-        <div className={priceLabelClasses}>{formattedPrice}</div>
+        <div className={priceLabelClasses}>{priceMessage}</div>
         <div className={caretClasses} />
       </button>
     );
   }
 }
-
-SearchMapPriceLabel.defaultProps = {
-  className: null,
-  rootClassName: null,
-};
-
-SearchMapPriceLabel.propTypes = {
-  className: string,
-  rootClassName: string,
-  listing: propTypes.listing.isRequired,
-  onListingClicked: func.isRequired,
-  config: object.isRequired,
-
-  // from injectIntl
-  intl: intlShape.isRequired,
-};
 
 export default injectIntl(SearchMapPriceLabel);

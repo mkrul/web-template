@@ -1,17 +1,23 @@
 import React from 'react';
 
 // Import config and utils
+import { useIntl } from '../../util/reactIntl';
 import {
   SCHEMA_TYPE_ENUM,
   SCHEMA_TYPE_MULTI_ENUM,
   SCHEMA_TYPE_TEXT,
   SCHEMA_TYPE_LONG,
   SCHEMA_TYPE_BOOLEAN,
+  SCHEMA_TYPE_YOUTUBE,
 } from '../../util/types';
-import { useIntl } from '../../util/reactIntl';
-import { required, nonEmptyArray, validateInteger } from '../../util/validators';
+import {
+  required,
+  nonEmptyArray,
+  validateInteger,
+  validateYoutubeURL,
+} from '../../util/validators';
 // Import shared components
-import { FieldCheckboxGroup, FieldSelect, FieldTextInput, FieldBoolean } from '..';
+import { FieldCheckboxGroup, FieldSelect, FieldTextInput, FieldBoolean } from '../../components';
 // Import modules from this directory
 import css from './CustomExtendedDataField.module.css';
 
@@ -138,6 +144,18 @@ const CustomFieldLong = props => {
       label={label}
       placeholder={placeholder}
       validate={value => validate(value, minimum, maximum)}
+      onWheel={e => {
+        // fix: number input should not change value on scroll
+        if (e.target === document.activeElement) {
+          // Prevent the input value change, because we prefer page scrolling
+          e.target.blur();
+
+          // Refocus immediately, on the next tick (after the current function is done)
+          setTimeout(() => {
+            e.target.focus();
+          }, 0);
+        }
+      }}
     />
   );
 };
@@ -160,6 +178,38 @@ const CustomFieldBoolean = props => {
       label={label}
       placeholder={placeholder}
       {...validateMaybe}
+    />
+  );
+};
+
+const CustomFieldYoutube = props => {
+  const { name, fieldConfig, defaultRequiredMessage, formId, intl } = props;
+  const { placeholderMessage, isRequired, requiredMessage } = fieldConfig?.saveConfig || {};
+  const label = getLabel(fieldConfig);
+  const placeholder =
+    placeholderMessage ||
+    intl.formatMessage({ id: 'CustomExtendedDataField.placeholderYoutubeVideoURL' });
+
+  const notValidUrlMessage = intl.formatMessage({
+    id: 'CustomExtendedDataField.notValidYoutubeVideoURL',
+  });
+
+  const validate = value => {
+    const requiredMsg = requiredMessage || defaultRequiredMessage;
+    return isRequired && value == null
+      ? requiredMsg
+      : validateYoutubeURL(value, notValidUrlMessage);
+  };
+
+  return (
+    <FieldTextInput
+      className={css.customField}
+      id={formId ? `${formId}.${name}` : name}
+      name={name}
+      type="text"
+      label={label}
+      placeholder={placeholder}
+      validate={value => validate(value)}
     />
   );
 };
@@ -189,6 +239,8 @@ const CustomExtendedDataField = props => {
     ? renderFieldComponent(CustomFieldLong, props)
     : schemaType === SCHEMA_TYPE_BOOLEAN
     ? renderFieldComponent(CustomFieldBoolean, props)
+    : schemaType === SCHEMA_TYPE_YOUTUBE
+    ? renderFieldComponent(CustomFieldYoutube, props)
     : null;
 };
 

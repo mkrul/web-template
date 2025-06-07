@@ -7,29 +7,48 @@ import { ListingCard, PaginationLinks } from '../../../components';
 
 import css from './SearchResultsPanel.module.css';
 
-const SearchResultsPanel = props => {
+/**
+ * SearchResultsPanel component
+ *
+ * @component
+ * @param {Object} props
+ * @param {string} [props.className] - Custom class that extends the default class for the root element
+ * @param {string} [props.rootClassName] - Custom class that extends the default class for the root element
+ * @param {Array<propTypes.listing>} props.listings - The listings
+ * @param {propTypes.pagination} props.pagination - The pagination
+ * @param {Object} props.search - The search
+ * @param {Function} props.setActiveListing - The function to handle the active listing
+ * @param {boolean} [props.isMapVariant] - Whether the map variant is enabled
+ * @returns {JSX.Element}
+ */
+const SearchResultsPanel = (props) => {
   const {
     className,
     rootClassName,
-    listings,
+    listings = [],
     pagination,
     search,
     setActiveListing,
-    isMapVariant,
+    isMapVariant = true,
+    listingTypeParam,
   } = props;
   const classes = classNames(rootClassName || css.root, className);
+  const pageName = listingTypeParam
+    ? 'SearchPageWithListingType'
+    : 'SearchPage';
 
   const paginationLinks =
     pagination && pagination.totalPages > 1 ? (
       <PaginationLinks
         className={css.pagination}
-        pageName="SearchPage"
+        pageName={pageName}
+        pagePathParams={{ listingType: listingTypeParam }}
         pageSearchParams={search}
         pagination={pagination}
       />
     ) : null;
 
-  const cardRenderSizes = isMapVariant => {
+  const cardRenderSizes = (isMapVariant) => {
     if (isMapVariant) {
       // Panel width relative to the viewport
       const panelMediumWidth = 50;
@@ -56,8 +75,10 @@ const SearchResultsPanel = props => {
 
   return (
     <div className={classes}>
-      <div className={isMapVariant ? css.listingCardsMapVariant : css.listingCards}>
-        {listings.map(l => (
+      <div
+        className={isMapVariant ? css.listingCardsMapVariant : css.listingCards}
+      >
+        {listings.map((l) => (
           <ListingCard
             className={css.listingCard}
             key={l.id.uuid}
@@ -80,7 +101,7 @@ SearchResultsPanel.defaultProps = {
   pagination: null,
   rootClassName: null,
   search: null,
-  isMapVariant: true
+  isMapVariant: true,
 };
 
 SearchResultsPanel.propTypes = {
@@ -90,7 +111,7 @@ SearchResultsPanel.propTypes = {
   pagination: propTypes.pagination,
   rootClassName: string,
   search: object,
-  isMapVariant: bool
+  isMapVariant: bool,
 };
 
 export default SearchResultsPanel;

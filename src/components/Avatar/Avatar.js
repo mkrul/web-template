@@ -1,14 +1,15 @@
 import React from 'react';
-import { string, oneOfType, bool } from 'prop-types';
-import { injectIntl, intlShape } from '../../util/reactIntl';
+import { useIntl } from '../../util/reactIntl';
 import classNames from 'classnames';
-import { propTypes } from '../../util/types';
 import {
   ensureUser,
   ensureCurrentUser,
   userDisplayNameAsString,
   userAbbreviatedName,
 } from '../../util/data';
+import { PROFILE_PAGE_PENDING_APPROVAL_VARIANT } from '../../util/urlHelpers';
+import { isUserAuthorized } from '../../util/userHelpers';
+
 import { ResponsiveImage, IconBannedUser, NamedLink } from '../../components/';
 
 import css from './Avatar.module.css';
@@ -32,20 +33,38 @@ const AVATAR_IMAGE_VARIANTS = [
   'square-small2x',
 ];
 
-export const AvatarComponent = props => {
+/**
+ * Menu for mobile layout (opens through hamburger icon)
+ *
+ * @component
+ * @param {Object} props
+ * @param {string?} props.className add more style rules in addition to components own css.root
+ * @param {string?} props.rootClassName overwrite components own css.root
+ * @param {Object?} props.user API entity
+ * @param {string} props.renderSizes
+ * @param {boolean} props.disableProfileLink
+ * @returns {JSX.Element} search icon
+ */
+export const Avatar = props => {
+  const intl = useIntl();
   const {
     rootClassName,
     className,
     initialsClassName,
     user,
-    renderSizes,
+    renderSizes = AVATAR_SIZES,
     disableProfileLink,
-    intl,
   } = props;
   const classes = classNames(rootClassName || css.root, className);
 
   const userIsCurrentUser = user && user.type === 'currentUser';
   const avatarUser = userIsCurrentUser ? ensureCurrentUser(user) : ensureUser(user);
+  // I.e. the status is active, not pending-approval or banned
+  const isUnauthorizedUser = userIsCurrentUser && !isUserAuthorized(user);
+  const variant =
+    user?.attributes?.state === 'pendingApproval'
+      ? PROFILE_PAGE_PENDING_APPROVAL_VARIANT
+      : user?.attributes?.state;
 
   const isBannedUser = avatarUser.attributes.banned;
   const isDeletedUser = avatarUser.attributes.deleted;
@@ -61,9 +80,15 @@ export const AvatarComponent = props => {
   const displayName = userDisplayNameAsString(avatarUser, defaultUserDisplayName);
   const abbreviatedName = userAbbreviatedName(avatarUser, defaultUserAbbreviatedName);
   const rootProps = { className: classes, title: displayName };
-  const linkProps = avatarUser.id
-    ? { name: 'ProfilePage', params: { id: avatarUser.id.uuid } }
-    : { name: 'ProfileBasePage' };
+  const linkProps =
+    isUnauthorizedUser && avatarUser.id
+      ? {
+          name: 'ProfilePageVariant',
+          params: { id: avatarUser.id.uuid, variant },
+        }
+      : avatarUser.id
+      ? { name: 'ProfilePage', params: { id: avatarUser.id.uuid } }
+      : { name: 'ProfileBasePage' };
   const hasProfileImage = avatarUser.profileImage && avatarUser.profileImage.id;
   const profileLinkEnabled = !disableProfileLink;
 
@@ -113,28 +138,6 @@ export const AvatarComponent = props => {
     );
   }
 };
-
-AvatarComponent.defaultProps = {
-  className: null,
-  rootClassName: null,
-  user: null,
-  renderSizes: AVATAR_SIZES,
-  disableProfileLink: false,
-};
-
-AvatarComponent.propTypes = {
-  rootClassName: string,
-  className: string,
-  user: oneOfType([propTypes.user, propTypes.currentUser]),
-
-  renderSizes: string,
-  disableProfileLink: bool,
-
-  // from injectIntl
-  intl: intlShape.isRequired,
-};
-
-const Avatar = injectIntl(AvatarComponent);
 
 export default Avatar;
 

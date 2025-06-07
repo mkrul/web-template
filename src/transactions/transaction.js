@@ -1,5 +1,4 @@
 import * as log from '../util/log';
-import { ensureTransaction } from '../util/data';
 import * as purchaseProcess from './transactionProcessPurchase';
 import * as bookingProcess from './transactionProcessBooking';
 import * as inquiryProcess from './transactionProcessInquiry';
@@ -11,6 +10,7 @@ export const ITEM = 'item';
 export const DAY = 'day';
 export const NIGHT = 'night';
 export const HOUR = 'hour';
+export const FIXED = 'fixed';
 export const INQUIRY = 'inquiry';
 
 // Then names of supported processes
@@ -42,7 +42,7 @@ const PROCESSES = [
     name: BOOKING_PROCESS_NAME,
     alias: `${BOOKING_PROCESS_NAME}/release-1`,
     process: bookingProcess,
-    unitTypes: [DAY, NIGHT, HOUR],
+    unitTypes: [DAY, NIGHT, HOUR, FIXED],
   },
   {
     name: INQUIRY_PROCESS_NAME,
@@ -363,9 +363,8 @@ export const TX_TRANSITION_ACTORS = [
  * @param {Object} transaction Transaction entity from Marketplace API
  */
 export const getUserTxRole = (currentUserId, transaction) => {
-  const tx = ensureTransaction(transaction);
-  const customer = tx.customer;
-  if (currentUserId && currentUserId.uuid && tx.id && customer.id) {
+  const customer = transaction?.customer;
+  if (currentUserId && currentUserId.uuid && transaction?.id && customer.id) {
     // user can be either customer or provider
     return currentUserId.uuid === customer.id.uuid
       ? TX_TRANSITION_ACTOR_CUSTOMER

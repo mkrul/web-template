@@ -9,17 +9,31 @@
 import * as Sentry from '@sentry/browser';
 import appSettings from '../config/settings';
 
+const ingoreErrorsMap = {
+  ['ResizeObserver loop limit exceeded']: true, // Some exotic browsers seems to emit these.
+  ['Error reading']: true, // Ignore file reader errors (ImageFromFile)
+  ['AxiosError: Network Error']: true,
+};
+
+const pickSelectedErrors = (ignored, entry) => {
+  const [key, value] = entry;
+  return value === true ? [...ignored, key] : ignored;
+};
+
 /**
  * Set up error handling. If a Sentry DSN is
  * provided a Sentry client will be installed.
  */
 export const setup = () => {
   if (appSettings.sentryDsn) {
+    const ignoreErrors = Object.entries(ingoreErrorsMap).reduce(pickSelectedErrors, []);
+
     // Configures the Sentry client. Adds a handler for
     // any uncaught exception.
     Sentry.init({
       dsn: appSettings.sentryDsn,
       environment: appSettings.env,
+      ignoreErrors,
     });
   }
 };
@@ -31,9 +45,7 @@ export const setup = () => {
  * @param {String} userId ID of current user
  */
 export const setUserId = userId => {
-  Sentry.configureScope(scope => {
-    scope.setUser({ id: userId });
-  });
+  Sentry.setUser({ id: userId });
 };
 
 /**
@@ -41,9 +53,7 @@ export const setUserId = userId => {
  */
 
 export const clearUserId = () => {
-  Sentry.configureScope(scope => {
-    scope.setUser(null);
-  });
+  Sentry.setUser(null);
 };
 
 const printAPIErrorsAsConsoleTable = apiErrors => {
@@ -92,4 +102,41 @@ export const error = (e, code, data) => {
     console.error('Error code:', code, 'data:', data);
     printAPIErrorsAsConsoleTable(apiErrors);
   }
+};
+
+const setCause = (error, cause) => {
+  const seenErrors = new WeakSet();
+
+  const setCauseIfNoExistingCause = (error, cause) => {
+    if (seenErrors.has(error)) {
+      return;
+    }
+    if (error.cause) {
+      seenErrors.add(error);
+      return setCauseIfNoExistingCause(error.cause, cause);
+    }
+    error.cause = cause;
+  };
+
+  setCauseIfNoExistingCause(error, cause);
+};
+
+export const onRecoverableError = (error, componentStack) => {
+  let data = {};
+
+  if (componentStack) {
+    // Generating this synthetic error allows monitoring services to apply sourcemaps
+    // to unminify the stacktrace and make it readable.
+    const errorBoundaryError = new Error(error.message);
+    errorBoundaryError.name = `React ErrorBoundary ${errorBoundaryError.name}`;
+    errorBoundaryError.stack = componentStack;
+
+    // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Error/cause
+    setCause(error, errorBoundaryError);
+
+    data.componentStack = componentStack;
+  }
+
+  // Replace with your error monitoring service.
+  error(error, 'recoverable-error', data);
 };

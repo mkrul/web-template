@@ -9,7 +9,7 @@ import {
 } from '../../../util/testHelpers';
 import { createOwnListing, createStock, fakeIntl } from '../../../util/testData';
 
-import { ManageListingCardComponent } from './ManageListingCard';
+import { ManageListingCard } from './ManageListingCard';
 
 const { screen, waitFor } = testingLibrary;
 
@@ -61,7 +61,7 @@ describe('ManageListingCard', () => {
     ]);
 
     const tree = render(
-      <ManageListingCardComponent
+      <ManageListingCard
         history={{ push: noop }}
         listing={listing}
         intl={fakeIntl}
@@ -79,7 +79,7 @@ describe('ManageListingCard', () => {
     expect(tree.getByText('ResponsiveImage.noImage')).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.closeListing')).toBeInTheDocument();
     expect(tree.queryByText('ManageListingCard.priceNotSet')).not.toBeInTheDocument();
-    expect(tree.queryByText('10')).not.toBeInTheDocument(); //fakeIntl
+    expect(tree.queryByText('ManageListingCard.price')).not.toBeInTheDocument(); //fakeIntl
     expect(tree.getByText(/the Listing/i)).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.editListing')).toBeInTheDocument();
     expect(tree.queryByText('ManageListingCard.manageAvailability')).not.toBeInTheDocument();
@@ -120,7 +120,7 @@ describe('ManageListingCard', () => {
     ]);
 
     const tree = render(
-      <ManageListingCardComponent
+      <ManageListingCard
         history={{ push: noop }}
         listing={listing}
         intl={fakeIntl}
@@ -138,7 +138,7 @@ describe('ManageListingCard', () => {
     expect(tree.getByText('ResponsiveImage.noImage')).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.closeListing')).toBeInTheDocument();
     expect(tree.queryByText('ManageListingCard.priceNotSet')).not.toBeInTheDocument();
-    expect(tree.queryByText('10')).toBeInTheDocument(); //fakeIntl
+    expect(tree.queryByText('ManageListingCard.price')).toBeInTheDocument(); //fakeIntl
     expect(tree.getByText(/the Listing/i)).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.editListing')).toBeInTheDocument();
     expect(tree.queryByText('ManageListingCard.manageAvailability')).not.toBeInTheDocument();
@@ -177,7 +177,7 @@ describe('ManageListingCard', () => {
     });
 
     const tree = render(
-      <ManageListingCardComponent
+      <ManageListingCard
         history={{ push: noop }}
         listing={listing}
         intl={fakeIntl}
@@ -192,8 +192,7 @@ describe('ManageListingCard', () => {
     );
     expect(tree.getByText('ResponsiveImage.noImage')).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.closeListing')).toBeInTheDocument();
-    expect(tree.getByText('10')).toBeInTheDocument(); //fakeIntl
-    expect(tree.getByText('ManageListingCard.perUnit')).toBeInTheDocument();
+    expect(tree.getByText('ManageListingCard.price')).toBeInTheDocument();
     expect(tree.getByText(/the Listing/i)).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.editListing')).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.manageAvailability')).toBeInTheDocument();
@@ -232,7 +231,7 @@ describe('ManageListingCard', () => {
     });
 
     const tree = render(
-      <ManageListingCardComponent
+      <ManageListingCard
         history={{ push: noop }}
         listing={listing}
         intl={fakeIntl}
@@ -247,8 +246,7 @@ describe('ManageListingCard', () => {
     );
     expect(tree.getByText('ResponsiveImage.noImage')).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.closeListing')).toBeInTheDocument();
-    expect(tree.getByText('10')).toBeInTheDocument(); //fakeIntl
-    expect(tree.getByText('ManageListingCard.perUnit')).toBeInTheDocument();
+    expect(tree.getByText('ManageListingCard.price')).toBeInTheDocument();
     expect(tree.getByText(/the Listing/i)).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.editListing')).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.manageAvailability')).toBeInTheDocument();
@@ -290,7 +288,7 @@ describe('ManageListingCard', () => {
     });
 
     const tree = render(
-      <ManageListingCardComponent
+      <ManageListingCard
         history={{ push: noop }}
         listing={listing}
         intl={fakeIntl}
@@ -305,8 +303,7 @@ describe('ManageListingCard', () => {
     );
     expect(tree.getByText('ResponsiveImage.noImage')).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.closeListing')).toBeInTheDocument();
-    expect(tree.getByText('10')).toBeInTheDocument(); //fakeIntl
-    expect(tree.getByText('ManageListingCard.perUnit')).toBeInTheDocument();
+    expect(tree.getByText('ManageListingCard.price')).toBeInTheDocument();
     expect(tree.getByText(/the Listing/i)).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.editListing')).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.manageAvailability')).toBeInTheDocument();
@@ -347,7 +344,7 @@ describe('ManageListingCard', () => {
     });
 
     const tree = render(
-      <ManageListingCardComponent
+      <ManageListingCard
         history={{ push: noop }}
         listing={listing}
         intl={fakeIntl}
@@ -363,8 +360,7 @@ describe('ManageListingCard', () => {
 
     expect(tree.getByText('ResponsiveImage.noImage')).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.closeListing')).toBeInTheDocument();
-    expect(tree.getByText('10')).toBeInTheDocument(); //fakeIntl
-    expect(tree.getByText('ManageListingCard.perUnit')).toBeInTheDocument();
+    expect(tree.getByText('ManageListingCard.price')).toBeInTheDocument();
     expect(tree.getByText(/the Listing/i)).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.editListing')).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.manageAvailability')).toBeInTheDocument();
@@ -405,7 +401,7 @@ describe('ManageListingCard', () => {
     });
 
     const tree = render(
-      <ManageListingCardComponent
+      <ManageListingCard
         history={{ push: noop }}
         listing={listing}
         intl={fakeIntl}
@@ -464,7 +460,7 @@ describe('ManageListingCard', () => {
     ]);
 
     const tree = render(
-      <ManageListingCardComponent
+      <ManageListingCard
         history={{ push: noop }}
         listing={listing}
         intl={fakeIntl}
@@ -481,7 +477,7 @@ describe('ManageListingCard', () => {
 
     expect(tree.getByText('ResponsiveImage.noImage')).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.closeListing')).toBeInTheDocument();
-    expect(tree.getByText('10')).toBeInTheDocument(); //fakeIntl
+    expect(tree.getByText('ManageListingCard.price')).toBeInTheDocument();
     expect(tree.getByText(/the Listing/i)).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.editListing')).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.manageStock')).toBeInTheDocument();
@@ -526,7 +522,7 @@ describe('ManageListingCard', () => {
     ]);
 
     const tree = render(
-      <ManageListingCardComponent
+      <ManageListingCard
         history={{ push: noop }}
         listing={listing}
         intl={fakeIntl}
@@ -543,7 +539,7 @@ describe('ManageListingCard', () => {
 
     expect(tree.getByText('ResponsiveImage.noImage')).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.closeListing')).toBeInTheDocument();
-    expect(tree.getByText('10')).toBeInTheDocument(); //fakeIntl
+    expect(tree.getByText('ManageListingCard.price')).toBeInTheDocument(); //fakeIntl
     expect(tree.getByText(/the Listing/i)).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.editListing')).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.manageStock')).toBeInTheDocument();
@@ -593,7 +589,7 @@ describe('ManageListingCard', () => {
     ]);
 
     const tree = render(
-      <ManageListingCardComponent
+      <ManageListingCard
         history={{ push: noop }}
         listing={listing}
         intl={fakeIntl}
@@ -610,7 +606,7 @@ describe('ManageListingCard', () => {
 
     expect(tree.getByText('ResponsiveImage.noImage')).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.closeListing')).toBeInTheDocument();
-    expect(tree.getByText('10')).toBeInTheDocument(); //fakeIntl
+    expect(tree.getByText('ManageListingCard.price')).toBeInTheDocument(); //fakeIntl
     expect(tree.getByText(/the Listing/i)).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.editListing')).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.manageStock')).toBeInTheDocument();
@@ -657,7 +653,7 @@ describe('ManageListingCard', () => {
     ]);
 
     const tree = render(
-      <ManageListingCardComponent
+      <ManageListingCard
         history={{ push: noop }}
         listing={listing}
         intl={fakeIntl}
@@ -712,7 +708,7 @@ describe('ManageListingCard', () => {
     ]);
 
     const tree = render(
-      <ManageListingCardComponent
+      <ManageListingCard
         history={{ push: noop }}
         listing={listing}
         intl={fakeIntl}
@@ -729,7 +725,7 @@ describe('ManageListingCard', () => {
 
     expect(tree.getByText('ResponsiveImage.noImage')).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.closeListing')).toBeInTheDocument();
-    expect(tree.getByText('10')).toBeInTheDocument(); //fakeIntl
+    expect(tree.getByText('ManageListingCard.price')).toBeInTheDocument(); //fakeIntl
     expect(tree.getByText(/the Listing/i)).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.editListing')).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.setPriceAndStock')).toBeInTheDocument();
@@ -767,7 +763,7 @@ describe('ManageListingCard', () => {
     ]);
 
     const tree = render(
-      <ManageListingCardComponent
+      <ManageListingCard
         history={{ push: noop }}
         listing={listing}
         intl={fakeIntl}
@@ -784,7 +780,7 @@ describe('ManageListingCard', () => {
 
     expect(tree.getByText('ResponsiveImage.noImage')).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.closeListing')).toBeInTheDocument();
-    expect(tree.getByText('10')).toBeInTheDocument(); //fakeIntl
+    expect(tree.getByText('ManageListingCard.price')).toBeInTheDocument(); //fakeIntl
     expect(tree.getByText(/the Listing/i)).toBeInTheDocument();
     expect(tree.getByText('ManageListingCard.editListing')).toBeInTheDocument();
     expect(tree.queryByText('ManageListingCard.setPriceAndStock')).not.toBeInTheDocument();
@@ -804,7 +800,7 @@ describe('ManageListingCard', () => {
       },
     ]);
     const tree = render(
-      <ManageListingCardComponent
+      <ManageListingCard
         history={{ push: noop }}
         listing={createOwnListing('listing1', {
           publicData: {

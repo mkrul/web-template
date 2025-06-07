@@ -1,7 +1,7 @@
 import React from 'react';
 
 // Utils
-import { SCHEMA_TYPE_MULTI_ENUM, SCHEMA_TYPE_TEXT } from '../../util/types';
+import { SCHEMA_TYPE_MULTI_ENUM, SCHEMA_TYPE_TEXT, SCHEMA_TYPE_YOUTUBE } from '../../util/types';
 import {
   isFieldForCategory,
   pickCategoryFields,
@@ -11,6 +11,7 @@ import {
 import SectionDetailsMaybe from './SectionDetailsMaybe';
 import SectionMultiEnumMaybe from './SectionMultiEnumMaybe';
 import SectionTextMaybe from './SectionTextMaybe';
+import SectionYoutubeVideoMaybe from './SectionYoutubeVideoMaybe';
 
 /**
  * Renders custom listing fields.
@@ -45,11 +46,13 @@ const CustomListingFields = props => {
     <>
       <SectionDetailsMaybe {...props} isFieldForCategory={isFieldForSelectedCategories} />
       {propsForCustomFields.map(customFieldProps => {
-        const { schemaType, ...fieldProps } = customFieldProps;
+        const { schemaType, key, ...fieldProps } = customFieldProps;
         return schemaType === SCHEMA_TYPE_MULTI_ENUM ? (
-          <SectionMultiEnumMaybe {...fieldProps} />
+          <SectionMultiEnumMaybe key={key} {...fieldProps} />
         ) : schemaType === SCHEMA_TYPE_TEXT ? (
-          <SectionTextMaybe {...fieldProps} />
+          <SectionTextMaybe key={key} {...fieldProps} />
+        ) : schemaType === SCHEMA_TYPE_YOUTUBE ? (
+          <SectionYoutubeVideoMaybe key={key} {...fieldProps} />
         ) : null;
       })}
     </>

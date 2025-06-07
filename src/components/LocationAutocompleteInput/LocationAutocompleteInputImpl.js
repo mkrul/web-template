@@ -1,22 +1,9 @@
 import React, { Component } from 'react';
-import {
-  any,
-  arrayOf,
-  bool,
-  func,
-  number,
-  shape,
-  string,
-  oneOfType,
-  object,
-  node,
-} from 'prop-types';
 import classNames from 'classnames';
 import debounce from 'lodash/debounce';
 
 import { useConfiguration } from '../../context/configurationContext';
 import { FormattedMessage } from '../../util/reactIntl';
-import { propTypes } from '../../util/types';
 
 import { IconSpinner } from '../../components';
 
@@ -55,6 +42,7 @@ const LocationPredictionsList = props => {
   const {
     rootClassName,
     className,
+    useDarkText,
     children,
     predictions,
     currentLocationId,
@@ -75,7 +63,10 @@ const LocationPredictionsList = props => {
 
     return (
       <li
-        className={isHighlighted ? css.highlighted : null}
+        className={classNames(
+          isHighlighted ? css.highlighted : null,
+          useDarkText ? css.listItemBlackText : css.listItemWhiteText
+        )}
         key={predictionId}
         onTouchStart={e => {
           e.preventDefault();
@@ -127,25 +118,6 @@ const LocationPredictionsList = props => {
   );
 };
 
-LocationPredictionsList.defaultProps = {
-  rootClassName: null,
-  className: null,
-  highlightedIndex: null,
-};
-
-LocationPredictionsList.propTypes = {
-  rootClassName: string,
-  className: string,
-  children: node,
-  predictions: arrayOf(object).isRequired,
-  currentLocationId: string.isRequired,
-  geocoder: object.isRequired,
-  highlightedIndex: number,
-  onSelectStart: func.isRequired,
-  onSelectMove: func.isRequired,
-  onSelectEnd: func.isRequired,
-};
-
 // Get the current value with defaults from the given
 // LocationAutocompleteInput props.
 const currentValue = props => {
@@ -154,21 +126,6 @@ const currentValue = props => {
   return { search, predictions, selectedPlace };
 };
 
-/*
-  Location auto completion input component
-
-  This component can work as the `component` prop to Final Form's
-  <Field /> component. It takes a custom input value shape, and
-  controls the onChange callback that is called with the input value.
-
-  The component works by listening to the underlying input component
-  and calling a Geocoder implementation for predictions. When the
-  predictions arrive, those are passed to Final Form in the onChange
-  callback.
-
-  See the LocationAutocompleteInput.example.js file for a usage
-  example within a form.
-*/
 class LocationAutocompleteInputImplementation extends Component {
   constructor(props) {
     super(props);
@@ -228,7 +185,7 @@ class LocationAutocompleteInputImplementation extends Component {
 
   currentPredictions() {
     const { search, predictions: fetchedPredictions } = currentValue(this.props);
-    const { useDefaultPredictions, config } = this.props;
+    const { useDefaultPredictions = true, config } = this.props;
     const hasFetchedPredictions = fetchedPredictions && fetchedPredictions.length > 0;
     const showDefaultPredictions = !search && !hasFetchedPredictions && useDefaultPredictions;
     const geocoderVariant = getGeocoderVariant(config.maps.mapProvider);
@@ -263,11 +220,11 @@ class LocationAutocompleteInputImplementation extends Component {
         e.preventDefault();
         e.stopPropagation();
         this.selectItemIfNoneSelected();
-        this.input.blur();
+        this.input?.blur();
       }
     } else if (e.keyCode === KEY_CODE_TAB) {
       this.selectItemIfNoneSelected();
-      this.input.blur();
+      this.input?.blur();
     } else if (e.keyCode === KEY_CODE_ESC && this.input) {
       this.input.blur();
     }
@@ -480,12 +437,14 @@ class LocationAutocompleteInputImplementation extends Component {
       autoFocus,
       rootClassName,
       className,
+      useDarkText,
       iconClassName,
+      CustomIcon,
       inputClassName,
       predictionsClassName,
       predictionsAttributionClassName,
       validClassName,
-      placeholder,
+      placeholder = '',
       input,
       meta,
       inputRef,
@@ -515,12 +474,29 @@ class LocationAutocompleteInputImplementation extends Component {
     const renderPredictions = this.state.inputHasFocus;
     const geocoderVariant = getGeocoderVariant(config.maps.mapProvider);
     const GeocoderAttribution = geocoderVariant.GeocoderAttribution;
+    // The first ref option in this optional chain is about callback ref,
+    // which was used in previous version of this Template.
+    const refMaybe =
+      typeof inputRef === 'function'
+        ? {
+            ref: node => {
+              this.input = node;
+              if (inputRef) {
+                inputRef(node);
+              }
+            },
+          }
+        : inputRef
+        ? { ref: inputRef }
+        : {};
 
     return (
       <div className={rootClass}>
         <div className={iconClass}>
           {this.state.fetchingPlaceDetails ? (
             <IconSpinner className={css.iconSpinner} />
+          ) : CustomIcon ? (
+            <CustomIcon />
           ) : (
             <IconHourGlass />
           )}
@@ -538,18 +514,14 @@ class LocationAutocompleteInputImplementation extends Component {
           onBlur={this.handleOnBlur}
           onChange={this.onChange}
           onKeyDown={this.onKeyDown}
-          ref={node => {
-            this.input = node;
-            if (inputRef) {
-              inputRef(node);
-            }
-          }}
+          {...refMaybe}
           title={search}
           data-testid="location-search"
         />
         {renderPredictions ? (
           <LocationPredictionsList
             rootClassName={predictionsClass}
+            useDarkText={useDarkText}
             predictions={predictions}
             currentLocationId={geocoderVariant.CURRENT_LOCATION_ID}
             isGoogleMapsInUse={config.maps.mapProvider === 'googleMaps'}
@@ -559,7 +531,10 @@ class LocationAutocompleteInputImplementation extends Component {
             onSelectMove={this.handlePredictionsSelectMove}
             onSelectEnd={this.handlePredictionsSelectEnd}
           >
-            <GeocoderAttribution className={predictionsAttributionClassName} />
+            <GeocoderAttribution
+              className={predictionsAttributionClassName}
+              useDarkText={useDarkText}
+            />
           </LocationPredictionsList>
         ) : null}
       </div>
@@ -567,59 +542,63 @@ class LocationAutocompleteInputImplementation extends Component {
   }
 }
 
+/**
+ * @typedef {Object} SearchData
+ * @property {string} search
+ * @property {Object} predictions
+ * @property {Object} selectedPlace
+ */
+
+/**
+ * @typedef {Object} SearchData
+ * @property {Object} current
+ */
+
+/**
+ * Location auto completion input component
+ *
+ * This component can work as the `component` prop to Final Form's
+ * <Field /> component. It takes a custom input value shape, and
+ * controls the onChange callback that is called with the input value.
+ *
+ * The component works by listening to the underlying input component
+ * and calling a Geocoder implementation for predictions. When the
+ * predictions arrive, those are passed to Final Form in the onChange
+ * callback.
+ *
+ * See the LocationAutocompleteInput.example.js file for a usage
+ * example within a form.
+ *
+ * @component
+ * @param {Object} props
+ * @param {string?} props.className add more style rules in addition to components own css.root
+ * @param {string?} props.rootClassName overwrite components own css.root
+ * @param {string?} props.iconClassName
+ * @param {string?} props.inputClassName
+ * @param {string?} props.predictionsClassName
+ * @param {string?} props.predictionsAttributionClassName
+ * @param {string?} props.validClassName
+ * @param {boolean} props.autoFocus
+ * @param {boolean} props.closeOnBlur
+ * @param {string?} props.placeholder
+ * @param {boolean} props.useDefaultPredictions
+ * @param {Object} props.input
+ * @param {string} props.input.name
+ * @param {string|SearchData} props.input.value
+ * @param {Function} props.input.onChange
+ * @param {Function} props.input.onFocus
+ * @param {Function} props.input.onBlur
+ * @param {Object} props.meta
+ * @param {boolean} props.meta.valid
+ * @param {boolean} props.meta.touched
+ * @param {Function | RefHook} props.inputRef
+ * @param {ReactNode} props.CustomIcon override the default icon
+ * @returns {JSX.Element} LocationAutocompleteInputImpl component
+ */
 const LocationAutocompleteInputImpl = props => {
   const config = useConfiguration();
 
   return <LocationAutocompleteInputImplementation config={config} {...props} />;
-};
-
-LocationAutocompleteInputImpl.defaultProps = {
-  autoFocus: false,
-  closeOnBlur: true,
-  rootClassName: null,
-  className: null,
-  iconClassName: null,
-  inputClassName: null,
-  predictionsClassName: null,
-  predictionsAttributionClassName: null,
-  validClassName: null,
-  placeholder: '',
-  useDefaultPredictions: true,
-  meta: null,
-  inputRef: null,
-};
-
-LocationAutocompleteInputImpl.propTypes = {
-  autoFocus: bool,
-  rootClassName: string,
-  className: string,
-  closeOnBlur: bool,
-  iconClassName: string,
-  inputClassName: string,
-  predictionsClassName: string,
-  predictionsAttributionClassName: string,
-  validClassName: string,
-  placeholder: string,
-  useDefaultPredictions: bool,
-  input: shape({
-    name: string.isRequired,
-    value: oneOfType([
-      shape({
-        search: string,
-        predictions: any,
-        selectedPlace: propTypes.place,
-      }),
-      string,
-    ]),
-    onChange: func.isRequired,
-    onFocus: func.isRequired,
-    onBlur: func.isRequired,
-  }).isRequired,
-  meta: shape({
-    valid: bool.isRequired,
-    touched: bool.isRequired,
-  }),
-  inputRef: func,
 };
 
 export default LocationAutocompleteInputImpl;

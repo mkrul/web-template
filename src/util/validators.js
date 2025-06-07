@@ -1,6 +1,7 @@
 import toPairs from 'lodash/toPairs';
 import { types as sdkTypes } from './sdkLoader';
 import { diffInTime } from './dates';
+import { extractYouTubeID } from './string';
 
 const { LatLng, Money } = sdkTypes;
 
@@ -42,6 +43,24 @@ export const requiredBoolean = message => value => {
 // DEPRECATED in favor of required
 export const requiredAndNonEmptyString = message => value => {
   return isNonEmptyString(value) ? VALID : message;
+};
+
+/**
+ * Validates that a string is unique in an array of strings.
+ * @param {Array<string>} stringArray - Array of strings to check against.
+ * @param {Function} getMessage - Function that returns an error message.
+ * @param {Function} toSlug - Function that converts a string to a slug.
+ * @returns {string} - VALID if the string is unique, otherwise the error message.
+ */
+export const uniqueString = (currentIndex, stringArray, getMessage, toSlug) => value => {
+  if (typeof value === 'undefined' || value === null) {
+    // undefined or null values are invalid
+    return getMessage('', '');
+  }
+  const slug = toSlug(value);
+  const otherSlugs = stringArray.map(toSlug).filter((_, i) => i !== currentIndex);
+  const isUnique = !otherSlugs.includes(slug);
+  return isUnique ? VALID : getMessage(value, slug);
 };
 
 export const requiredFieldArrayCheckbox = message => value => {
@@ -139,6 +158,11 @@ export const validateInteger = (value, max, min, numberTooSmallMessage, numberTo
     return numberTooSmallMessage;
   }
   return VALID;
+};
+
+// If URL is passed to this function as null, will return VALID
+export const validateYoutubeURL = (url, message) => {
+  return url ? (extractYouTubeID(url) ? VALID : message) : VALID;
 };
 
 export const ageAtLeast = (message, minYears) => value => {

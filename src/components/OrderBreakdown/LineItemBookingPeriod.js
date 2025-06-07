@@ -1,9 +1,37 @@
 import React from 'react';
 import { FormattedMessage, FormattedDate } from '../../util/reactIntl';
-import { LINE_ITEM_NIGHT, DATE_TYPE_DATE, LINE_ITEM_HOUR, propTypes } from '../../util/types';
-import { subtractTime } from '../../util/dates';
+import {
+  DATE_TYPE_DATE,
+  DATE_TYPE_TIME,
+  DATE_TYPE_DATETIME,
+  LINE_ITEM_DAY,
+  LINE_ITEM_HOUR,
+  LINE_ITEM_NIGHT,
+  propTypes,
+} from '../../util/types';
+import { subtractTime, isDST } from '../../util/dates';
 
 import css from './OrderBreakdown.module.css';
+
+const DSTMaybe = props => {
+  const { startDate, endDate, isStart, dateType, timeZone } = props;
+  const isDayTimeRange = dateType === DATE_TYPE_DATETIME;
+  if (!isDayTimeRange) {
+    return null;
+  }
+
+  const isStartInDST = isDST(startDate, timeZone);
+  const isEndInDST = isDST(endDate, timeZone);
+  const isDSTChanged = isStartInDST !== isEndInDST;
+  const showDSTMsgForStart = isDSTChanged && isStart && isStartInDST;
+  const showDSTMsgForEnd = isDSTChanged && !isStart && isEndInDST;
+
+  return showDSTMsgForStart || showDSTMsgForEnd ? (
+    <div className={css.itemLabel}>
+      <FormattedMessage id="OrderBreakdown.bookingWithDSTInEffect" />
+    </div>
+  ) : null;
+};
 
 const BookingPeriod = props => {
   const { startDate, endDate, dateType, timeZone } = props;
@@ -38,6 +66,13 @@ const BookingPeriod = props => {
           <div className={css.itemLabel}>
             <FormattedDate value={startDate} {...dateFormatOptions} {...timeZoneMaybe} />
           </div>
+          <DSTMaybe
+            startDate={startDate}
+            endDate={endDate}
+            isStart={true}
+            dateType={dateType}
+            timeZone={timeZone}
+          />
         </div>
 
         <div className={css.bookingPeriodSectionRight}>
@@ -50,12 +85,30 @@ const BookingPeriod = props => {
           <div className={css.itemLabel}>
             <FormattedDate value={endDate} {...dateFormatOptions} {...timeZoneMaybe} />
           </div>
+          <DSTMaybe
+            startDate={startDate}
+            endDate={endDate}
+            isStart={false}
+            dateType={dateType}
+            timeZone={timeZone}
+          />
         </div>
       </div>
     </>
   );
 };
 
+/**
+ * A line-item to show booking period for the OrderBreakdown
+ *
+ * @component
+ * @param {Object} props
+ * @param {propTypes.booking?} props.booking
+ * @param {LINE_ITEM_NIGHT | LINE_ITEM_DAY | LINE_ITEM_HOUR} props.code
+ * @param {DATE_TYPE_DATE | DATE_TYPE_TIME | DATE_TYPE_DATETIME} props.dateType
+ * @param {string} props.timeZone IANA time zone name
+ * @returns {JSX.Element} line-item element for the order breakdown
+ */
 const LineItemBookingPeriod = props => {
   const { booking, code, dateType, timeZone } = props;
 
@@ -70,9 +123,8 @@ const LineItemBookingPeriod = props => {
   const localStartDate = displayStart || start;
   const localEndDateRaw = displayEnd || end;
 
-  const isNightly = code === LINE_ITEM_NIGHT;
-  const isHour = code === LINE_ITEM_HOUR;
-  const endDay = isNightly || isHour ? localEndDateRaw : subtractTime(localEndDateRaw, 1, 'days');
+  const showInclusiveEndDate = [LINE_ITEM_DAY].includes(code);
+  const endDay = showInclusiveEndDate ? subtractTime(localEndDateRaw, 1, 'days') : localEndDateRaw;
 
   return (
     <>
@@ -87,12 +139,6 @@ const LineItemBookingPeriod = props => {
       <hr className={css.totalDivider} />
     </>
   );
-};
-LineItemBookingPeriod.defaultProps = { booking: null, dateType: null };
-
-LineItemBookingPeriod.propTypes = {
-  booking: propTypes.booking,
-  dateType: propTypes.dateType,
 };
 
 export default LineItemBookingPeriod;

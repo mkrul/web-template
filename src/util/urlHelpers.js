@@ -15,6 +15,16 @@ export const LISTING_PAGE_PARAM_TYPES = [
   LISTING_PAGE_PARAM_TYPE_EDIT,
 ];
 
+export const PROFILE_PAGE_PENDING_APPROVAL_VARIANT = 'pending-approval';
+
+// No access page - path params:
+export const NO_ACCESS_PAGE_POST_LISTINGS = 'posting-rights';
+export const NO_ACCESS_PAGE_INITIATE_TRANSACTIONS = 'transaction-rights';
+// If user account is on pending-approval state, then user can't initiate transactions or create listings
+export const NO_ACCESS_PAGE_USER_PENDING_APPROVAL = 'user-approval';
+// If user account has no viewing rights on a private marketplace, they can only see their own listings
+export const NO_ACCESS_PAGE_VIEW_LISTINGS = 'viewing-rights';
+
 // Create slug from random texts
 // From Gist thread: https://gist.github.com/mathewbyrne/1280286
 export const createSlug = str => {

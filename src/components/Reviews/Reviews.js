@@ -1,9 +1,10 @@
 import React from 'react';
-import { injectIntl, intlShape } from '../../util/reactIntl';
-import { arrayOf, string } from 'prop-types';
 import classNames from 'classnames';
-import { Avatar, ReviewRating, UserDisplayName } from '../../components';
+
+import { useIntl } from '../../util/reactIntl';
 import { propTypes } from '../../util/types';
+
+import { Avatar, ReviewRating, UserDisplayName } from '../../components';
 
 import css from './Reviews.module.css';
 
@@ -41,13 +42,19 @@ const Review = props => {
   );
 };
 
-Review.propTypes = {
-  review: propTypes.review.isRequired,
-  intl: intlShape.isRequired,
-};
-
-const ReviewsComponent = props => {
-  const { className, rootClassName, reviews, intl } = props;
+/**
+ * A component that renders a list of reviews.
+ *
+ * @component
+ * @param {Object} props
+ * @param {string} [props.rootClassName] - Custom class that overrides the default class for the root element
+ * @param {string} [props.className] - Custom class that extends the default class for the root element
+ * @param {Array<propTypes.review>} props.reviews - The reviews to render
+ * @returns {JSX.Element}
+ */
+const Reviews = props => {
+  const intl = useIntl();
+  const { className, rootClassName, reviews = [] } = props;
   const classes = classNames(rootClassName || css.root, className);
 
   return (
@@ -62,22 +69,5 @@ const ReviewsComponent = props => {
     </ul>
   );
 };
-
-ReviewsComponent.defaultProps = {
-  className: null,
-  rootClassName: null,
-  reviews: [],
-};
-
-ReviewsComponent.propTypes = {
-  className: string,
-  rootCalssName: string,
-  reviews: arrayOf(propTypes.review),
-
-  // from injectIntl
-  intl: intlShape.isRequired,
-};
-
-const Reviews = injectIntl(ReviewsComponent);
 
 export default Reviews;

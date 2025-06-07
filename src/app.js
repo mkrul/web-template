@@ -1,11 +1,6 @@
 import React from 'react';
 import { any, string } from 'prop-types';
-import ReactDOMServer from 'react-dom/server';
 
-// react-dates needs to be initialized before using any react-dates component
-// https://github.com/airbnb/react-dates#initialize
-// NOTE: Initializing it here will initialize it also for app.test.js
-import 'react-dates/initialize';
 import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter, StaticRouter } from 'react-router-dom';
 import { Provider } from 'react-redux';
@@ -148,7 +143,7 @@ const MomentLocaleLoader = props => {
 
 const Configurations = props => {
   const { appConfig, children } = props;
-  const routeConfig = routeConfiguration(appConfig.layout);
+  const routeConfig = routeConfiguration(appConfig.layout, appConfig?.accessControl);
   const locale = isTestEnv ? 'en' : appConfig.localization.locale;
 
   return (
@@ -344,7 +339,12 @@ export const renderApp = (
       hostedConfig={hostedConfig}
     />
   );
-  const body = ReactDOMServer.renderToString(WithChunks);
-  const { helmet: head } = helmetContext;
-  return { head, body };
+
+  // Let's keep react-dom/server out of the main code-chunk.
+  return import('react-dom/server').then(mod => {
+    const { default: ReactDOMServer } = mod;
+    const body = ReactDOMServer.renderToString(WithChunks);
+    const { helmet: head } = helmetContext;
+    return { head, body };
+  });
 };

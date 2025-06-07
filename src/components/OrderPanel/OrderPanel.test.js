@@ -1,6 +1,5 @@
 import React from 'react';
 import '@testing-library/jest-dom';
-import 'react-dates/initialize';
 
 import { types as sdkTypes } from '../../util/sdkLoader';
 import { createListing, createStock, createUser, fakeIntl } from '../../util/testData';
@@ -23,6 +22,7 @@ const today = new Date();
 const currentYear = today.getUTCFullYear();
 const m = today.getUTCMonth() + 1;
 const currentMonth = m < 10 ? `0${m}` : m;
+const currentDay = today.getUTCDate();
 
 const listingTypes = [
   {
@@ -176,6 +176,16 @@ const monthlyTimeSlots = {
   },
 };
 
+const dayId = `${currentYear}-${currentMonth}-${currentDay}`;
+const timeSlotsForDate = {
+  [dayId]: {
+    timeSlots,
+    fetchTimeSlotsError: null,
+    fetchTimeSlotsInProgress: null,
+    fetchedAt: new Date().getTime(),
+  },
+};
+
 const commonProps = {
   author: createUser('john-author'),
   authorLink: null,
@@ -206,19 +216,6 @@ const commonProps = {
 };
 
 describe('OrderPanel', () => {
-  const originalWarn = console.warn.bind(console.warn);
-  beforeEach(() => {
-    console.warn = msg =>
-      !(
-        msg.toString().includes('componentWillReceiveProps') ||
-        msg.toString().includes('componentWillUpdate')
-      ) && originalWarn(msg);
-  });
-
-  afterAll(() => {
-    console.warn = originalWarn;
-  });
-
   const config = getConfig();
   const routeConfiguration = getRouteConfiguration(config.layout);
   const stockTypeMaybe = stockType => (stockType ? { stockType } : {});
@@ -270,8 +267,9 @@ describe('OrderPanel', () => {
     });
     await waitFor(() => {
       expect(queryAllByText('title!')).toHaveLength(2);
-      expect(queryAllByText('$10.00')).toHaveLength(2);
-      expect(queryAllByText('OrderPanel.perUnit')).toHaveLength(2);
+      expect(queryAllByText('OrderPanel.price')).toHaveLength(1);
+      expect(queryAllByText('OrderPanel.priceInMobileCTA')).toHaveLength(1);
+      expect(queryAllByText('OrderPanel.perUnit')).toHaveLength(1);
       expect(queryAllByText('OrderPanel.author')).toHaveLength(2);
       expect(getByText('BookingDatesForm.bookingStartTitle')).toBeInTheDocument();
       expect(getByText('BookingDatesForm.bookingEndTitle')).toBeInTheDocument();
@@ -319,8 +317,9 @@ describe('OrderPanel', () => {
     });
     await waitFor(() => {
       expect(queryAllByText('title!')).toHaveLength(2);
-      expect(queryAllByText('$10.00')).toHaveLength(2);
-      expect(queryAllByText('OrderPanel.perUnit')).toHaveLength(2);
+      expect(queryAllByText('OrderPanel.price')).toHaveLength(1);
+      expect(queryAllByText('OrderPanel.priceInMobileCTA')).toHaveLength(1);
+      expect(queryAllByText('OrderPanel.perUnit')).toHaveLength(1);
       expect(queryAllByText('OrderPanel.author')).toHaveLength(2);
       expect(getByText('BookingDatesForm.bookingStartTitle')).toBeInTheDocument();
       expect(getByText('BookingDatesForm.bookingEndTitle')).toBeInTheDocument();
@@ -361,7 +360,13 @@ describe('OrderPanel', () => {
       },
     });
 
-    const props = { ...commonProps, listing, isOwnListing: false, validListingTypes };
+    const props = {
+      ...commonProps,
+      timeSlotsForDate,
+      listing,
+      isOwnListing: false,
+      validListingTypes,
+    };
     const { getByText, queryAllByText } = render(<OrderPanel {...props} />, {
       config,
       routeConfiguration,
@@ -369,14 +374,80 @@ describe('OrderPanel', () => {
 
     await waitFor(() => {
       expect(queryAllByText('title!')).toHaveLength(2);
-      expect(queryAllByText('$10.00')).toHaveLength(2);
-      expect(queryAllByText('OrderPanel.perUnit')).toHaveLength(2);
+      expect(queryAllByText('OrderPanel.price')).toHaveLength(1);
+      expect(queryAllByText('OrderPanel.priceInMobileCTA')).toHaveLength(1);
+      expect(queryAllByText('OrderPanel.perUnit')).toHaveLength(1);
       expect(queryAllByText('OrderPanel.author')).toHaveLength(2);
       expect(getByText('BookingTimeForm.bookingStartTitle')).toBeInTheDocument();
       expect(getByText('FieldDateAndTimeInput.startTime')).toBeInTheDocument();
       expect(getByText('FieldDateAndTimeInput.endTime')).toBeInTheDocument();
       expect(getByText('BookingTimeForm.requestToBook')).toBeInTheDocument();
       expect(getByText('BookingTimeForm.youWontBeChargedInfo')).toBeInTheDocument();
+      expect(getByText('OrderPanel.ctaButtonMessageBooking')).toBeInTheDocument();
+    });
+  });
+
+  it('Booking: fixed', async () => {
+    const listing = createListing('listing-fixed', {
+      title: 'the listing',
+      description: 'Lorem ipsum',
+      price: new Money(1000, 'USD'),
+      availabilityPlan: {
+        type: 'availability-plan/time',
+        timezone: 'Etc/UTC',
+        entries: [
+          { dayOfWeek: 'mon', startTime: '00:00', endTime: '00:00', seats: 1 },
+          { dayOfWeek: 'tue', startTime: '00:00', endTime: '00:00', seats: 1 },
+          { dayOfWeek: 'wed', startTime: '00:00', endTime: '00:00', seats: 1 },
+          { dayOfWeek: 'thu', startTime: '00:00', endTime: '00:00', seats: 1 },
+          { dayOfWeek: 'fri', startTime: '00:00', endTime: '00:00', seats: 1 },
+          { dayOfWeek: 'sat', startTime: '00:00', endTime: '00:00', seats: 1 },
+          { dayOfWeek: 'sun', startTime: '00:00', endTime: '00:00', seats: 0 },
+        ],
+      },
+
+      publicData: {
+        listingType: 'rent-bicycles-fixed',
+        transactionProcessAlias: 'default-booking/release-1',
+        unitType: 'fixed',
+        amenities: ['dog_1'],
+        location: {
+          address: 'Main Street 123',
+          building: 'A 1',
+        },
+        priceVariants: [
+          {
+            price: new Money(1000, 'USD'),
+            bookingLengthInMinutes: 30,
+          },
+        ],
+        startTimeInterval: 'quarterHour',
+      },
+    });
+
+    const props = {
+      ...commonProps,
+      timeSlotsForDate,
+      listing,
+      isOwnListing: false,
+      validListingTypes,
+    };
+    const { getByText, queryAllByText, queryByText } = render(<OrderPanel {...props} />, {
+      config,
+      routeConfiguration,
+    });
+
+    await waitFor(() => {
+      expect(queryAllByText('title!')).toHaveLength(2);
+      expect(queryAllByText('OrderPanel.price')).toHaveLength(1);
+      expect(queryAllByText('OrderPanel.priceInMobileCTA')).toHaveLength(1);
+      expect(queryAllByText('OrderPanel.perUnit')).toHaveLength(1);
+      expect(queryAllByText('OrderPanel.author')).toHaveLength(2);
+      expect(getByText('BookingFixedDurationForm.bookingStartTitle')).toBeInTheDocument();
+      expect(getByText('FieldDateAndTimeInput.startTime')).toBeInTheDocument();
+      expect(queryByText('FieldDateAndTimeInput.endTime')).not.toBeInTheDocument();
+      expect(getByText('BookingFixedDurationForm.requestToBook')).toBeInTheDocument();
+      expect(getByText('BookingFixedDurationForm.youWontBeChargedInfo')).toBeInTheDocument();
       expect(getByText('OrderPanel.ctaButtonMessageBooking')).toBeInTheDocument();
     });
   });
@@ -414,8 +485,9 @@ describe('OrderPanel', () => {
 
     await waitFor(() => {
       expect(queryAllByText('title!')).toHaveLength(2);
-      expect(queryAllByText('$10.00')).toHaveLength(2);
-      expect(queryAllByText('OrderPanel.perUnit')).toHaveLength(2);
+      expect(queryAllByText('OrderPanel.price')).toHaveLength(1);
+      expect(queryAllByText('OrderPanel.priceInMobileCTA')).toHaveLength(1);
+      expect(queryAllByText('OrderPanel.perUnit')).toHaveLength(1);
       expect(queryAllByText('OrderPanel.author')).toHaveLength(2);
       expect(getByText('ProductOrderForm.quantityLabel')).toBeInTheDocument();
       expect(getByText('ProductOrderForm.deliveryMethodLabel')).toBeInTheDocument();
@@ -459,8 +531,9 @@ describe('OrderPanel', () => {
 
     await waitFor(() => {
       expect(queryAllByText('title!')).toHaveLength(2);
-      expect(queryAllByText('$10.00')).toHaveLength(2);
-      expect(queryAllByText('OrderPanel.perUnit')).toHaveLength(2);
+      expect(queryAllByText('OrderPanel.price')).toHaveLength(1);
+      expect(queryAllByText('OrderPanel.priceInMobileCTA')).toHaveLength(1);
+      expect(queryAllByText('OrderPanel.perUnit')).toHaveLength(1);
       expect(queryAllByText('OrderPanel.author')).toHaveLength(2);
       expect(getByText('ProductOrderForm.noDeliveryMethodSet')).toBeInTheDocument();
       expect(getByText('OrderPanel.ctaButtonMessagePurchase')).toBeInTheDocument();
@@ -493,8 +566,9 @@ describe('OrderPanel', () => {
 
     await waitFor(() => {
       expect(queryAllByText('title!')).toHaveLength(2);
-      expect(queryAllByText('$10.00')).toHaveLength(2);
-      expect(queryAllByText('OrderPanel.perUnit')).toHaveLength(2);
+      expect(queryAllByText('OrderPanel.price')).toHaveLength(1);
+      expect(queryAllByText('OrderPanel.priceInMobileCTA')).toHaveLength(1);
+      expect(queryAllByText('OrderPanel.perUnit')).toHaveLength(1);
       expect(queryAllByText('OrderPanel.author')).toHaveLength(2);
       expect(getByText('InquiryWithoutPaymentForm.ctaButton')).toBeInTheDocument();
       expect(getByText('OrderPanel.ctaButtonMessageInquiry')).toBeInTheDocument();
