@@ -23,11 +23,12 @@ import css from './SearchResultsPanel.module.css';
  */
 const SearchResultsPanel = (props) => {
   const {
-    className,
-    rootClassName,
+    children = null,
+    className = null,
+    rootClassName = null,
     listings = [],
-    pagination,
-    search,
+    pagination = null,
+    search = null,
     setActiveListing,
     isMapVariant = true,
     listingTypeParam,
@@ -87,21 +88,11 @@ const SearchResultsPanel = (props) => {
             setActiveListing={setActiveListing}
           />
         ))}
-        {props.children}
+        {children}
       </div>
       {paginationLinks}
     </div>
   );
-};
-
-SearchResultsPanel.defaultProps = {
-  children: null,
-  className: null,
-  listings: [],
-  pagination: null,
-  rootClassName: null,
-  search: null,
-  isMapVariant: true,
 };
 
 SearchResultsPanel.propTypes = {

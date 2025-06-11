@@ -129,8 +129,6 @@ const SearchFormComponent = (props) => {
       // when a place is selected, and don't require any extra
       // validations for the form.)
 
-      dispatch(setDeliveryAddress(location.selectedPlace));
-
       onSubmit({ location });
       // blur search input to hide software keyboard
       searchInpuRef?.current?.blur();

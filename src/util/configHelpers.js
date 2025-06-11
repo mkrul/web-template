@@ -1,10 +1,13 @@
 import { subUnitDivisors } from '../config/settingsCurrency';
-import { getSupportedProcessesInfo, isBookingProcessAlias } from '../transactions/transaction';
+import {
+  getSupportedProcessesInfo,
+  isBookingProcessAlias,
+} from '../transactions/transaction';
 
 // Generic helpers for validating config values
 
-const printErrorIfHostedAssetIsMissing = props => {
-  Object.entries(props).map(entry => {
+const printErrorIfHostedAssetIsMissing = (props) => {
+  Object.entries(props).map((entry) => {
     const [key, value = {}] = entry || [];
     if (Object.keys(value)?.length === 0) {
       console.error(`Mandatory hosted asset for ${key} is missing.
@@ -17,12 +20,16 @@ const printErrorIfHostedAssetIsMissing = props => {
 // Functions to create built-in specs for category setup.
 const depthFirstSearch = (category, iterator, depth = 0) => {
   const { subcategories = [] } = category;
-  return iterator(depth, subcategories.map(cat => depthFirstSearch(cat, iterator, depth + 1)));
+  return iterator(
+    depth,
+    subcategories.map((cat) => depthFirstSearch(cat, iterator, depth + 1))
+  );
 };
 // Pick maximum depth from subcategories or default to given depth parameter
 const getMaxDepth = (depth, subcategories) =>
   subcategories.length ? Math.max(...subcategories) : depth;
-const createArray = length => [...Array(length)].fill(null).map((_, i) => i + 1);
+const createArray = (length) =>
+  [...Array(length)].fill(null).map((_, i) => i + 1);
 
 /**
  * Returns the fixed/built-in configs. Marketplace API has specified search schema for
@@ -35,7 +42,7 @@ const getBuiltInCategorySpecs = (categories = []) => {
   // Don't change! The search schema is fixed to categoryLevel1, categoryLevel2, categoryLevel3
   const key = 'categoryLevel';
   const maxDepth = depthFirstSearch({ subcategories: categories }, getMaxDepth);
-  const categoryLevelKeys = createArray(maxDepth).map(i => `${key}${i}`);
+  const categoryLevelKeys = createArray(maxDepth).map((i) => `${key}${i}`);
 
   return { key, scope: 'public', categoryLevelKeys, categories };
 };
@@ -47,7 +54,7 @@ const getBuiltInCategorySpecs = (categories = []) => {
  * @param {Object} listingFields object that has 'key' property.
  * @returns true if there's a clash with specific built-in keys.
  */
-const hasClashWithBuiltInPublicDataKey = listingFields => {
+const hasClashWithBuiltInPublicDataKey = (listingFields) => {
   const builtInPublicDataKeys = [
     'listingType',
     'transactionProcessAlias',
@@ -62,7 +69,7 @@ const hasClashWithBuiltInPublicDataKey = listingFields => {
     'categoryLevel3',
   ];
   let hasClash = false;
-  listingFields.forEach(field => {
+  listingFields.forEach((field) => {
     if (builtInPublicDataKeys.includes(field.key)) {
       hasClash = true;
       console.error(
@@ -79,7 +86,7 @@ const hasClashWithBuiltInPublicDataKey = listingFields => {
  * @param {Object} accessControlConfig (returned by access-control.json)
  * @returns {Object} accessControl config
  */
-const validAccessControl = accessControlConfig => {
+const validAccessControl = (accessControlConfig) => {
   const accessControl = accessControlConfig || {};
   const marketplace = accessControl?.marketplace || {};
   return { ...accessControl, marketplace: { private: false, ...marketplace } };
@@ -103,10 +110,10 @@ const mergeCurrency = (hostedCurrency, defaultCurrency) => {
   }
 };
 
-const validateStripeCurrency = stripe => {
+const validateStripeCurrency = (stripe) => {
   const supportedCountries = stripe.supportedCountries || [];
   const supportedCurrencies = Object.keys(subUnitDivisors);
-  const validSupportedCountries = supportedCountries.filter(country => {
+  const validSupportedCountries = supportedCountries.filter((country) => {
     const isSupported = supportedCurrencies.includes(country.currency);
 
     if (!isSupported) {
@@ -123,9 +130,13 @@ const validateStripeCurrency = stripe => {
 
 const mergeLocalizations = (hostedLocalization, defaultLocalization) => {
   // This defaults to 'en', if no locale is set.
-  const locale = hostedLocalization?.locale || defaultLocalization.locale || 'en';
+  const locale =
+    hostedLocalization?.locale || defaultLocalization.locale || 'en';
   // NOTE: We use this with DatePicker and moment, the range should be 0 - 6 instead of 1-7.
-  const firstDay = hostedLocalization?.firstDayOfWeek || defaultLocalization.firstDayOfWeek || 1;
+  const firstDay =
+    hostedLocalization?.firstDayOfWeek ||
+    defaultLocalization.firstDayOfWeek ||
+    1;
   const firstDayInMomentRange = firstDay % 7;
   return { locale, firstDayOfWeek: firstDayInMomentRange };
 };
@@ -136,18 +147,24 @@ const mergeLocalizations = (hostedLocalization, defaultLocalization) => {
 
 // The "arguments" (an Array like object) is only available for non-arrow functions.
 function joinStrings(str1, str2) {
-  const removeTrailingComma = str => str.trim().replace(/,\s*$/, '');
+  const removeTrailingComma = (str) => str.trim().replace(/,\s*$/, '');
   // Filter out empty strings (falsy) and join remaining items with comma
   return Array.from(arguments)
     .filter(Boolean)
-    .map(str => removeTrailingComma(str))
+    .map((str) => removeTrailingComma(str))
     .join(',');
 }
 
-const mergeAnalyticsConfig = (hostedAnalyticsConfig, defaultAnalyticsConfig) => {
-  const { enabled, measurementId } = hostedAnalyticsConfig?.googleAnalytics || {};
+const mergeAnalyticsConfig = (
+  hostedAnalyticsConfig,
+  defaultAnalyticsConfig
+) => {
+  const { enabled, measurementId } =
+    hostedAnalyticsConfig?.googleAnalytics || {};
   const googleAnalyticsId =
-    enabled && measurementId ? measurementId : defaultAnalyticsConfig.googleAnalyticsId;
+    enabled && measurementId
+      ? measurementId
+      : defaultAnalyticsConfig.googleAnalyticsId;
 
   // With Plausible, we merge hosted analytics and default (built-in) analytics if any (Plausible supports multiple domains)
   // Hosted format is: "plausible": { "enabled": true, "domain": "example.com" }
@@ -157,7 +174,10 @@ const mergeAnalyticsConfig = (hostedAnalyticsConfig, defaultAnalyticsConfig) => 
       ? plausibleHostedConfig.domain
       : '';
   const plausibleDomainsDefault = defaultAnalyticsConfig.plausibleDomains;
-  const plausibleDomains = joinStrings(plausibleDomainsHosted, plausibleDomainsDefault);
+  const plausibleDomains = joinStrings(
+    plausibleDomainsHosted,
+    plausibleDomainsDefault
+  );
   const plausibleDomainsMaybe = plausibleDomains ? { plausibleDomains } : {};
 
   return { googleAnalyticsId, ...plausibleDomainsMaybe };
@@ -231,23 +251,35 @@ const mergeBranding = (brandingConfig, defaultBranding) => {
     ...rest
   } = brandingConfig || {};
 
-  const marketplaceColor = marketplaceColors?.mainColor || defaultBranding.marketplaceColor;
-  const marketplaceColorDark = marketplaceColor ? hexToCssHsl(marketplaceColor, -10) : null;
-  const marketplaceColorLight = marketplaceColor ? hexToCssHsl(marketplaceColor, 10) : null;
+  const marketplaceColor =
+    marketplaceColors?.mainColor || defaultBranding.marketplaceColor;
+  const marketplaceColorDark = marketplaceColor
+    ? hexToCssHsl(marketplaceColor, -10)
+    : null;
+  const marketplaceColorLight = marketplaceColor
+    ? hexToCssHsl(marketplaceColor, 10)
+    : null;
 
   // The 'marketplaceColor' has a special status for branding. Other colors are just prefixed with "color".
   const colorPrimaryButton = marketplaceColors?.primaryButton;
-  const colorPrimaryButtonDark = colorPrimaryButton ? hexToCssHsl(colorPrimaryButton, -10) : null;
-  const colorPrimaryButtonLight = colorPrimaryButton ? hexToCssHsl(colorPrimaryButton, 10) : null;
+  const colorPrimaryButtonDark = colorPrimaryButton
+    ? hexToCssHsl(colorPrimaryButton, -10)
+    : null;
+  const colorPrimaryButtonLight = colorPrimaryButton
+    ? hexToCssHsl(colorPrimaryButton, 10)
+    : null;
 
   const logoSettingsRaw = logoSettings || defaultBranding.logoSettings;
   const validLogoSettings =
-    logoSettingsRaw?.format === 'image' && [24, 36, 48].includes(logoSettingsRaw?.height);
+    logoSettingsRaw?.format === 'image' &&
+    [24, 36, 48].includes(logoSettingsRaw?.height);
 
   const facebookImage =
-    getVariantURL(socialSharingImage, 'scaled1200') || defaultBranding.facebookImageURL;
+    getVariantURL(socialSharingImage, 'scaled1200') ||
+    defaultBranding.facebookImageURL;
   const twitterImage =
-    getVariantURL(socialSharingImage, 'scaled600') || defaultBranding.twitterImageURL;
+    getVariantURL(socialSharingImage, 'scaled600') ||
+    defaultBranding.twitterImageURL;
 
   return {
     marketplaceColor,
@@ -256,7 +288,9 @@ const mergeBranding = (brandingConfig, defaultBranding) => {
     colorPrimaryButton,
     colorPrimaryButtonDark,
     colorPrimaryButtonLight,
-    logoSettings: validLogoSettings ? logoSettingsRaw : { format: 'image', height: 24 },
+    logoSettings: validLogoSettings
+      ? logoSettingsRaw
+      : { format: 'image', height: 24 },
     logoImageDesktop: logo || defaultBranding.logoImageDesktopURL,
     logoImageMobile: logo || defaultBranding.logoImageMobileURL,
     brandImage: loginBackgroundImage,
@@ -272,7 +306,12 @@ const mergeBranding = (brandingConfig, defaultBranding) => {
 
 const pickVariant = (hostedVariant, defaultVariant) =>
   hostedVariant?.variantType ? hostedVariant : defaultVariant;
-const validVariantConfig = (hostedVariant, defaultVariant, validVariantTypes, fallback) => {
+const validVariantConfig = (
+  hostedVariant,
+  defaultVariant,
+  validVariantTypes,
+  fallback
+) => {
   const variant = pickVariant(hostedVariant, defaultVariant);
   const isValidVariant = validVariantTypes.includes(variant?.variantType);
 
@@ -284,7 +323,12 @@ const validVariantConfig = (hostedVariant, defaultVariant, validVariantTypes, fa
     const aspectWidth = Number.parseInt(w, 10);
     const aspectHeight = Number.parseInt(h, 10);
     return isValidVariant
-      ? { ...variant, aspectWidth, aspectHeight, variantPrefix: defaultVariant.variantPrefix }
+      ? {
+          ...variant,
+          aspectWidth,
+          aspectHeight,
+          variantPrefix: defaultVariant.variantPrefix,
+        }
       : fallback;
   }
 
@@ -310,7 +354,12 @@ const mergeLayouts = (layoutConfig, defaultLayout) => {
     layoutConfig?.listingImage,
     defaultLayout?.listingImage,
     ['cropImage'],
-    { variantType: 'cropImage', aspectWidth: 1, aspectHeight: 1, variantPrefix: 'listing-card' }
+    {
+      variantType: 'cropImage',
+      aspectWidth: 1,
+      aspectHeight: 1,
+      variantPrefix: 'listing-card',
+    }
   );
 
   return {
@@ -328,7 +377,8 @@ const mergeLayouts = (layoutConfig, defaultLayout) => {
 const validEnumString = (key, value, options, defaultOption) => {
   const isUndefined = typeof value === 'undefined';
   const isValidValue = options.includes(value);
-  const isValid = (typeof defaultOption !== 'undefined' && isUndefined) || isValidValue;
+  const isValid =
+    (typeof defaultOption !== 'undefined' && isUndefined) || isValidValue;
   const valueMaybe = isValid ? { [key]: value || defaultOption } : {};
   return [isValid, valueMaybe];
 };
@@ -337,13 +387,18 @@ const validEnumString = (key, value, options, defaultOption) => {
 const validBoolean = (key, value, defaultValue) => {
   const isUndefined = typeof value === 'undefined';
   const isBoolean = typeof value == 'boolean';
-  const isValid = (typeof defaultValue !== 'undefined' && isUndefined) || isBoolean;
+  const isValid =
+    (typeof defaultValue !== 'undefined' && isUndefined) || isBoolean;
 
-  const validValue = isBoolean ? { [key]: value } : isValid ? { [key]: defaultValue } : {};
+  const validValue = isBoolean
+    ? { [key]: value }
+    : isValid
+      ? { [key]: defaultValue }
+      : {};
   return [isValid, validValue];
 };
 
-const validLabel = label => {
+const validLabel = (label) => {
   const isValid = typeof label === 'string';
   const labelMaybe = isValid ? { label } : {};
   return [isValid, labelMaybe];
@@ -370,7 +425,9 @@ const validUserTypesForUserConfig = (userTypeConfig, userTypesInUse = null) => {
   }
 
   const isArray = Array.isArray(userTypeIds);
-  const validatedUserTypes = isArray ? userTypeIds.filter(ut => userTypesInUse?.includes(ut)) : [];
+  const validatedUserTypes = isArray
+    ? userTypeIds.filter((ut) => userTypesInUse?.includes(ut))
+    : [];
 
   // If a field is limited to user type ids, it has to have at least one valid type
   const hasValidUserTypes = validatedUserTypes.length > 0;
@@ -394,24 +451,35 @@ const validUserTypesForUserConfig = (userTypeConfig, userTypesInUse = null) => {
 // TODO: this (includeForListingTypes) is deprecated config key!
 // You should change your buil-in listing field configs:
 // do not use includeForListingTypes but listingTypeConfig: { limitToListingTypeIds, listingTypeIds }
-const validListingTypesForBuiltInSetup = (includeForListingTypes, listingTypesInUse) => {
+const validListingTypesForBuiltInSetup = (
+  includeForListingTypes,
+  listingTypesInUse
+) => {
   const isUndefinedOrNull = includeForListingTypes == null;
   const isArray = Array.isArray(includeForListingTypes);
   const validatedListingTypes = isArray
-    ? includeForListingTypes.filter(pa => listingTypesInUse.includes(pa))
+    ? includeForListingTypes.filter((pa) => listingTypesInUse.includes(pa))
     : [];
 
   const hasValidListingTypes = validatedListingTypes.length > 0;
   const isValid = hasValidListingTypes || isUndefinedOrNull;
   const validValue = hasValidListingTypes
-    ? { listingTypeConfig: { limitToListingTypeIds: true, listingTypeIds: validatedListingTypes } }
+    ? {
+        listingTypeConfig: {
+          limitToListingTypeIds: true,
+          listingTypeIds: validatedListingTypes,
+        },
+      }
     : isUndefinedOrNull
-    ? { listingTypeConfig: { limitToListingTypeIds: false } }
-    : {};
+      ? { listingTypeConfig: { limitToListingTypeIds: false } }
+      : {};
   return [isValid, validValue];
 };
 
-const validListingTypesForListingTypeConfig = (listingTypeConfig, listingTypesInUse) => {
+const validListingTypesForListingTypeConfig = (
+  listingTypeConfig,
+  listingTypesInUse
+) => {
   const { limitToListingTypeIds, listingTypeIds } = listingTypeConfig || {};
 
   // When no user types are in use, fields by default cannot be limited to a subset of types
@@ -428,7 +496,7 @@ const validListingTypesForListingTypeConfig = (listingTypeConfig, listingTypesIn
 
   const isArray = Array.isArray(listingTypeIds);
   const validatedListingTypeIds = isArray
-    ? listingTypeIds.filter(c => listingTypesInUse?.includes(c))
+    ? listingTypeIds.filter((c) => listingTypesInUse?.includes(c))
     : [];
 
   // If a field is limited to user type ids, it has to have at least one valid type
@@ -446,7 +514,7 @@ const validListingTypesForListingTypeConfig = (listingTypeConfig, listingTypesIn
   return [isValid, validValue];
 };
 
-const getCategoryIds = categories => {
+const getCategoryIds = (categories) => {
   return categories.reduce((picked, conf) => {
     const { id, subcategories } = conf;
     return Array.isArray(subcategories) && subcategories.length > 0
@@ -455,7 +523,10 @@ const getCategoryIds = categories => {
   }, []);
 };
 
-const validListingTypesForCategoryConfig = (categoryConfig, categoriesInUse) => {
+const validListingTypesForCategoryConfig = (
+  categoryConfig,
+  categoriesInUse
+) => {
   const { limitToCategoryIds, categoryIds } = categoryConfig || {};
 
   // When no user types are in use, fields by default cannot be limited to a subset of types
@@ -473,7 +544,7 @@ const validListingTypesForCategoryConfig = (categoryConfig, categoriesInUse) => 
   const validCategoryIds = getCategoryIds(categoriesInUse);
   const isArray = Array.isArray(categoryIds);
   const validatedCategoryIds = isArray
-    ? categoryIds.filter(c => validCategoryIds?.includes(c))
+    ? categoryIds.filter((c) => validCategoryIds?.includes(c))
     : [];
 
   // If a field is limited to user type ids, it has to have at least one valid type
@@ -491,8 +562,8 @@ const validListingTypesForCategoryConfig = (categoryConfig, categoriesInUse) => 
   return [isValid, validValue];
 };
 
-const isStringType = str => typeof str === 'string';
-const pickOptionShapes = o => isStringType(o.option) && isStringType(o.label);
+const isStringType = (str) => typeof str === 'string';
+const pickOptionShapes = (o) => isStringType(o.option) && isStringType(o.label);
 
 const validSchemaOptions = (enumOptions, schemaType) => {
   const isUndefined = typeof enumOptions === 'undefined';
@@ -501,12 +572,18 @@ const validSchemaOptions = (enumOptions, schemaType) => {
     ? enumOptions.filter(pickOptionShapes).length === enumOptions.length
     : false;
   const isEnumSchemaType = ['enum', 'multi-enum'].includes(schemaType);
-  const shouldHaveSchemaOptions = isEnumSchemaType && !isUndefined && enumOptions.length > 0;
+  const shouldHaveSchemaOptions =
+    isEnumSchemaType && !isUndefined && enumOptions.length > 0;
 
-  const isValid = !isEnumSchemaType || (shouldHaveSchemaOptions && arrayContainsOptionShapes);
+  const isValid =
+    !isEnumSchemaType || (shouldHaveSchemaOptions && arrayContainsOptionShapes);
 
   const schemaOptionsMaybe =
-    isEnumSchemaType && isArray ? { enumOptions } : isEnumSchemaType ? { enumOptions: [] } : {};
+    isEnumSchemaType && isArray
+      ? { enumOptions }
+      : isEnumSchemaType
+        ? { enumOptions: [] }
+        : {};
 
   return [isValid, schemaOptionsMaybe];
 };
@@ -517,7 +594,8 @@ const validFilterType = (filterType, schemaType) => {
   const isEnumSchemaType = ['enum', 'multi-enum'].includes(schemaType);
   const isUndefined = typeof searchMode === 'undefined';
   const isKnownFilterType = filterTypes.includes(filterType);
-  const shouldHaveFilterType = isEnumSchemaType && (isKnownFilterType || isUndefined);
+  const shouldHaveFilterType =
+    isEnumSchemaType && (isKnownFilterType || isUndefined);
   const isValid = !isEnumSchemaType || shouldHaveFilterType;
   const filterTypeMaybe = shouldHaveFilterType
     ? { filterType: filterType || 'SelectMultipleFilter' }
@@ -530,9 +608,12 @@ const validSearchMode = (searchMode, schemaType) => {
   const isMultiEnumSchemaType = schemaType === 'multi-enum';
   const isUndefined = typeof searchMode === 'undefined';
   const hasValidMode = searchModes.includes(searchMode);
-  const isSearchModeValid = isMultiEnumSchemaType && (isUndefined || hasValidMode);
+  const isSearchModeValid =
+    isMultiEnumSchemaType && (isUndefined || hasValidMode);
   const isValid = !isMultiEnumSchemaType || isSearchModeValid;
-  const searchModeMaybe = isSearchModeValid ? { searchMode: searchMode || 'has_all' } : {};
+  const searchModeMaybe = isSearchModeValid
+    ? { searchMode: searchMode || 'has_all' }
+    : {};
   return [isValid, searchModeMaybe];
 };
 
@@ -548,13 +629,28 @@ const validFilterConfig = (config, schemaType) => {
     false
   );
   const [isValidLabel, label] = validLabel(config.label);
-  const [isValidFilterType, filterType] = validFilterType(config.filterType, schemaType);
-  const [isValidSearchMode, searchMode] = validSearchMode(config.searchMode, schemaType);
+  const [isValidFilterType, filterType] = validFilterType(
+    config.filterType,
+    schemaType
+  );
+  const [isValidSearchMode, searchMode] = validSearchMode(
+    config.searchMode,
+    schemaType
+  );
   const groupOptions = ['primary', 'secondary'];
-  const [isValidGroup, group] = validEnumString('group', config.group, groupOptions, 'primary');
+  const [isValidGroup, group] = validEnumString(
+    'group',
+    config.group,
+    groupOptions,
+    'primary'
+  );
 
   const isValid =
-    isValidIndexForSearch && isValidLabel && isValidFilterType && isValidSearchMode && isValidGroup;
+    isValidIndexForSearch &&
+    isValidLabel &&
+    isValidFilterType &&
+    isValidSearchMode &&
+    isValidGroup;
   const validValue = {
     filterConfig: {
       ...indexForSearch,
@@ -568,7 +664,7 @@ const validFilterConfig = (config, schemaType) => {
 };
 
 // listingFieldsConfig.showConfig
-const validShowConfig = config => {
+const validShowConfig = (config) => {
   const isUndefined = typeof config === 'undefined';
   if (isUndefined) {
     return [true, {}];
@@ -576,7 +672,11 @@ const validShowConfig = config => {
 
   // Validate: label, isDetail.
   const [isValidLabel, label] = validLabel(config.label);
-  const [isValidIsDetail, isDetail] = validBoolean('isDetail', config.isDetail, true);
+  const [isValidIsDetail, isDetail] = validBoolean(
+    'isDetail',
+    config.isDetail,
+    true
+  );
   const [isValidUnselectedOptions, unselectedOptions] = validBoolean(
     'unselectedOptions',
     config.unselectedOptions,
@@ -595,7 +695,7 @@ const validShowConfig = config => {
 };
 
 // numberConfig is passed along with listing fields that use the schema type `long`
-const validNumberConfig = config => {
+const validNumberConfig = (config) => {
   const { minimum, maximum } = config;
   const integerConfig = { minimum, maximum, step: 1 };
 
@@ -621,7 +721,7 @@ const validNumberConfig = config => {
   return [true, integerConfig];
 };
 
-const validUserShowConfig = config => {
+const validUserShowConfig = (config) => {
   const isUndefined = typeof config === 'undefined';
   if (isUndefined) {
     return [true, {}];
@@ -640,7 +740,8 @@ const validUserShowConfig = config => {
     true
   );
 
-  const isValid = isValidLabel && isValidDisplayInProfile && isValidUnselectedOptions;
+  const isValid =
+    isValidLabel && isValidDisplayInProfile && isValidUnselectedOptions;
   const validValue = {
     showConfig: {
       ...label,
@@ -652,14 +753,14 @@ const validUserShowConfig = config => {
 };
 
 // listingFieldsConfig.saveConfig
-const validPlaceholderMessage = placeholderMessage => {
+const validPlaceholderMessage = (placeholderMessage) => {
   const isUndefined = typeof placeholderMessage === 'undefined';
   const isString = typeof placeholderMessage === 'string';
   const isValid = isUndefined || isString;
   const validValue = isValid ? { placeholderMessage } : {};
   return [isValid, validValue];
 };
-const validRequiredMessage = requiredMessage => {
+const validRequiredMessage = (requiredMessage) => {
   const isUndefined = typeof requiredMessage === 'undefined';
   const isString = typeof requiredMessage === 'string';
   const isValid = isUndefined || isString;
@@ -667,7 +768,7 @@ const validRequiredMessage = requiredMessage => {
   return [isValid, validValue];
 };
 
-const validSaveConfig = config => {
+const validSaveConfig = (config) => {
   const isUndefined = typeof config === 'undefined';
   if (isUndefined) {
     return [true, {}];
@@ -677,10 +778,20 @@ const validSaveConfig = config => {
   const [isValidPlaceholder, placeholderMessage] = validPlaceholderMessage(
     config.placeholderMessage
   );
-  const [isValidIsRequired, isRequired] = validBoolean('isRequired', config.isRequired, false);
-  const [isValidRequiredMessage, requiredMessage] = validRequiredMessage(config.requiredMessage);
+  const [isValidIsRequired, isRequired] = validBoolean(
+    'isRequired',
+    config.isRequired,
+    false
+  );
+  const [isValidRequiredMessage, requiredMessage] = validRequiredMessage(
+    config.requiredMessage
+  );
 
-  const isValid = isValidLabel && isValidPlaceholder && isValidIsRequired && isValidRequiredMessage;
+  const isValid =
+    isValidLabel &&
+    isValidPlaceholder &&
+    isValidIsRequired &&
+    isValidRequiredMessage;
   const validValue = {
     saveConfig: {
       ...label,
@@ -691,7 +802,7 @@ const validSaveConfig = config => {
   };
   return [isValid, validValue];
 };
-const validUserSaveConfig = config => {
+const validUserSaveConfig = (config) => {
   const isUndefined = typeof config === 'undefined';
   if (isUndefined) {
     return [true, {}];
@@ -703,13 +814,19 @@ const validUserSaveConfig = config => {
   );
 
   // At this point, all user fields are required by default, and shown in signup by default.
-  const [isValidIsRequired, isRequired] = validBoolean('isRequired', config.isRequired, true);
+  const [isValidIsRequired, isRequired] = validBoolean(
+    'isRequired',
+    config.isRequired,
+    true
+  );
   const [isValidDisplayInSignUp, displayInSignUp] = validBoolean(
     'displayInSignUp',
     config.displayInSignUp,
     true
   );
-  const [isValidRequiredMessage, requiredMessage] = validRequiredMessage(config.requiredMessage);
+  const [isValidRequiredMessage, requiredMessage] = validRequiredMessage(
+    config.requiredMessage
+  );
 
   const isValid =
     isValidLabel &&
@@ -729,10 +846,21 @@ const validUserSaveConfig = config => {
   return [isValid, validValue];
 };
 
-const validListingFields = (listingFields, listingTypesInUse, categoriesInUse) => {
-  const keys = listingFields.map(d => d.key);
+const validListingFields = (
+  listingFields,
+  listingTypesInUse,
+  categoriesInUse
+) => {
+  const keys = listingFields.map((d) => d.key);
   const scopeOptions = ['public', 'private'];
-  const validSchemaTypes = ['enum', 'multi-enum', 'text', 'long', 'boolean', 'youtubeVideoUrl'];
+  const validSchemaTypes = [
+    'enum',
+    'multi-enum',
+    'text',
+    'long',
+    'boolean',
+    'youtubeVideoUrl',
+  ];
 
   return listingFields.reduce((acc, data) => {
     const schemaType = data.schemaType;
@@ -746,26 +874,32 @@ const validListingFields = (listingFields, listingTypesInUse, categoriesInUse) =
           name === 'key'
             ? validKey(value, keys)
             : name === 'scope'
-            ? validEnumString('scope', value, scopeOptions, 'public')
-            : name === 'numberConfig'
-            ? validNumberConfig(value)
-            : name === 'includeForListingTypes'
-            ? validListingTypesForBuiltInSetup(value, listingTypesInUse)
-            : name === 'listingTypeConfig'
-            ? validListingTypesForListingTypeConfig(value, listingTypesInUse)
-            : name === 'categoryConfig'
-            ? validListingTypesForCategoryConfig(value, categoriesInUse)
-            : name === 'schemaType'
-            ? validEnumString('schemaType', value, validSchemaTypes)
-            : name === 'enumOptions'
-            ? validSchemaOptions(value, schemaType)
-            : name === 'filterConfig'
-            ? validFilterConfig(value, schemaType)
-            : name === 'showConfig'
-            ? validShowConfig(value)
-            : name === 'saveConfig'
-            ? validSaveConfig(value)
-            : [true, { [name]: value }];
+              ? validEnumString('scope', value, scopeOptions, 'public')
+              : name === 'numberConfig'
+                ? validNumberConfig(value)
+                : name === 'includeForListingTypes'
+                  ? validListingTypesForBuiltInSetup(value, listingTypesInUse)
+                  : name === 'listingTypeConfig'
+                    ? validListingTypesForListingTypeConfig(
+                        value,
+                        listingTypesInUse
+                      )
+                    : name === 'categoryConfig'
+                      ? validListingTypesForCategoryConfig(
+                          value,
+                          categoriesInUse
+                        )
+                      : name === 'schemaType'
+                        ? validEnumString('schemaType', value, validSchemaTypes)
+                        : name === 'enumOptions'
+                          ? validSchemaOptions(value, schemaType)
+                          : name === 'filterConfig'
+                            ? validFilterConfig(value, schemaType)
+                            : name === 'showConfig'
+                              ? validShowConfig(value)
+                              : name === 'saveConfig'
+                                ? validSaveConfig(value)
+                                : [true, { [name]: value }];
 
         const hasFoundValid = !(acc.isValid === false || isValid === false);
         // Let's warn about wrong data in listing extended data config
@@ -789,8 +923,8 @@ const validListingFields = (listingFields, listingTypesInUse, categoriesInUse) =
   }, []);
 };
 
-const validUserTypes = userTypes => {
-  const validTypes = userTypes.filter(config => {
+const validUserTypes = (userTypes) => {
+  const validTypes = userTypes.filter((config) => {
     const { userType, label } = config;
     return userType && label;
   });
@@ -799,9 +933,16 @@ const validUserTypes = userTypes => {
 };
 
 const validUserFields = (userFields, userTypesInUse) => {
-  const keys = userFields.map(d => d.key);
+  const keys = userFields.map((d) => d.key);
   const scopeOptions = ['public', 'private', 'protected', 'metadata'];
-  const validSchemaTypes = ['enum', 'multi-enum', 'text', 'long', 'boolean', 'youtubeVideoUrl'];
+  const validSchemaTypes = [
+    'enum',
+    'multi-enum',
+    'text',
+    'long',
+    'boolean',
+    'youtubeVideoUrl',
+  ];
 
   return userFields.reduce((acc, data) => {
     const schemaType = data.schemaType;
@@ -815,25 +956,28 @@ const validUserFields = (userFields, userTypesInUse) => {
           name === 'key'
             ? validKey(value, keys)
             : name === 'label'
-            ? validLabel(value)
-            : name === 'scope'
-            ? validEnumString('scope', value, scopeOptions, 'public')
-            : name === 'schemaType'
-            ? validEnumString('schemaType', value, validSchemaTypes)
-            : name === 'enumOptions'
-            ? validSchemaOptions(value, schemaType)
-            : name === 'showConfig'
-            ? validUserShowConfig(value)
-            : name === 'userTypeConfig'
-            ? validUserTypesForUserConfig(value, userTypesInUse)
-            : name === 'saveConfig'
-            ? validUserSaveConfig(value)
-            : [true, value];
+              ? validLabel(value)
+              : name === 'scope'
+                ? validEnumString('scope', value, scopeOptions, 'public')
+                : name === 'schemaType'
+                  ? validEnumString('schemaType', value, validSchemaTypes)
+                  : name === 'enumOptions'
+                    ? validSchemaOptions(value, schemaType)
+                    : name === 'showConfig'
+                      ? validUserShowConfig(value)
+                      : name === 'userTypeConfig'
+                        ? validUserTypesForUserConfig(value, userTypesInUse)
+                        : name === 'saveConfig'
+                          ? validUserSaveConfig(value)
+                          : [true, value];
 
         const hasFoundValid = !(acc.isValid === false || isValid === false);
         // Let's warn about wrong data in listing extended data config
         if (isValid === false) {
-          console.warn(`Unsupported user extended data configurations detected (${name}) in`, data);
+          console.warn(
+            `Unsupported user extended data configurations detected (${name}) in`,
+            data
+          );
         }
 
         return { config: { ...acc.config, ...prop }, isValid: hasFoundValid };
@@ -849,7 +993,7 @@ const validUserFields = (userFields, userTypesInUse) => {
 // Validate listing types config //
 ///////////////////////////////////
 
-const validListingTypes = listingTypes => {
+const validListingTypes = (listingTypes) => {
   // Check what transaction processes this client app supports
   const supportedProcessesInfo = getSupportedProcessesInfo();
 
@@ -861,17 +1005,32 @@ const validListingTypes = listingTypes => {
       priceVariations,
       ...restOfListingType
     } = listingType;
-    const { process: processName, alias, unitType, ...restOfTransactionType } = transactionType;
+    const {
+      process: processName,
+      alias,
+      unitType,
+      ...restOfTransactionType
+    } = transactionType;
 
-    const isSupportedProcessName = supportedProcessesInfo.find(p => p.name === processName);
-    const isSupportedProcessAlias = supportedProcessesInfo.find(p => p.alias === alias);
-    const isSupportedUnitType = supportedProcessesInfo.find(p => p.unitTypes.includes(unitType));
+    const isSupportedProcessName = supportedProcessesInfo.find(
+      (p) => p.name === processName
+    );
+    const isSupportedProcessAlias = supportedProcessesInfo.find(
+      (p) => p.alias === alias
+    );
+    const isSupportedUnitType = supportedProcessesInfo.find((p) =>
+      p.unitTypes.includes(unitType)
+    );
 
     const priceVariationTypeMaybe = isBookingProcessAlias(alias)
       ? { priceVariations: { enabled: priceVariations?.enabled } }
       : {};
 
-    if (isSupportedProcessName && isSupportedProcessAlias && isSupportedUnitType) {
+    if (
+      isSupportedProcessName &&
+      isSupportedProcessAlias &&
+      isSupportedUnitType
+    ) {
       return [
         ...validConfigs,
         {
@@ -889,30 +1048,33 @@ const validListingTypes = listingTypes => {
         },
       ];
     }
-    console.warn('Unsupported listing type configurations detected', listingType);
+    console.warn(
+      'Unsupported listing type configurations detected',
+      listingType
+    );
     return validConfigs;
   }, []);
 
   return validTypes;
 };
 
-export const displayPrice = listingTypeConfig => {
+export const displayPrice = (listingTypeConfig) => {
   return listingTypeConfig?.defaultListingFields?.price !== false;
 };
 
-export const displayLocation = listingTypeConfig => {
+export const displayLocation = (listingTypeConfig) => {
   return listingTypeConfig?.defaultListingFields?.location !== false;
 };
 
-export const displayDeliveryPickup = listingTypeConfig => {
+export const displayDeliveryPickup = (listingTypeConfig) => {
   return listingTypeConfig?.defaultListingFields?.pickup !== false;
 };
 
-export const displayDeliveryShipping = listingTypeConfig => {
+export const displayDeliveryShipping = (listingTypeConfig) => {
   return listingTypeConfig?.defaultListingFields?.shipping !== false;
 };
 
-export const requirePayoutDetails = listingTypeConfig => {
+export const requirePayoutDetails = (listingTypeConfig) => {
   return listingTypeConfig?.defaultListingFields?.payoutDetails !== false;
 };
 
@@ -927,9 +1089,9 @@ export const isPriceVariationsEnabled = (publicData, listingTypeConfig) => {
 // Restructure hosted listing config //
 ///////////////////////////////////////
 
-const restructureListingTypes = hostedListingTypes => {
+const restructureListingTypes = (hostedListingTypes) => {
   return (
-    hostedListingTypes?.map(listingType => {
+    hostedListingTypes?.map((listingType) => {
       const { id, label, transactionProcess, unitType, ...rest } = listingType;
       return transactionProcess
         ? {
@@ -947,9 +1109,9 @@ const restructureListingTypes = hostedListingTypes => {
   );
 };
 
-const restructureListingFields = hostedListingFields => {
+const restructureListingFields = (hostedListingFields) => {
   return (
-    hostedListingFields?.map(listingField => {
+    hostedListingFields?.map((listingField) => {
       const {
         key,
         scope,
@@ -964,7 +1126,9 @@ const restructureListingFields = hostedListingFields => {
         ...rest
       } = listingField;
       const defaultLabel = label || key;
-      const enumOptionsMaybe = ['enum', 'multi-enum'].includes(schemaType) ? { enumOptions } : {};
+      const enumOptionsMaybe = ['enum', 'multi-enum'].includes(schemaType)
+        ? { enumOptions }
+        : {};
       const numberConfigMaybe = schemaType === 'long' ? { numberConfig } : {};
       const { required: isRequired, ...restSaveConfig } = saveConfig;
 
@@ -1001,15 +1165,15 @@ const restructureListingFields = hostedListingFields => {
 ///////////////////////////////////////
 
 const restructureUserTypes = (hostedUserTypes = []) => {
-  return hostedUserTypes.map(userType => {
+  return hostedUserTypes.map((userType) => {
     const { id, ...rest } = userType;
     return { userType: id, ...rest };
   });
 };
 
-const restructureUserFields = hostedUserFields => {
+const restructureUserFields = (hostedUserFields) => {
   return (
-    hostedUserFields?.map(userField => {
+    hostedUserFields?.map((userField) => {
       const {
         key,
         scope,
@@ -1022,7 +1186,9 @@ const restructureUserFields = hostedUserFields => {
         ...rest
       } = userField;
       const defaultLabel = label || key;
-      const enumOptionsMaybe = ['enum', 'multi-enum'].includes(schemaType) ? { enumOptions } : {};
+      const enumOptionsMaybe = ['enum', 'multi-enum'].includes(schemaType)
+        ? { enumOptions }
+        : {};
       const { required: isRequired, ...restSaveConfig } = saveConfig;
 
       return key
@@ -1077,8 +1243,8 @@ const restructureUserFields = hostedUserFields => {
 //     // Additional categories can be added here.
 //   ],
 // }
-const validateCategoryConfig = hostedConfig => {
-  const validateData = data => {
+const validateCategoryConfig = (hostedConfig) => {
+  const validateData = (data) => {
     if (!data || !data.categories || !Array.isArray(data.categories)) {
       return {};
     }
@@ -1092,7 +1258,7 @@ const validateCategoryConfig = hostedConfig => {
     };
   };
 
-  const validateSubcategories = subcategories => {
+  const validateSubcategories = (subcategories) => {
     if (!subcategories || !Array.isArray(subcategories)) {
       return [];
     }
@@ -1115,14 +1281,14 @@ const validateCategoryConfig = hostedConfig => {
 //       I.e. default configs override hosted asset configs if they have the same key.
 const union = (arr1, arr2, key) => {
   const all = [...arr1, ...arr2];
-  const map = new Map(all.map(obj => [obj[key], obj]));
+  const map = new Map(all.map((obj) => [obj[key], obj]));
   return [...map.values()];
 };
 
 // For debugging, it becomes sometimes important to be able to merge and overwrite with local values
 // Note: We don't want to expose this to production by default.
 //       If you customization relies on multiple listing types or custom listing fields, you need to change this.
-const mergeDefaultTypesAndFieldsForDebugging = isDebugging => {
+const mergeDefaultTypesAndFieldsForDebugging = (isDebugging) => {
   const isDev = process.env.NODE_ENV === 'development';
   return isDebugging && isDev;
 };
@@ -1130,12 +1296,19 @@ const mergeDefaultTypesAndFieldsForDebugging = isDebugging => {
 // Note: by default, listing types and fields are only merged if explicitly set for debugging
 const mergeListingConfig = (hostedConfig, defaultConfigs, categoriesInUse) => {
   // Listing configuration is splitted to several assets in Console
-  const hostedListingTypes = restructureListingTypes(hostedConfig.listingTypes?.listingTypes);
-  const hostedListingFields = restructureListingFields(hostedConfig.listingFields?.listingFields);
+  const hostedListingTypes = restructureListingTypes(
+    hostedConfig.listingTypes?.listingTypes
+  );
+  const hostedListingFields = restructureListingFields(
+    hostedConfig.listingFields?.listingFields
+  );
 
   // The default values for local debugging
-  const { listingTypes: defaultListingTypes, listingFields: defaultListingFields, ...rest } =
-    defaultConfigs.listing || {};
+  const {
+    listingTypes: defaultListingTypes,
+    listingFields: defaultListingFields,
+    ...rest
+  } = defaultConfigs.listing || {};
 
   // When debugging, include default configs by passing 'true' here.
   // Otherwise, use listing types and fields from hosted assets.
@@ -1147,21 +1320,30 @@ const mergeListingConfig = (hostedConfig, defaultConfigs, categoriesInUse) => {
     ? union(hostedListingFields, defaultListingFields, 'key')
     : hostedListingFields;
 
-  const listingTypesInUse = listingTypes.map(lt => `${lt.listingType}`);
+  const listingTypesInUse = listingTypes.map((lt) => `${lt.listingType}`);
 
   return {
     ...rest,
-    listingFields: validListingFields(listingFields, listingTypesInUse, categoriesInUse),
+    listingFields: validListingFields(
+      listingFields,
+      listingTypesInUse,
+      categoriesInUse
+    ),
     listingTypes: validListingTypes(listingTypes),
     enforceValidListingType: defaultConfigs.listing.enforceValidListingType,
   };
 };
 
 const mergeUserConfig = (hostedConfig, defaultConfigs) => {
-  const hostedUserTypes = restructureUserTypes(hostedConfig?.userTypes?.userTypes);
-  const hostedUserFields = restructureUserFields(hostedConfig?.userFields?.userFields);
+  const hostedUserTypes = restructureUserTypes(
+    hostedConfig?.userTypes?.userTypes
+  );
+  const hostedUserFields = restructureUserFields(
+    hostedConfig?.userFields?.userFields
+  );
 
-  const { userFields: defaultUserFields, userTypes: defaultUserTypes } = defaultConfigs.user;
+  const { userFields: defaultUserFields, userTypes: defaultUserTypes } =
+    defaultConfigs.user;
 
   // When debugging, include default configs by passing 'true' here.
   // Otherwise, use user fields from hosted assets.
@@ -1175,7 +1357,7 @@ const mergeUserConfig = (hostedConfig, defaultConfigs) => {
 
   // To include user type validation (if you have user types in your default configuration),
   // pass userTypes to the validUserFields function as well:
-  const userTypesInUse = userTypes.map(ut => `${ut.userType}`);
+  const userTypesInUse = userTypes.map((ut) => `${ut.userType}`);
   return {
     userTypes: validUserTypes(userTypes),
     userFields: validUserFields(userFields, userTypesInUse),
@@ -1211,7 +1393,10 @@ const validListingTypeSearchConfig = (config, listingTypeConfig) => {
     return null;
   }
 
-  const options = listingTypeConfig.map(lt => ({ option: lt.listingType, label: lt.label }));
+  const options = listingTypeConfig.map((lt) => ({
+    option: lt.listingType,
+    label: lt.label,
+  }));
 
   return {
     key: 'listingType',
@@ -1221,7 +1406,7 @@ const validListingTypeSearchConfig = (config, listingTypeConfig) => {
   };
 };
 
-const validDatesConfig = config => {
+const validDatesConfig = (config) => {
   const {
     enabled = true,
     label = 'Dates',
@@ -1230,16 +1415,24 @@ const validDatesConfig = config => {
   } = config;
   const isValidLabel = typeof label === 'string';
   const isValidMode = ['day', 'night'].includes(dateRangeMode);
-  const isValidAvailability = ['time-full', 'time-partial'].includes(availability);
+  const isValidAvailability = ['time-full', 'time-partial'].includes(
+    availability
+  );
 
   if (!(enabled && isValidLabel && isValidMode && isValidAvailability)) {
     return null;
   }
 
-  return { key: 'dates', schemaType: 'dates', label, availability, dateRangeMode };
+  return {
+    key: 'dates',
+    schemaType: 'dates',
+    label,
+    availability,
+    dateRangeMode,
+  };
 };
 
-const validSeatsConfig = config => {
+const validSeatsConfig = (config) => {
   const { enabled = true, label = 'Seats' } = config;
   const isValidLabel = typeof label === 'string';
 
@@ -1250,8 +1443,14 @@ const validSeatsConfig = config => {
   return { key: 'seats', schemaType: 'seats', label };
 };
 
-const validPriceConfig = config => {
-  const { enabled = true, label = 'Price', min = 0, max = 1000, step = 5 } = config;
+const validPriceConfig = (config) => {
+  const {
+    enabled = true,
+    label = 'Price',
+    min = 0,
+    max = 1000,
+    step = 5,
+  } = config;
   const isValidLabel = typeof label === 'string';
   const isValidMin = typeof min === 'number';
   const isValidMax = typeof max === 'number';
@@ -1263,12 +1462,16 @@ const validPriceConfig = config => {
 
   const isMaxBigger = max > min;
   if (!isMaxBigger) {
-    console.error(`Price filter: min value (${min}) needs to be smaller than max (${max})`);
+    console.error(
+      `Price filter: min value (${min}) needs to be smaller than max (${max})`
+    );
   }
-  return isMaxBigger ? { key: 'price', schemaType: 'price', label, min, max, step } : null;
+  return isMaxBigger
+    ? { key: 'price', schemaType: 'price', label, min, max, step }
+    : null;
 };
 
-const validKeywordsConfig = config => {
+const validKeywordsConfig = (config) => {
   const { enabled = true } = config;
 
   if (!enabled) {
@@ -1278,23 +1481,27 @@ const validKeywordsConfig = config => {
   return { key: 'keywords', schemaType: 'keywords' };
 };
 
-const validDefaultFilters = (defaultFilters, categoryConfiguration, listingTypeConfig) => {
+const validDefaultFilters = (
+  defaultFilters,
+  categoryConfiguration,
+  listingTypeConfig
+) => {
   return defaultFilters
-    .map(data => {
+    .map((data) => {
       const schemaType = data.schemaType;
       return schemaType === 'category'
         ? validCategoryConfig(data, categoryConfiguration)
         : schemaType === 'listingType'
-        ? validListingTypeSearchConfig(data, listingTypeConfig)
-        : schemaType === 'dates'
-        ? validDatesConfig(data)
-        : schemaType === 'seats'
-        ? validSeatsConfig(data)
-        : schemaType === 'price'
-        ? validPriceConfig(data)
-        : schemaType === 'keywords'
-        ? validKeywordsConfig(data)
-        : data;
+          ? validListingTypeSearchConfig(data, listingTypeConfig)
+          : schemaType === 'dates'
+            ? validDatesConfig(data)
+            : schemaType === 'seats'
+              ? validSeatsConfig(data)
+              : schemaType === 'price'
+                ? validPriceConfig(data)
+                : schemaType === 'keywords'
+                  ? validKeywordsConfig(data)
+                  : data;
     })
     .filter(Boolean);
 };
@@ -1303,15 +1510,24 @@ const validDefaultFilters = (defaultFilters, categoryConfiguration, listingTypeC
 // Validate sort config //
 //////////////////////////
 
-const validSortConfig = config => {
+const validSortConfig = (config) => {
   const active = typeof config.active === 'boolean' ? config.active : true;
   const queryParamName = config.queryParamName || 'sort';
   const relevanceKey = config.relevanceKey || 'relevance';
   const relevanceFilter = config.relevanceFilter || 'keywords';
   const conflictingFilters = config.conflictingFilters || [];
   const optionsRaw = config.options || [];
-  const options = optionsRaw.filter(o => !!o.key && !!(o.label || o.labelTranslationKey));
-  return { active, queryParamName, relevanceKey, relevanceFilter, conflictingFilters, options };
+  const options = optionsRaw.filter(
+    (o) => !!o.key && !!(o.label || o.labelTranslationKey)
+  );
+  return {
+    active,
+    queryParamName,
+    relevanceKey,
+    relevanceFilter,
+    conflictingFilters,
+    options,
+  };
 };
 
 const mergeSearchConfig = (
@@ -1349,15 +1565,18 @@ const mergeSearchConfig = (
     : 'keywords';
 
   const categoryFilterMaybe =
-    categoryFilter && categoryConfiguration.categories?.length > 0 ? [categoryFilter] : [];
+    categoryFilter && categoryConfiguration.categories?.length > 0
+      ? [categoryFilter]
+      : [];
   const keywordsFilterMaybe =
     keywordsFilter?.enabled === true
       ? [{ key: 'keywords', schemaType: 'keywords' }]
       : defaultSearchConfig.keywordsFilter
-      ? [defaultSearchConfig.keywordsFilter]
-      : [];
+        ? [defaultSearchConfig.keywordsFilter]
+        : [];
 
-  const seatsFilterMaybe = typeof seatsFilter?.enabled === 'boolean' ? [seatsFilter] : [];
+  const seatsFilterMaybe =
+    typeof seatsFilter?.enabled === 'boolean' ? [seatsFilter] : [];
 
   const listingTypeFilterMaybe =
     typeof listingTypeFilter?.enabled === 'boolean' ? [listingTypeFilter] : [];
@@ -1379,7 +1598,11 @@ const mergeSearchConfig = (
 
   return {
     mainSearch: { searchType },
-    defaultFilters: validDefaultFilters(defaultFilters, categoryConfiguration, listingTypeConfig),
+    defaultFilters: validDefaultFilters(
+      defaultFilters,
+      categoryConfiguration,
+      listingTypeConfig
+    ),
     sortConfig: validSortConfig(sortConfig),
     ...rest,
   };
@@ -1389,22 +1612,30 @@ const mergeSearchConfig = (
 // Validate transaction configs //
 //////////////////////////////////
 
-const getListingMinimumPrice = transactionSize => {
+const getListingMinimumPrice = (transactionSize) => {
   const { listingMinimumPrice } = transactionSize || {};
-  return listingMinimumPrice?.type === 'subunit' ? listingMinimumPrice.amount : 0;
+  return listingMinimumPrice?.type === 'subunit'
+    ? listingMinimumPrice.amount
+    : 0;
 };
 
 ////////////////////////////////////
 // Validate and merge map configs //
 ////////////////////////////////////
 const mergeMapConfig = (hostedMapConfig, defaultMapConfig) => {
-  const { mapProvider, mapboxAccessToken, googleMapsAPIKey, ...restOfDefault } = defaultMapConfig;
-  const mapProviderPicked = hostedMapConfig?.provider || mapProvider;
-  const mapboxAccessTokenPicked = hostedMapConfig?.mapboxAccessToken || mapboxAccessToken;
-  const googleMapsAPIKeyPicked = hostedMapConfig?.googleMapsApiKey || googleMapsAPIKey;
+  const { mapProvider, mapboxAccessToken, googleMapsAPIKey, ...restOfDefault } =
+    defaultMapConfig;
+  // const mapProviderPicked = hostedMapConfig?.provider || mapProvider;
+  const mapProviderPicked = mapProvider;
+  const mapboxAccessTokenPicked =
+    hostedMapConfig?.mapboxAccessToken || mapboxAccessToken;
+  const googleMapsAPIKeyPicked =
+    hostedMapConfig?.googleMapsApiKey || googleMapsAPIKey;
 
   const hasApiAccess =
-    mapProviderPicked === 'googleMaps' ? !!googleMapsAPIKeyPicked : !!mapboxAccessTokenPicked;
+    mapProviderPicked === 'googleMaps'
+      ? !!googleMapsAPIKeyPicked
+      : !!mapboxAccessTokenPicked;
   if (!hasApiAccess) {
     console.error(
       `The access tokens are not in place for the selected map provider (${mapProviderPicked})`
@@ -1424,9 +1655,15 @@ const mergeMapConfig = (hostedMapConfig, defaultMapConfig) => {
 ////////////////////////////////////
 
 // Check if all the mandatory info have been retrieved from hosted assets
-const hasMandatoryConfigs = hostedConfig => {
-  const { branding, listingTypes, listingFields, transactionSize } = hostedConfig;
-  printErrorIfHostedAssetIsMissing({ branding, listingTypes, listingFields, transactionSize });
+const hasMandatoryConfigs = (hostedConfig) => {
+  const { branding, listingTypes, listingFields, transactionSize } =
+    hostedConfig;
+  printErrorIfHostedAssetIsMissing({
+    branding,
+    listingTypes,
+    listingFields,
+    transactionSize,
+  });
   return (
     branding?.logo &&
     listingTypes?.listingTypes?.length > 0 &&
@@ -1440,7 +1677,9 @@ export const mergeConfig = (configAsset = {}, defaultConfigs = {}) => {
   // Remove trailing slash from marketplaceRootURL if any
   const marketplaceRootURL = defaultConfigs.marketplaceRootURL;
   const cleanedRootURL =
-    typeof marketplaceRootURL === 'string' ? marketplaceRootURL.replace(/\/$/, '') : '';
+    typeof marketplaceRootURL === 'string'
+      ? marketplaceRootURL.replace(/\/$/, '')
+      : '';
 
   // By default, always try to take the value of listingMinimumPriceSubUnits from the transaction-size.json asset.
   // - If there is no value, we use the defaultConfigs.listingMinimumPriceSubUnits
@@ -1473,16 +1712,25 @@ export const mergeConfig = (configAsset = {}, defaultConfigs = {}) => {
     listingMinimumPriceSubUnits,
 
     // Localization: currency is first-level config atm.
-    currency: mergeCurrency(configAsset.localization?.currency, defaultConfigs.currency),
+    currency: mergeCurrency(
+      configAsset.localization?.currency,
+      defaultConfigs.currency
+    ),
 
     // Stripe config currently comes from defaultConfigs atm.
     stripe: validateStripeCurrency(defaultConfigs.stripe),
 
     // Localization (locale, first day of week)
-    localization: mergeLocalizations(configAsset.localization, defaultConfigs.localization),
+    localization: mergeLocalizations(
+      configAsset.localization,
+      defaultConfigs.localization
+    ),
 
     // Analytics might come from hosted assets at some point.
-    analytics: mergeAnalyticsConfig(configAsset.analytics, defaultConfigs.analytics),
+    analytics: mergeAnalyticsConfig(
+      configAsset.analytics,
+      defaultConfigs.analytics
+    ),
 
     // Branding configuration comes entirely from hosted assets,
     // but defaults to values set in defaultConfigs.branding for

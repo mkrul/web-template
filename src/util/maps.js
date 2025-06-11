@@ -227,3 +227,43 @@ export const getMapProviderApiAccess = (mapConfig) => {
     return mapConfig.mapboxAccessToken;
   }
 };
+
+/**
+ * Generate a URL to view a location on an external map site
+ * based on the configured map provider.
+ *
+ * @param {Object} params - Parameters for generating the URL
+ * @param {LatLng|null} params.geolocation - The geolocation coordinates
+ * @param {string|null} params.address - The address string
+ * @param {string} params.mapProvider - The map provider ('googleMaps', 'mapbox', 'openStreetMap')
+ * @returns {string|null} - URL to view the location on the external map site, or null if no location provided
+ */
+export const generateExternalMapUrl = ({
+  geolocation,
+  address,
+  mapProvider,
+}) => {
+  if (!geolocation && !address) {
+    return null;
+  }
+
+  const { lat, lng } = geolocation || {};
+
+  switch (mapProvider) {
+    case 'googleMaps':
+      return geolocation
+        ? `https://maps.google.com/?q=${lat},${lng}`
+        : `https://maps.google.com/?q=${encodeURIComponent(address)}`;
+
+    case 'openStreetMap':
+      return geolocation
+        ? `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}&zoom=15`
+        : `https://www.openstreetmap.org/search?query=${encodeURIComponent(address)}`;
+
+    case 'mapbox':
+    default:
+      return geolocation
+        ? `https://maps.google.com/?q=${lat},${lng}`
+        : `https://maps.google.com/?q=${encodeURIComponent(address)}`;
+  }
+};
