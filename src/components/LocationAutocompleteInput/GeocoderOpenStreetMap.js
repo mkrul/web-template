@@ -236,8 +236,8 @@ class GeocoderOpenStreetMap {
       components.push(addr.postcode);
     }
 
-    // Country
-    if (addr.country) {
+    // Country - exclude United States as it's not typically shown in domestic delivery addresses
+    if (addr.country && addr.country !== 'United States') {
       components.push(addr.country);
     }
 
