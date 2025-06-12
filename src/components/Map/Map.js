@@ -5,11 +5,12 @@ import { useConfiguration } from '../../context/configurationContext';
 import { getMapProviderApiAccess } from '../../util/maps';
 import * as mapboxMap from './MapboxMap';
 import * as googleMapsMap from './GoogleMap';
+import * as openStreetMap from './OpenStreetMap';
 
 import css from './Map.module.css';
 
 /**
- * Map component that uses StaticMap or DynamicMap from the configured map provider: Mapbox or Google Maps
+ * Map component that uses StaticMap or DynamicMap from the configured map provider: Mapbox, Google Maps, or OpenStreetMap
  *
  * @component
  * @param {Object} props
@@ -28,7 +29,7 @@ import css from './Map.module.css';
  * @param {boolean} props.useStaticMap
  * @returns {JSX.Element} Map component
  */
-export const Map = props => {
+export const Map = (props) => {
   const config = useConfiguration();
   const {
     className,
@@ -42,13 +43,27 @@ export const Map = props => {
     useStaticMap,
   } = props;
   const mapsConfiguration = mapsConfig || config.maps;
-  const hasApiAccessForMapProvider = !!getMapProviderApiAccess(mapsConfiguration);
-  const isGoogleMapsInUse = mapsConfiguration.mapProvider === 'googleMaps';
-  const StaticMap = isGoogleMapsInUse ? googleMapsMap.StaticMap : mapboxMap.StaticMap;
-  const DynamicMap = isGoogleMapsInUse ? googleMapsMap.DynamicMap : mapboxMap.DynamicMap;
-  const isMapsLibLoaded = isGoogleMapsInUse
-    ? googleMapsMap.isMapsLibLoaded
-    : mapboxMap.isMapsLibLoaded;
+  const hasApiAccessForMapProvider =
+    !!getMapProviderApiAccess(mapsConfiguration);
+
+  // Determine which map provider components to use
+  const mapProvider = mapsConfiguration.mapProvider;
+  let StaticMap, DynamicMap, isMapsLibLoaded;
+
+  if (mapProvider === 'googleMaps') {
+    StaticMap = googleMapsMap.StaticMap;
+    DynamicMap = googleMapsMap.DynamicMap;
+    isMapsLibLoaded = googleMapsMap.isMapsLibLoaded;
+  } else if (mapProvider === 'openStreetMap') {
+    StaticMap = openStreetMap.StaticMap;
+    DynamicMap = openStreetMap.DynamicMap;
+    isMapsLibLoaded = openStreetMap.isMapsLibLoaded;
+  } else {
+    // Default to Mapbox
+    StaticMap = mapboxMap.StaticMap;
+    DynamicMap = mapboxMap.DynamicMap;
+    isMapsLibLoaded = mapboxMap.isMapsLibLoaded;
+  }
 
   const classes = classNames(rootClassName || css.root, className);
   const mapClasses = mapRootClassName || css.mapRoot;
@@ -59,14 +74,39 @@ export const Map = props => {
     );
   }
   if (!mapsConfiguration.fuzzy.enabled && !center) {
-    throw new Error('Map: center prop is required when config.maps.fuzzy.enabled === false');
+    throw new Error(
+      'Map: center prop is required when config.maps.fuzzy.enabled === false'
+    );
   }
 
   const location = mapsConfiguration.fuzzy.enabled ? obfuscatedCenter : center;
   const zoomLevel =
-    zoom || mapsConfiguration.fuzzy.enabled ? mapsConfiguration.fuzzy.defaultZoomLevel : 11;
+    zoom || mapsConfiguration.fuzzy.enabled
+      ? mapsConfiguration.fuzzy.defaultZoomLevel
+      : 11;
 
-  const isMapProviderAvailable = hasApiAccessForMapProvider && isMapsLibLoaded();
+  const isMapProviderAvailable =
+    hasApiAccessForMapProvider && isMapsLibLoaded();
+
+  // For OpenStreetMap dynamic maps, pass both center and obfuscatedCenter
+  // so the component can handle fuzzy location logic internally
+  if (mapProvider === 'openStreetMap' && !useStaticMap) {
+    return !isMapProviderAvailable ? (
+      <div className={classes} />
+    ) : (
+      <DynamicMap
+        containerClassName={classes}
+        mapClassName={mapClasses}
+        center={center}
+        obfuscatedCenter={obfuscatedCenter}
+        zoom={zoomLevel}
+        address={address}
+        mapsConfig={mapsConfiguration}
+      />
+    );
+  }
+
+  // For static maps and other providers, use the existing logic
   return !isMapProviderAvailable ? (
     <div className={classes} />
   ) : useStaticMap ? (

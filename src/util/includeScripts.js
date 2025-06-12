@@ -15,13 +15,14 @@ const GOOGLE_MAPS_SCRIPT_ID = 'GoogleMapsApi';
  *         if a Content Security Policy (CSP) is turned on, the new URLs
  *         should be whitelisted in the policy. Check: server/csp.js
  */
-export const IncludeScripts = props => {
+export const IncludeScripts = (props) => {
   const { marketplaceRootURL: rootURL, maps, analytics } = props?.config || {};
   const { googleAnalyticsId, plausibleDomains } = analytics;
 
   const { mapProvider, googleMapsAPIKey, mapboxAccessToken } = maps || {};
   const isGoogleMapsInUse = mapProvider === 'googleMaps';
   const isMapboxInUse = mapProvider === 'mapbox';
+  const isOpenStreetMapInUse = mapProvider === 'openStreetMap';
 
   // Add Google Analytics script if correct id exists (it should start with 'G-' prefix)
   // See: https://developers.google.com/analytics/devguides/collection/gtagjs
@@ -35,7 +36,10 @@ export const IncludeScripts = props => {
     // NOTE: remember to update mapbox-sdk.min.js to a new version regularly.
     // mapbox-sdk.min.js is included from static folder for CSP purposes.
     mapLibraries.push(
-      <script key="mapboxSDK" src={`${rootURL}/static/scripts/mapbox/mapbox-sdk.min.js`}></script>
+      <script
+        key="mapboxSDK"
+        src={`${rootURL}/static/scripts/mapbox/mapbox-sdk.min.js`}
+      ></script>
     );
     // License information for v3.7.0 of the mapbox-gl-js library:
     // https://github.com/mapbox/mapbox-gl-js/blob/v3.7.0/LICENSE.txt
@@ -67,6 +71,17 @@ export const IncludeScripts = props => {
         src={`https://maps.googleapis.com/maps/api/js?key=${googleMapsAPIKey}&libraries=places`}
         crossOrigin
       ></script>
+    );
+  } else if (isOpenStreetMapInUse) {
+    // Add CSS for Leaflet (OpenStreetMap)
+    mapLibraries.push(
+      <link
+        key="leaflet_CSS"
+        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        rel="stylesheet"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
+        crossOrigin=""
+      />
     );
   }
 
@@ -138,7 +153,7 @@ export const IncludeScripts = props => {
   // We can use that to start listen 'load' events when the library is added on client-side.
   const onChangeClientState = (newState, addedTags) => {
     if (addedTags && addedTags.scriptTags) {
-      const foundScript = addedTags.scriptTags.find(s =>
+      const foundScript = addedTags.scriptTags.find((s) =>
         [MAPBOX_SCRIPT_ID, GOOGLE_MAPS_SCRIPT_ID].includes(s.id)
       );
       if (foundScript) {
@@ -148,5 +163,7 @@ export const IncludeScripts = props => {
   };
 
   const allScripts = [...analyticsLibraries, ...mapLibraries];
-  return <Helmet onChangeClientState={onChangeClientState}>{allScripts}</Helmet>;
+  return (
+    <Helmet onChangeClientState={onChangeClientState}>{allScripts}</Helmet>
+  );
 };
