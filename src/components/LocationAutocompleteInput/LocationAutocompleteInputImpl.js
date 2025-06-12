@@ -281,15 +281,15 @@ class LocationAutocompleteInputImplementation extends Component {
       return;
     }
 
-    if (newValue.length >= 3) {
+    if (newValue.length >= 2) {
       if (this.shortQueryTimeout) {
         window.clearTimeout(this.shortQueryTimeout);
       }
       this.predict(newValue);
-    } else {
+    } else if (newValue.length >= 1) {
       this.shortQueryTimeout = window.setTimeout(() => {
         this.predict(newValue);
-      }, DEBOUNCE_WAIT_TIME_FOR_SHORT_QUERIES);
+      }, DEBOUNCE_WAIT_TIME);
     }
   }
 
