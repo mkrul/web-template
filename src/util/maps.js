@@ -243,7 +243,7 @@ export const generateExternalMapUrl = ({
   address,
   mapProvider,
 }) => {
-  if (!geolocation && !address) {
+  if (!geolocation && address == null) {
     return null;
   }
 
