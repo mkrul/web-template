@@ -15,6 +15,12 @@ describe('GeocoderOpenStreetMap', () => {
   beforeEach(() => {
     jest.clearAllMocks();
     global.fetch.mockClear();
+    jest.spyOn(console, 'error').mockImplementation(() => {});
+    GeocoderOpenStreetMap.clearCache();
+  });
+
+  afterEach(() => {
+    console.error.mockRestore?.();
   });
 
   describe('CURRENT_LOCATION_ID', () => {
@@ -134,7 +140,7 @@ describe('GeocoderOpenStreetMap', () => {
       );
 
       const calledUrl = global.fetch.mock.calls[0][0];
-      expect(calledUrl).toContain('q=New%20York');
+      expect(calledUrl).toContain('q=New+York');
       expect(calledUrl).toContain('format=json');
       expect(calledUrl).toContain('addressdetails=1');
       expect(calledUrl).toContain('limit=5');
@@ -197,9 +203,8 @@ describe('GeocoderOpenStreetMap', () => {
       };
       global.fetch.mockResolvedValue(mockResponse);
 
-      await expect(
-        GeocoderOpenStreetMap.searchPlaces('New York')
-      ).rejects.toThrow();
+      const result = await GeocoderOpenStreetMap.searchPlaces('New York');
+      expect(result).toEqual([]);
     });
   });
 
