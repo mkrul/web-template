@@ -129,6 +129,12 @@ const SearchFormComponent = (props) => {
       // when a place is selected, and don't require any extra
       // validations for the form.)
 
+      // Set the delivery address when location is selected
+      const { origin } = location.selectedPlace;
+      if (origin) {
+        dispatch(setDeliveryAddress(origin));
+      }
+
       onSubmit({ location });
       // blur search input to hide software keyboard
       searchInpuRef?.current?.blur();
@@ -218,6 +224,12 @@ const mapStateToProps = (state) => ({
   deliveryAddress: state.SearchPage.deliveryAddress,
 });
 
-const SearchForm = injectIntl(connect(mapStateToProps)(SearchFormComponent));
+const mapDispatchToProps = (dispatch) => ({
+  dispatch,
+});
+
+const SearchForm = injectIntl(
+  connect(mapStateToProps, mapDispatchToProps)(SearchFormComponent)
+);
 
 export default SearchForm;

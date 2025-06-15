@@ -70,6 +70,8 @@ import SearchResultsPanel from './SearchResultsPanel/SearchResultsPanel';
 import NoSearchResultsMaybe from './NoSearchResultsMaybe/NoSearchResultsMaybe';
 
 import css from './SearchPage.module.css';
+import { filterListingsByRadius } from '../../util/maps';
+import { getBookingDeliveryAddress } from '../../selectors/searchResultsSelectors';
 
 const MODAL_BREAKPOINT = 768; // Search is in modal on mobile layout
 const SEARCH_WITH_MAP_DEBOUNCE = 300; // Little bit of debounce before search is initiated.
@@ -415,6 +417,7 @@ export class SearchPageComponent extends Component {
     const {
       intl,
       listings = [],
+      deliveryAddress,
       location,
       onManageDisableScrolling,
       pagination,
@@ -782,6 +785,7 @@ export class SearchPageComponent extends Component {
                   isSearchMapOpenOnMobile={this.state.isSearchMapOpenOnMobile}
                   location={location}
                   listings={listings || []}
+                  deliveryAddress={deliveryAddress}
                   onMapMoveEnd={this.onMapMoveEnd}
                   onCloseAsModal={() => {
                     onManageDisableScrolling('SearchPage_map', false);
@@ -884,12 +888,39 @@ const mapStateToProps = (state) => {
     searchListingsError,
     searchParams,
     activeListingId,
+    deliveryAddress: localDeliveryAddress, // Get from local state
   } = state.SearchPage;
-  const listings = getListingsById(state, currentPageResultIds);
+  const allListings = getListingsById(state, currentPageResultIds);
+
+  // Get delivery address from user profile (for authenticated users) or local state (for unauthenticated users)
+  const profileDeliveryAddress =
+    currentUser?.attributes?.profile?.publicData?.deliveryAddress;
+  const deliveryAddress = profileDeliveryAddress || localDeliveryAddress;
+
+  console.log('🔍 DEBUG: SearchPageWithMap mapStateToProps:', {
+    hasCurrentUser: !!currentUser,
+    currentUserProfile: currentUser?.attributes?.profile,
+    profileDeliveryAddress,
+    localDeliveryAddress,
+    finalDeliveryAddress: deliveryAddress,
+    allListingsCount: allListings?.length || 0,
+  });
+
+  // Filter listings within 100-mile radius if delivery address exists
+  const listings = deliveryAddress
+    ? filterListingsByRadius(allListings, deliveryAddress, 100)
+    : allListings;
+
+  console.log('🔍 DEBUG: Filtered listings:', {
+    originalCount: allListings?.length || 0,
+    filteredCount: listings?.length || 0,
+    hasDeliveryAddress: !!deliveryAddress,
+  });
 
   return {
     currentUser,
     listings,
+    deliveryAddress,
     pagination,
     scrollingDisabled: isScrollingDisabled(state),
     searchInProgress,

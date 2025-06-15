@@ -100,7 +100,7 @@ export default function reducer(state = initialState, action = {}) {
               ...state.currentUser.attributes.profile,
               publicData: {
                 ...state.currentUser.attributes.profile.publicData,
-                deliveryAddress: action.payload.address,
+                deliveryAddress: action.payload,
               },
             },
           },

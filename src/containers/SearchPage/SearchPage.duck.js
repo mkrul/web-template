@@ -1,5 +1,9 @@
 import { createImageVariantConfig } from '../../util/sdkLoader';
-import { isErrorUserPendingApproval, isForbiddenError, storableError } from '../../util/errors';
+import {
+  isErrorUserPendingApproval,
+  isForbiddenError,
+  storableError,
+} from '../../util/errors';
 import { convertUnitToSubUnit, unitDivisor } from '../../util/currency';
 import {
   parseDateFromISO8601,
@@ -9,9 +13,17 @@ import {
   daysBetween,
   getStartOf,
 } from '../../util/dates';
-import { constructQueryParamName, isOriginInUse, isStockInUse } from '../../util/search';
-import { hasPermissionToViewData, isUserAuthorized } from '../../util/userHelpers';
+import {
+  constructQueryParamName,
+  isOriginInUse,
+  isStockInUse,
+} from '../../util/search';
+import {
+  hasPermissionToViewData,
+  isUserAuthorized,
+} from '../../util/userHelpers';
 import { parse } from '../../util/urlHelpers';
+import { types as sdkTypes } from '../../util/sdkLoader';
 
 import { addMarketplaceEntities } from '../../ducks/marketplaceData.duck';
 import { updateCurrentUserDeliveryAddress } from '../../ducks/user.duck';
@@ -27,15 +39,22 @@ export const SEARCH_LISTINGS_REQUEST = 'app/SearchPage/SEARCH_LISTINGS_REQUEST';
 export const SEARCH_LISTINGS_SUCCESS = 'app/SearchPage/SEARCH_LISTINGS_SUCCESS';
 export const SEARCH_LISTINGS_ERROR = 'app/SearchPage/SEARCH_LISTINGS_ERROR';
 
-export const SEARCH_MAP_LISTINGS_REQUEST = 'app/SearchPage/SEARCH_MAP_LISTINGS_REQUEST';
-export const SEARCH_MAP_LISTINGS_SUCCESS = 'app/SearchPage/SEARCH_MAP_LISTINGS_SUCCESS';
-export const SEARCH_MAP_LISTINGS_ERROR = 'app/SearchPage/SEARCH_MAP_LISTINGS_ERROR';
+export const SEARCH_MAP_LISTINGS_REQUEST =
+  'app/SearchPage/SEARCH_MAP_LISTINGS_REQUEST';
+export const SEARCH_MAP_LISTINGS_SUCCESS =
+  'app/SearchPage/SEARCH_MAP_LISTINGS_SUCCESS';
+export const SEARCH_MAP_LISTINGS_ERROR =
+  'app/SearchPage/SEARCH_MAP_LISTINGS_ERROR';
 
-export const SEARCH_MAP_SET_ACTIVE_LISTING = 'app/SearchPage/SEARCH_MAP_SET_ACTIVE_LISTING';
+export const SEARCH_MAP_SET_ACTIVE_LISTING =
+  'app/SearchPage/SEARCH_MAP_SET_ACTIVE_LISTING';
 
-export const SET_DELIVERY_ADDRESS_REQUEST = 'app/SearchPage/SET_DELIVERY_ADDRESS_REQUEST';
-export const SET_DELIVERY_ADDRESS_SUCCESS = 'app/SearchPage/SET_DELIVERY_ADDRESS_SUCCESS';
-export const SET_DELIVERY_ADDRESS_ERROR = 'app/SearchPage/SET_DELIVERY_ADDRESS_ERROR';
+export const SET_DELIVERY_ADDRESS_REQUEST =
+  'app/SearchPage/SET_DELIVERY_ADDRESS_REQUEST';
+export const SET_DELIVERY_ADDRESS_SUCCESS =
+  'app/SearchPage/SET_DELIVERY_ADDRESS_SUCCESS';
+export const SET_DELIVERY_ADDRESS_ERROR =
+  'app/SearchPage/SET_DELIVERY_ADDRESS_ERROR';
 
 // ================ Reducer ================ //
 
@@ -45,13 +64,16 @@ const initialState = {
   searchInProgress: false,
   searchListingsError: null,
   currentPageResultIds: [],
+  deliveryAddress: null,
+  settingDeliveryAddress: false,
+  setDeliveryAddressError: null,
 };
 
-const resultIds = data => {
+const resultIds = (data) => {
   const listings = data.data;
   return listings
-    .filter(l => !l.attributes.deleted && l.attributes.state === 'published')
-    .map(l => l.id);
+    .filter((l) => !l.attributes.deleted && l.attributes.state === 'published')
+    .map((l) => l.id);
 };
 
 const listingPageReducer = (state = initialState, action = {}) => {
@@ -73,7 +95,6 @@ const listingPageReducer = (state = initialState, action = {}) => {
         searchInProgress: false,
       };
     case SEARCH_LISTINGS_ERROR:
-      // eslint-disable-next-line no-console
       return {
         ...state,
         searchInProgress: false,
@@ -87,6 +108,7 @@ const listingPageReducer = (state = initialState, action = {}) => {
     case SET_DELIVERY_ADDRESS_REQUEST:
       return {
         ...state,
+        deliveryAddress: payload.address,
         settingDeliveryAddress: true,
         setDeliveryAddressError: null,
       };
@@ -110,7 +132,7 @@ export default listingPageReducer;
 
 // ================ Action creators ================ //
 
-export const setDeliveryAddressRequest = address => ({
+export const setDeliveryAddressRequest = (address) => ({
   type: SET_DELIVERY_ADDRESS_REQUEST,
   payload: { address },
 });
@@ -119,23 +141,23 @@ export const setDeliveryAddressSuccess = () => ({
   type: SET_DELIVERY_ADDRESS_SUCCESS,
 });
 
-export const setDeliveryAddressError = e => ({
+export const setDeliveryAddressError = (e) => ({
   type: SET_DELIVERY_ADDRESS_ERROR,
   error: true,
   payload: e,
 });
 
-export const searchListingsRequest = searchParams => ({
+export const searchListingsRequest = (searchParams) => ({
   type: SEARCH_LISTINGS_REQUEST,
   payload: { searchParams },
 });
 
-export const searchListingsSuccess = response => ({
+export const searchListingsSuccess = (response) => ({
   type: SEARCH_LISTINGS_SUCCESS,
   payload: { data: response.data },
 });
 
-export const searchListingsError = e => ({
+export const searchListingsError = (e) => ({
   type: SEARCH_LISTINGS_ERROR,
   error: true,
   payload: e,
@@ -143,308 +165,377 @@ export const searchListingsError = e => ({
 
 // ================ Thunk ================ //
 
-export const setDeliveryAddress = address => (dispatch, getState, sdk) => {
-  dispatch(setDeliveryAddressRequest(address));
-  // Make API call to update the user's delivery address
+export const setDeliveryAddress = (address) => (dispatch, getState, sdk) => {
+  console.log('🔍 DEBUG: setDeliveryAddress thunk called with:', address);
 
-  return sdk.currentUser
-    .updateProfile(
-      {
-        publicData: {
-          deliveryAddress: address,
+  dispatch(setDeliveryAddressRequest(address));
+
+  const { user } = getState();
+  const currentUser = user.currentUser;
+
+  console.log('🔍 DEBUG: Current user status:', {
+    hasCurrentUser: !!currentUser,
+    isAuthenticated: !!currentUser?.id,
+  });
+
+  // If user is authenticated, try to save to profile as well
+  if (currentUser?.id) {
+    console.log('🔍 DEBUG: User is authenticated, saving to profile');
+    return sdk.currentUser
+      .updateProfile(
+        {
+          publicData: {
+            deliveryAddress: address,
+          },
         },
-      },
-      { expand: true }
-    )
-    .then(() => {
-      dispatch(setDeliveryAddressSuccess());
-      dispatch(updateCurrentUserDeliveryAddress(address));
-    })
-    .catch(e => {
-      console.log('error', e);
-      dispatch(setDeliveryAddressError(storableError(e)));
-    });
+        { expand: true }
+      )
+      .then(() => {
+        console.log(
+          '✅ DEBUG: Successfully saved delivery address to user profile'
+        );
+        dispatch(setDeliveryAddressSuccess());
+        dispatch(updateCurrentUserDeliveryAddress(address));
+      })
+      .catch((e) => {
+        console.log(
+          '🚨 DEBUG: Failed to save to user profile, but address is still stored locally:',
+          e
+        );
+        // Don't dispatch error - the address is still stored in local state
+        dispatch(setDeliveryAddressSuccess());
+      });
+  } else {
+    console.log('🔍 DEBUG: User not authenticated, using local state only');
+    // For unauthenticated users, just use local state
+    dispatch(setDeliveryAddressSuccess());
+    return Promise.resolve();
+  }
 };
 
-export const searchListings = (searchParams, config) => (dispatch, getState, sdk) => {
-  dispatch(searchListingsRequest(searchParams));
-  // SearchPage can enforce listing query to only those listings with valid listingType
-  // NOTE: this only works if you have set 'enum' type search schema to listing's public data fields
-  //       - listingType
-  //       Same setup could be expanded to 2 other extended data fields:
-  //       - transactionProcessAlias
-  //       - unitType
-  //       ...and then turned enforceValidListingType config to true in configListing.js
-  // Read More:
-  // https://www.sharetribe.com/docs/how-to/manage-search-schemas-with-flex-cli/#adding-listing-search-schemas
-  const searchValidListingTypes = (listingTypes, listingTypePathParam, isListingTypeVariant) => {
-    return isListingTypeVariant
-      ? {
-          pub_listingType: listingTypePathParam,
-        }
-      : config.listing.enforceValidListingType
-      ? {
-          pub_listingType: listingTypes.map(l => l.listingType),
-          // pub_transactionProcessAlias: listingTypes.map(l => l.transactionType.alias),
-          // pub_unitType: listingTypes.map(l => l.transactionType.unitType),
-        }
-      : {};
-  };
-
-  const omitInvalidCategoryParams = params => {
-    const categoryConfig = config.search.defaultFilters?.find(f => f.schemaType === 'category');
-    const categories = config.categoryConfiguration.categories;
-    const { key: prefix, scope } = categoryConfig || {};
-    const categoryParamPrefix = constructQueryParamName(prefix, scope);
-
-    const validURLParamForCategoryData = (prefix, categories, level, params) => {
-      const levelKey = `${categoryParamPrefix}${level}`;
-      const levelValue =
-        typeof params?.[levelKey] !== 'undefined' ? `${params?.[levelKey]}` : undefined;
-      const foundCategory = categories.find(cat => cat.id === levelValue);
-      const subcategories = foundCategory?.subcategories || [];
-      return foundCategory && subcategories.length > 0
+export const searchListings =
+  (searchParams, config) => (dispatch, getState, sdk) => {
+    dispatch(searchListingsRequest(searchParams));
+    // SearchPage can enforce listing query to only those listings with valid listingType
+    // NOTE: this only works if you have set 'enum' type search schema to listing's public data fields
+    //       - listingType
+    //       Same setup could be expanded to 2 other extended data fields:
+    //       - transactionProcessAlias
+    //       - unitType
+    //       ...and then turned enforceValidListingType config to true in configListing.js
+    // Read More:
+    // https://www.sharetribe.com/docs/how-to/manage-search-schemas-with-flex-cli/#adding-listing-search-schemas
+    const searchValidListingTypes = (
+      listingTypes,
+      listingTypePathParam,
+      isListingTypeVariant
+    ) => {
+      return isListingTypeVariant
         ? {
-            [levelKey]: levelValue,
-            ...validURLParamForCategoryData(prefix, subcategories, level + 1, params),
+            pub_listingType: listingTypePathParam,
           }
-        : foundCategory
-        ? { [levelKey]: levelValue }
+        : config.listing.enforceValidListingType
+          ? {
+              pub_listingType: listingTypes.map((l) => l.listingType),
+              // pub_transactionProcessAlias: listingTypes.map(l => l.transactionType.alias),
+              // pub_unitType: listingTypes.map(l => l.transactionType.unitType),
+            }
+          : {};
+    };
+
+    const omitInvalidCategoryParams = (params) => {
+      const categoryConfig = config.search.defaultFilters?.find(
+        (f) => f.schemaType === 'category'
+      );
+      const categories = config.categoryConfiguration.categories;
+      const { key: prefix, scope } = categoryConfig || {};
+      const categoryParamPrefix = constructQueryParamName(prefix, scope);
+
+      const validURLParamForCategoryData = (
+        prefix,
+        categories,
+        level,
+        params
+      ) => {
+        const levelKey = `${categoryParamPrefix}${level}`;
+        const levelValue =
+          typeof params?.[levelKey] !== 'undefined'
+            ? `${params?.[levelKey]}`
+            : undefined;
+        const foundCategory = categories.find((cat) => cat.id === levelValue);
+        const subcategories = foundCategory?.subcategories || [];
+        return foundCategory && subcategories.length > 0
+          ? {
+              [levelKey]: levelValue,
+              ...validURLParamForCategoryData(
+                prefix,
+                subcategories,
+                level + 1,
+                params
+              ),
+            }
+          : foundCategory
+            ? { [levelKey]: levelValue }
+            : {};
+      };
+
+      const categoryKeys = validURLParamForCategoryData(
+        prefix,
+        categories,
+        1,
+        params
+      );
+      const nonCategoryKeys = Object.entries(params).reduce(
+        (picked, [k, v]) =>
+          k.startsWith(categoryParamPrefix) ? picked : { ...picked, [k]: v },
+        {}
+      );
+
+      return { ...nonCategoryKeys, ...categoryKeys };
+    };
+
+    const priceSearchParams = (priceParam) => {
+      const inSubunits = (value) =>
+        convertUnitToSubUnit(value, unitDivisor(config.currency));
+      const values = priceParam ? priceParam.split(',') : [];
+      return priceParam && values.length === 2
+        ? {
+            price: [inSubunits(values[0]), inSubunits(values[1]) + 1].join(','),
+          }
         : {};
     };
 
-    const categoryKeys = validURLParamForCategoryData(prefix, categories, 1, params);
-    const nonCategoryKeys = Object.entries(params).reduce(
-      (picked, [k, v]) => (k.startsWith(categoryParamPrefix) ? picked : { ...picked, [k]: v }),
-      {}
-    );
+    const datesSearchParams = (datesParam) => {
+      const searchTZ = 'Etc/UTC';
+      const datesFilter = config.search.defaultFilters.find(
+        (f) => f.key === 'dates'
+      );
+      const values = datesParam ? datesParam.split(',') : [];
+      const hasValues = datesFilter && datesParam && values.length === 2;
+      const { dateRangeMode, availability } = datesFilter || {};
+      const isNightlyMode = dateRangeMode === 'night';
+      const isEntireRangeAvailable = availability === 'time-full';
 
-    return { ...nonCategoryKeys, ...categoryKeys };
-  };
+      // SearchPage need to use a single time zone but listings can have different time zones
+      // We need to expand/prolong the time window (start & end) to cover other time zones too.
+      //
+      // NOTE: you might want to consider changing UI so that
+      //   1) location is always asked first before date range
+      //   2) use some 3rd party service to convert location to time zone (IANA tz name)
+      //   3) Make exact dates filtering against that specific time zone
+      //   This setup would be better for dates filter,
+      //   but it enforces a UX where location is always asked first and therefore configurability
+      const getProlongedStart = (date) =>
+        subtractTime(date, 14, 'hours', searchTZ);
+      const getProlongedEnd = (date) => addTime(date, 12, 'hours', searchTZ);
 
-  const priceSearchParams = priceParam => {
-    const inSubunits = value => convertUnitToSubUnit(value, unitDivisor(config.currency));
-    const values = priceParam ? priceParam.split(',') : [];
-    return priceParam && values.length === 2
-      ? {
-          price: [inSubunits(values[0]), inSubunits(values[1]) + 1].join(','),
-        }
-      : {};
-  };
-
-  const datesSearchParams = datesParam => {
-    const searchTZ = 'Etc/UTC';
-    const datesFilter = config.search.defaultFilters.find(f => f.key === 'dates');
-    const values = datesParam ? datesParam.split(',') : [];
-    const hasValues = datesFilter && datesParam && values.length === 2;
-    const { dateRangeMode, availability } = datesFilter || {};
-    const isNightlyMode = dateRangeMode === 'night';
-    const isEntireRangeAvailable = availability === 'time-full';
-
-    // SearchPage need to use a single time zone but listings can have different time zones
-    // We need to expand/prolong the time window (start & end) to cover other time zones too.
-    //
-    // NOTE: you might want to consider changing UI so that
-    //   1) location is always asked first before date range
-    //   2) use some 3rd party service to convert location to time zone (IANA tz name)
-    //   3) Make exact dates filtering against that specific time zone
-    //   This setup would be better for dates filter,
-    //   but it enforces a UX where location is always asked first and therefore configurability
-    const getProlongedStart = date => subtractTime(date, 14, 'hours', searchTZ);
-    const getProlongedEnd = date => addTime(date, 12, 'hours', searchTZ);
-
-    const startDate = hasValues ? parseDateFromISO8601(values[0], searchTZ) : null;
-    const endRaw = hasValues ? parseDateFromISO8601(values[1], searchTZ) : null;
-    const endDate =
-      hasValues && isNightlyMode
-        ? endRaw
-        : hasValues
-        ? getExclusiveEndDate(endRaw, searchTZ)
+      const startDate = hasValues
+        ? parseDateFromISO8601(values[0], searchTZ)
         : null;
+      const endRaw = hasValues
+        ? parseDateFromISO8601(values[1], searchTZ)
+        : null;
+      const endDate =
+        hasValues && isNightlyMode
+          ? endRaw
+          : hasValues
+            ? getExclusiveEndDate(endRaw, searchTZ)
+            : null;
 
-    const today = getStartOf(new Date(), 'day', searchTZ);
-    const possibleStartDate = subtractTime(today, 14, 'hours', searchTZ);
-    const hasValidDates =
-      hasValues &&
-      startDate.getTime() >= possibleStartDate.getTime() &&
-      startDate.getTime() <= endDate.getTime();
+      const today = getStartOf(new Date(), 'day', searchTZ);
+      const possibleStartDate = subtractTime(today, 14, 'hours', searchTZ);
+      const hasValidDates =
+        hasValues &&
+        startDate.getTime() >= possibleStartDate.getTime() &&
+        startDate.getTime() <= endDate.getTime();
 
-    const dayCount = isEntireRangeAvailable ? daysBetween(startDate, endDate) : 1;
-    const day = 1440;
-    const hour = 60;
-    // When entire range is required to be available, we count minutes of included date range,
-    // but there's a need to subtract one hour due to possibility of daylight saving time.
-    // If partial range is needed, then we just make sure that the shortest time unit supported
-    // is available within the range.
-    // You might want to customize this to match with your time units (e.g. day: 1440 - 60)
-    const minDuration = isEntireRangeAvailable ? dayCount * day - hour : hour;
-    return hasValidDates
-      ? {
-          start: getProlongedStart(startDate),
-          end: getProlongedEnd(endDate),
-          // Availability can be time-full or time-partial.
-          // However, due to prolonged time window, we need to use time-partial.
-          availability: 'time-partial',
-          // minDuration uses minutes
-          minDuration,
-        }
-      : {};
-  };
+      const dayCount = isEntireRangeAvailable
+        ? daysBetween(startDate, endDate)
+        : 1;
+      const day = 1440;
+      const hour = 60;
+      // When entire range is required to be available, we count minutes of included date range,
+      // but there's a need to subtract one hour due to possibility of daylight saving time.
+      // If partial range is needed, then we just make sure that the shortest time unit supported
+      // is available within the range.
+      // You might want to customize this to match with your time units (e.g. day: 1440 - 60)
+      const minDuration = isEntireRangeAvailable ? dayCount * day - hour : hour;
+      return hasValidDates
+        ? {
+            start: getProlongedStart(startDate),
+            end: getProlongedEnd(endDate),
+            // Availability can be time-full or time-partial.
+            // However, due to prolonged time window, we need to use time-partial.
+            availability: 'time-partial',
+            // minDuration uses minutes
+            minDuration,
+          }
+        : {};
+    };
 
-  const stockFilters = datesMaybe => {
-    const hasDatesFilterInUse = Object.keys(datesMaybe).length > 0;
+    const stockFilters = (datesMaybe) => {
+      const hasDatesFilterInUse = Object.keys(datesMaybe).length > 0;
 
-    // If dates filter is not in use,
-    //   1) Add minStock filter with default value (1)
-    //   2) Add relaxed stockMode: "match-undefined"
-    // The latter is used to filter out all the listings that explicitly are out of stock,
-    // but keeps bookable and inquiry listings.
-    return hasDatesFilterInUse ? {} : { minStock: 1, stockMode: 'match-undefined' };
-  };
+      // If dates filter is not in use,
+      //   1) Add minStock filter with default value (1)
+      //   2) Add relaxed stockMode: "match-undefined"
+      // The latter is used to filter out all the listings that explicitly are out of stock,
+      // but keeps bookable and inquiry listings.
+      return hasDatesFilterInUse
+        ? {}
+        : { minStock: 1, stockMode: 'match-undefined' };
+    };
 
-  const seatsSearchParams = (seats, datesMaybe) => {
-    const seatsFilter = config.search.defaultFilters.find(f => f.key === 'seats');
-    const hasDatesFilterInUse = Object.keys(datesMaybe).length > 0;
+    const seatsSearchParams = (seats, datesMaybe) => {
+      const seatsFilter = config.search.defaultFilters.find(
+        (f) => f.key === 'seats'
+      );
+      const hasDatesFilterInUse = Object.keys(datesMaybe).length > 0;
 
-    // Seats filter cannot be applied without dates
-    return hasDatesFilterInUse && seatsFilter ? { seats } : {};
-  };
+      // Seats filter cannot be applied without dates
+      return hasDatesFilterInUse && seatsFilter ? { seats } : {};
+    };
 
-  const {
-    perPage,
-    price,
-    dates,
-    seats,
-    sort,
-    mapSearch,
-    listingTypePathParam,
-    isListingTypeVariant,
-    ...restOfParams
-  } = searchParams;
-  const priceMaybe = priceSearchParams(price);
-  const datesMaybe = datesSearchParams(dates);
-  const stockMaybe = stockFilters(datesMaybe);
-  const seatsMaybe = seatsSearchParams(seats, datesMaybe);
-  const sortMaybe = sort === config.search.sortConfig.relevanceKey ? {} : { sort };
-
-  const params = {
-    // The rest of the params except invalid nested category-related params
-    // Note: invalid independent search params are still passed through
-    ...omitInvalidCategoryParams(restOfParams),
-    // If the search page variant is of type /s/:listingType, this sets the pub_listingType
-    // query parameter to the value of the listing type path parameter. The ordering matters here,
-    // since this value overrides any possible pub_listingType value coming from query parameters
-    // i.e. the previous row.
-    //
-    // Only one value is currently supported in pub_listingType – if you want to support e.g.
-    // /s/:listingType?pub_listingType=[otherListingType] => pub_listingType=listingType,otherListingType,
-    // you'll need to customize a logic that merges the query param and path param values.
-    ...searchValidListingTypes(
-      config.listing.listingTypes,
+    const {
+      perPage,
+      price,
+      dates,
+      seats,
+      sort,
+      mapSearch,
       listingTypePathParam,
-      isListingTypeVariant
-    ),
-    ...priceMaybe,
-    ...datesMaybe,
-    ...stockMaybe,
-    ...seatsMaybe,
-    ...sortMaybe,
-    perPage,
+      isListingTypeVariant,
+      ...restOfParams
+    } = searchParams;
+    const priceMaybe = priceSearchParams(price);
+    const datesMaybe = datesSearchParams(dates);
+    const stockMaybe = stockFilters(datesMaybe);
+    const seatsMaybe = seatsSearchParams(seats, datesMaybe);
+    const sortMaybe =
+      sort === config.search.sortConfig.relevanceKey ? {} : { sort };
+
+    const params = {
+      // The rest of the params except invalid nested category-related params
+      // Note: invalid independent search params are still passed through
+      ...omitInvalidCategoryParams(restOfParams),
+      // If the search page variant is of type /s/:listingType, this sets the pub_listingType
+      // query parameter to the value of the listing type path parameter. The ordering matters here,
+      // since this value overrides any possible pub_listingType value coming from query parameters
+      // i.e. the previous row.
+      //
+      // Only one value is currently supported in pub_listingType – if you want to support e.g.
+      // /s/:listingType?pub_listingType=[otherListingType] => pub_listingType=listingType,otherListingType,
+      // you'll need to customize a logic that merges the query param and path param values.
+      ...searchValidListingTypes(
+        config.listing.listingTypes,
+        listingTypePathParam,
+        isListingTypeVariant
+      ),
+      ...priceMaybe,
+      ...datesMaybe,
+      ...stockMaybe,
+      ...seatsMaybe,
+      ...sortMaybe,
+      perPage,
+    };
+
+    return sdk.listings
+      .query(params)
+      .then((response) => {
+        const listingFields = config?.listing?.listingFields;
+        const sanitizeConfig = { listingFields };
+
+        dispatch(addMarketplaceEntities(response, sanitizeConfig));
+        dispatch(searchListingsSuccess(response));
+        return response;
+      })
+      .catch((e) => {
+        const error = storableError(e);
+        dispatch(searchListingsError(error));
+        if (!(isErrorUserPendingApproval(error) || isForbiddenError(error))) {
+          throw e;
+        }
+      });
   };
 
-  return sdk.listings
-    .query(params)
-    .then(response => {
-      const listingFields = config?.listing?.listingFields;
-      const sanitizeConfig = { listingFields };
-
-      dispatch(addMarketplaceEntities(response, sanitizeConfig));
-      dispatch(searchListingsSuccess(response));
-      return response;
-    })
-    .catch(e => {
-      const error = storableError(e);
-      dispatch(searchListingsError(error));
-      if (!(isErrorUserPendingApproval(error) || isForbiddenError(error))) {
-        throw e;
-      }
-    });
-};
-
-export const setActiveListing = listingId => ({
+export const setActiveListing = (listingId) => ({
   type: SEARCH_MAP_SET_ACTIVE_LISTING,
   payload: listingId,
 });
 
-export const loadData = (params, search, config) => (dispatch, getState, sdk) => {
-  // In private marketplace mode, this page won't fetch data if the user is unauthorized
-  const { listingType: listingTypePathParam } = params || {};
-  const state = getState();
-  const currentUser = state.user?.currentUser;
-  const isAuthorized = currentUser && isUserAuthorized(currentUser);
-  const hasViewingRights = currentUser && hasPermissionToViewData(currentUser);
-  const isPrivateMarketplace = config.accessControl.marketplace.private === true;
-  const canFetchData =
-    !isPrivateMarketplace || (isPrivateMarketplace && isAuthorized && hasViewingRights);
-  if (!canFetchData) {
-    return Promise.resolve();
-  }
+export const loadData =
+  (params, search, config) => (dispatch, getState, sdk) => {
+    // In private marketplace mode, this page won't fetch data if the user is unauthorized
+    const { listingType: listingTypePathParam } = params || {};
+    const state = getState();
+    const currentUser = state.user?.currentUser;
+    const isAuthorized = currentUser && isUserAuthorized(currentUser);
+    const hasViewingRights =
+      currentUser && hasPermissionToViewData(currentUser);
+    const isPrivateMarketplace =
+      config.accessControl.marketplace.private === true;
+    const canFetchData =
+      !isPrivateMarketplace ||
+      (isPrivateMarketplace && isAuthorized && hasViewingRights);
+    if (!canFetchData) {
+      return Promise.resolve();
+    }
 
-  const queryParams = parse(search, {
-    latlng: ['origin'],
-    latlngBounds: ['bounds'],
-  });
+    const queryParams = parse(search, {
+      latlng: ['origin'],
+      latlngBounds: ['bounds'],
+    });
 
-  const { page = 1, address, origin, ...rest } = queryParams;
-  const originMaybe = isOriginInUse(config) && origin ? { origin } : {};
+    const { page = 1, address, origin, ...rest } = queryParams;
+    const originMaybe = isOriginInUse(config) && origin ? { origin } : {};
 
-  const listingTypeVariantMaybe = listingTypePathParam
-    ? { listingTypePathParam, isListingTypeVariant: true }
-    : {};
+    const listingTypeVariantMaybe = listingTypePathParam
+      ? { listingTypePathParam, isListingTypeVariant: true }
+      : {};
 
-  const {
-    aspectWidth = 1,
-    aspectHeight = 1,
-    variantPrefix = 'listing-card',
-  } = config.layout.listingImage;
-  const aspectRatio = aspectHeight / aspectWidth;
+    const {
+      aspectWidth = 1,
+      aspectHeight = 1,
+      variantPrefix = 'listing-card',
+    } = config.layout.listingImage;
+    const aspectRatio = aspectHeight / aspectWidth;
 
-  const searchListingsCall = searchListings(
-    {
-      ...rest,
-      ...originMaybe,
-      ...listingTypeVariantMaybe,
-      page,
-      perPage: RESULT_PAGE_SIZE,
-      include: ['author', 'images'],
-      'fields.listing': [
-        'title',
-        'geolocation',
-        'price',
-        'deleted',
-        'state',
-        'publicData.listingType',
-        'publicData.transactionProcessAlias',
-        'publicData.unitType',
-        // These help rendering of 'purchase' listings,
-        // when transitioning from search page to listing page
-        'publicData.pickupEnabled',
-        'publicData.shippingEnabled',
-        'publicData.priceVariationsEnabled',
-        'publicData.priceVariants',
-      ],
-      'fields.user': ['profile.displayName', 'profile.abbreviatedName'],
-      'fields.image': [
-        'variants.scaled-small',
-        'variants.scaled-medium',
-        `variants.${variantPrefix}`,
-        `variants.${variantPrefix}-2x`,
-      ],
-      ...createImageVariantConfig(`${variantPrefix}`, 400, aspectRatio),
-      ...createImageVariantConfig(`${variantPrefix}-2x`, 800, aspectRatio),
-      'limit.images': 1,
-    },
-    config
-  );
-  return dispatch(searchListingsCall);
-};
+    const searchListingsCall = searchListings(
+      {
+        ...rest,
+        ...originMaybe,
+        ...listingTypeVariantMaybe,
+        page,
+        perPage: RESULT_PAGE_SIZE,
+        include: ['author', 'images'],
+        'fields.listing': [
+          'title',
+          'geolocation',
+          'price',
+          'deleted',
+          'state',
+          'publicData.listingType',
+          'publicData.transactionProcessAlias',
+          'publicData.unitType',
+          // These help rendering of 'purchase' listings,
+          // when transitioning from search page to listing page
+          'publicData.pickupEnabled',
+          'publicData.shippingEnabled',
+          'publicData.priceVariationsEnabled',
+          'publicData.priceVariants',
+        ],
+        'fields.user': ['profile.displayName', 'profile.abbreviatedName'],
+        'fields.image': [
+          'variants.scaled-small',
+          'variants.scaled-medium',
+          `variants.${variantPrefix}`,
+          `variants.${variantPrefix}-2x`,
+        ],
+        ...createImageVariantConfig(`${variantPrefix}`, 400, aspectRatio),
+        ...createImageVariantConfig(`${variantPrefix}-2x`, 800, aspectRatio),
+        'limit.images': 1,
+      },
+      config
+    );
+    return dispatch(searchListingsCall);
+  };

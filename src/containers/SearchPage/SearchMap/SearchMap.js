@@ -169,6 +169,7 @@ export class SearchMapComponent extends Component {
       center = null,
       location,
       listings: originalListings,
+      deliveryAddress,
       onMapMoveEnd,
       zoom = 11,
       config,
@@ -218,6 +219,7 @@ export class SearchMapComponent extends Component {
           location={location}
           infoCardOpen={infoCardOpen}
           listings={listings}
+          deliveryAddress={deliveryAddress}
           activeListingId={activeListingId}
           mapComponentRefreshToken={this.state.mapReattachmentCount}
           createURLToListing={this.createURLToListing}

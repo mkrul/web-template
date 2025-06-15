@@ -8,7 +8,10 @@ import { types as sdkTypes } from '../../../util/sdkLoader';
 import { parse } from '../../../util/urlHelpers';
 import { propTypes } from '../../../util/types';
 import { ensureListing } from '../../../util/data';
-import { sdkBoundsToFixedCoordinates, hasSameSDKBounds } from '../../../util/maps';
+import {
+  sdkBoundsToFixedCoordinates,
+  hasSameSDKBounds,
+} from '../../../util/maps';
 
 import SearchMapPriceLabel from '../SearchMapPriceLabel/SearchMapPriceLabel';
 import SearchMapInfoCard from '../SearchMapInfoCard/SearchMapInfoCard';
@@ -35,11 +38,17 @@ export const fitMapToBounds = (map, bounds, options) => {
   // map bounds as string literal for google.maps
   const mapBounds = sdkBoundsToMapboxBounds(bounds);
   const paddingOptionMaybe = padding == null ? { padding } : {};
-  const eventData = isAutocompleteSearch ? { searchSource: SOURCE_AUTOCOMPLETE } : {};
+  const eventData = isAutocompleteSearch
+    ? { searchSource: SOURCE_AUTOCOMPLETE }
+    : {};
 
   // If bounds are given, use it (defaults to center & zoom).
   if (map && mapBounds) {
-    map.fitBounds(mapBounds, { ...paddingOptionMaybe, linear: true, duration: 0 }, eventData);
+    map.fitBounds(
+      mapBounds,
+      { ...paddingOptionMaybe, linear: true, duration: 0 },
+      eventData
+    );
   }
 };
 
@@ -52,13 +61,18 @@ export const fitMapToBounds = (map, bounds, options) => {
  *
  * @return {SDKLatLng} - Converted latLng coordinate
  */
-export const mapboxLngLatToSDKLatLng = lngLat => {
+export const mapboxLngLatToSDKLatLng = (lngLat) => {
   const mapboxLng = lngLat.lng;
 
   // For bounding boxes that overlap the antimeridian Mapbox sometimes gives
   // longitude values outside -180 and 180 degrees.Those values are converted
   // so that longitude is always between -180 and 180.
-  const lng = mapboxLng > 180 ? mapboxLng - 360 : mapboxLng < -180 ? mapboxLng + 360 : mapboxLng;
+  const lng =
+    mapboxLng > 180
+      ? mapboxLng - 360
+      : mapboxLng < -180
+        ? mapboxLng + 360
+        : mapboxLng;
 
   return new SDKLatLng(lngLat.lat, lng);
 };
@@ -70,14 +84,17 @@ export const mapboxLngLatToSDKLatLng = lngLat => {
  *
  * @return {SDKLatLngBounds} - Converted bounds
  */
-export const mapboxBoundsToSDKBounds = mapboxBounds => {
+export const mapboxBoundsToSDKBounds = (mapboxBounds) => {
   if (!mapboxBounds) {
     return null;
   }
 
   const ne = mapboxBounds.getNorthEast();
   const sw = mapboxBounds.getSouthWest();
-  return new SDKLatLngBounds(mapboxLngLatToSDKLatLng(ne), mapboxLngLatToSDKLatLng(sw));
+  return new SDKLatLngBounds(
+    mapboxLngLatToSDKLatLng(ne),
+    mapboxLngLatToSDKLatLng(sw)
+  );
 };
 
 /**
@@ -89,7 +106,7 @@ export const mapboxBoundsToSDKBounds = mapboxBounds => {
  *
  * @return {LngLatBoundsLike} a bounding box that is compatible with Mapbox
  */
-const sdkBoundsToMapboxBounds = bounds => {
+const sdkBoundsToMapboxBounds = (bounds) => {
   if (!bounds) {
     return null;
   }
@@ -100,7 +117,10 @@ const sdkBoundsToMapboxBounds = bounds => {
   // is less than -180
   const swLng = sw.lng > ne.lng ? -360 + sw.lng : sw.lng;
 
-  return [[swLng, sw.lat], [ne.lng, ne.lat]];
+  return [
+    [swLng, sw.lat],
+    [ne.lng, ne.lat],
+  ];
 };
 
 /**
@@ -110,7 +130,7 @@ const sdkBoundsToMapboxBounds = bounds => {
  *
  * @return {SDKLatLngBounds} - Converted bounds of given map
  */
-export const getMapBounds = map => mapboxBoundsToSDKBounds(map.getBounds());
+export const getMapBounds = (map) => mapboxBoundsToSDKBounds(map.getBounds());
 
 /**
  * Return map center as SDKLatLng
@@ -119,7 +139,7 @@ export const getMapBounds = map => mapboxBoundsToSDKBounds(map.getBounds());
  *
  * @return {SDKLatLng} - Converted center of given map
  */
-export const getMapCenter = map => mapboxLngLatToSDKLatLng(map.getCenter());
+export const getMapCenter = (map) => mapboxLngLatToSDKLatLng(map.getCenter());
 
 /**
  * Check if map library is loaded
@@ -138,20 +158,22 @@ const priceLabelsInLocations = (
   onListingClicked,
   mapComponentRefreshToken
 ) => {
-  const listingArraysInLocations = reducedToArray(groupedByCoordinates(listings));
-  const priceLabels = listingArraysInLocations.reverse().map(listingArr => {
+  const listingArraysInLocations = reducedToArray(
+    groupedByCoordinates(listings)
+  );
+  const priceLabels = listingArraysInLocations.reverse().map((listingArr) => {
     const isActive = activeListingId
-      ? !!listingArr.find(l => activeListingId.uuid === l.id.uuid)
+      ? !!listingArr.find((l) => activeListingId.uuid === l.id.uuid)
       : false;
 
     // If location contains only one listing, print price label
     if (listingArr.length === 1) {
       const listing = listingArr[0];
       const infoCardOpenIds = Array.isArray(infoCardOpen)
-        ? infoCardOpen.map(l => l.id.uuid)
+        ? infoCardOpen.map((l) => l.id.uuid)
         : infoCardOpen
-        ? [infoCardOpen.id.uuid]
-        : [];
+          ? [infoCardOpen.id.uuid]
+          : [];
 
       // if the listing is open, don't print price label
       if (infoCardOpen != null && infoCardOpenIds.includes(listing.id.uuid)) {
@@ -208,7 +230,9 @@ const infoCardComponent = (
   createURLToListing,
   mapComponentRefreshToken
 ) => {
-  const listingsArray = Array.isArray(infoCardOpen) ? infoCardOpen : [infoCardOpen];
+  const listingsArray = Array.isArray(infoCardOpen)
+    ? infoCardOpen
+    : [infoCardOpen];
 
   if (!infoCardOpen) {
     return null;
@@ -230,6 +254,53 @@ const infoCardComponent = (
       createURLToListing,
     },
   };
+};
+
+/**
+ * Create delivery address marker for Mapbox
+ */
+const createDeliveryAddressMarker = (map, deliveryAddress) => {
+  if (!deliveryAddress || !map || !window.mapboxgl) {
+    return null;
+  }
+
+  // Create delivery address marker element
+  const markerElement = document.createElement('div');
+  markerElement.innerHTML = `
+    <div style="
+      width: 32px;
+      height: 32px;
+      background: #4CAF50;
+      border: 3px solid #fff;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+      cursor: pointer;
+      position: relative;
+    ">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="white">
+        <path d="M8 2l-4 5h2.5v4h3v-4H12z"/>
+      </svg>
+      <div style="
+        position: absolute;
+        bottom: -8px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 0;
+        height: 0;
+        border-left: 8px solid transparent;
+        border-right: 8px solid transparent;
+        border-top: 8px solid #4CAF50;
+      "></div>
+    </div>
+  `;
+  markerElement.title = 'Delivery Address';
+
+  return new window.mapboxgl.Marker(markerElement, { anchor: 'bottom' })
+    .setLngLat([deliveryAddress.lng, deliveryAddress.lat])
+    .addTo(map);
 };
 
 /**
@@ -255,16 +326,21 @@ const infoCardComponent = (
 class SearchMapWithMapbox extends Component {
   constructor(props) {
     super(props);
-    this.map = typeof window !== 'undefined' && window.mapboxMap ? window.mapboxMap : null;
+    this.map =
+      typeof window !== 'undefined' && window.mapboxMap
+        ? window.mapboxMap
+        : null;
     this.currentMarkers = [];
     this.currentInfoCard = null;
+    this.deliveryAddressMarker = null;
     this.state = { mapContainer: null, isMapReady: false };
     this.viewportBounds = null;
 
     this.onMount = this.onMount.bind(this);
     this.onMoveend = this.onMoveend.bind(this);
     this.initializeMap = this.initializeMap.bind(this);
-    this.handleDoubleClickOnInfoCard = this.handleDoubleClickOnInfoCard.bind(this);
+    this.handleDoubleClickOnInfoCard =
+      this.handleDoubleClickOnInfoCard.bind(this);
     this.handleMobilePinchZoom = this.handleMobilePinchZoom.bind(this);
   }
 
@@ -287,7 +363,10 @@ class SearchMapWithMapbox extends Component {
       // Our bounds are viewport bounds, and fitBounds will try to add margins around those bounds
       // that would result to zoom-loop (bound change -> fitmap -> bounds change -> ...)
       if (!isEqual(this.props.bounds, currentBounds) && !this.viewportBounds) {
-        fitMapToBounds(this.map, this.props.bounds, { padding: 0, isAutocompleteSearch: true });
+        fitMapToBounds(this.map, this.props.bounds, {
+          padding: 0,
+          isAutocompleteSearch: true,
+        });
       }
     }
 
@@ -296,10 +375,17 @@ class SearchMapWithMapbox extends Component {
 
       /* Notify parent component that Mapbox map is loaded */
       this.props.onMapLoad(this.map);
-    } else if (prevProps.mapComponentRefreshToken !== this.props.mapComponentRefreshToken) {
+    } else if (
+      prevProps.mapComponentRefreshToken !== this.props.mapComponentRefreshToken
+    ) {
       /* Notify parent component that Mapbox map is loaded */
       this.map.resize();
       this.props.onMapLoad(this.map);
+    }
+
+    // Handle delivery address marker
+    if (prevProps.deliveryAddress !== this.props.deliveryAddress) {
+      this.updateDeliveryAddressMarker();
     }
   }
 
@@ -308,15 +394,41 @@ class SearchMapWithMapbox extends Component {
       'dblclick',
       this.handleDoubleClickOnInfoCard
     );
-    document.removeEventListener('gesturestart', this.handleMobilePinchZoom, false);
-    document.removeEventListener('gesturechange', this.handleMobilePinchZoom, false);
-    document.removeEventListener('gestureend', this.handleMobilePinchZoom, false);
+    document.removeEventListener(
+      'gesturestart',
+      this.handleMobilePinchZoom,
+      false
+    );
+    document.removeEventListener(
+      'gesturechange',
+      this.handleMobilePinchZoom,
+      false
+    );
+    document.removeEventListener(
+      'gestureend',
+      this.handleMobilePinchZoom,
+      false
+    );
+
+    // Clean up delivery address marker
+    if (this.deliveryAddressMarker) {
+      this.deliveryAddressMarker.remove();
+      this.deliveryAddressMarker = null;
+    }
   }
 
   onMount(element) {
     // This prevents pinch zoom to affect whole page on mobile Safari.
-    document.addEventListener('gesturestart', this.handleMobilePinchZoom, false);
-    document.addEventListener('gesturechange', this.handleMobilePinchZoom, false);
+    document.addEventListener(
+      'gesturestart',
+      this.handleMobilePinchZoom,
+      false
+    );
+    document.addEventListener(
+      'gesturechange',
+      this.handleMobilePinchZoom,
+      false
+    );
     document.addEventListener('gestureend', this.handleMobilePinchZoom, false);
 
     this.setState({ mapContainer: element });
@@ -343,9 +455,13 @@ class SearchMapWithMapbox extends Component {
         // ViewportBounds from (previous) rendering differ from viewportBounds currently set to map
         // I.e. user has changed the map somehow: moved, panned, zoomed, resized
         const viewportBoundsChanged =
-          this.viewportBounds && !hasSameSDKBounds(this.viewportBounds, viewportBounds);
+          this.viewportBounds &&
+          !hasSameSDKBounds(this.viewportBounds, viewportBounds);
 
-        this.props.onMapMoveEnd(viewportBoundsChanged, { viewportBounds, viewportMapCenter });
+        this.props.onMapMoveEnd(viewportBoundsChanged, {
+          viewportBounds,
+          viewportMapCenter,
+        });
         this.viewportBounds = viewportBounds;
       }
     }
@@ -371,6 +487,11 @@ class SearchMapWithMapbox extends Component {
       // but keep the map out of state life cycle.
       this.setState({ isMapReady: true });
     }
+
+    // Add delivery address marker after map is initialized
+    if (this.props.deliveryAddress) {
+      this.updateDeliveryAddressMarker();
+    }
   }
 
   handleMobilePinchZoom(e) {
@@ -384,11 +505,28 @@ class SearchMapWithMapbox extends Component {
     e.stopPropagation();
   }
 
+  updateDeliveryAddressMarker() {
+    // Remove existing delivery address marker
+    if (this.deliveryAddressMarker) {
+      this.deliveryAddressMarker.remove();
+      this.deliveryAddressMarker = null;
+    }
+
+    // Add new delivery address marker if address exists
+    if (this.props.deliveryAddress && this.map) {
+      this.deliveryAddressMarker = createDeliveryAddressMarker(
+        this.map,
+        this.props.deliveryAddress
+      );
+    }
+  }
+
   render() {
     const {
       id = 'searchMap',
       className,
       listings = [],
+      deliveryAddress,
       activeListingId,
       infoCardOpen,
       onListingClicked,
@@ -409,8 +547,12 @@ class SearchMapWithMapbox extends Component {
       );
 
       // If map has moved or info card opened, unnecessary markers need to be removed
-      const removableMarkers = differenceBy(this.currentMarkers, labels, 'markerId');
-      removableMarkers.forEach(rm => rm.marker.remove());
+      const removableMarkers = differenceBy(
+        this.currentMarkers,
+        labels,
+        'markerId'
+      );
+      removableMarkers.forEach((rm) => rm.marker.remove());
 
       // Helper function to create markers to given container
       const createMarker = (data, markerContainer) =>
@@ -421,14 +563,15 @@ class SearchMapWithMapbox extends Component {
       // SearchMapPriceLabel and SearchMapGroupLabel:
       // create a new marker or use existing one if markerId is among previously rendered markers
       this.currentMarkers = labels
-        .filter(v => v != null)
-        .map(m => {
+        .filter((v) => v != null)
+        .map((m) => {
           const existingMarkerId = this.currentMarkers.findIndex(
-            marker => m.markerId === marker.markerId && marker.marker
+            (marker) => m.markerId === marker.markerId && marker.marker
           );
 
           if (existingMarkerId >= 0) {
-            const { marker, markerContainer, ...rest } = this.currentMarkers[existingMarkerId];
+            const { marker, markerContainer, ...rest } =
+              this.currentMarkers[existingMarkerId];
             return { ...rest, ...m, markerContainer, marker };
           } else {
             const markerContainer = document.createElement('div');
@@ -452,7 +595,11 @@ class SearchMapWithMapbox extends Component {
         const infoCardContainer = document.createElement('div');
         infoCardContainer.setAttribute('id', infoCard.markerId);
         infoCardContainer.classList.add(css.infoCardContainer);
-        infoCardContainer.addEventListener('dblclick', this.handleDoubleClickOnInfoCard, false);
+        infoCardContainer.addEventListener(
+          'dblclick',
+          this.handleDoubleClickOnInfoCard,
+          false
+        );
 
         this.currentInfoCard = {
           ...infoCard,
@@ -470,10 +617,12 @@ class SearchMapWithMapbox extends Component {
       }
     }
 
-    const CurrentInfoCardMaybe = props => {
+    const CurrentInfoCardMaybe = (props) => {
       const { mapContainer, currentInfoCard, config } = props;
       const shouldRender = mapContainer && currentInfoCard;
-      const { key, ...componentProps } = shouldRender ? currentInfoCard?.componentProps : {};
+      const { key, ...componentProps } = shouldRender
+        ? currentInfoCard?.componentProps
+        : {};
       return shouldRender
         ? ReactDOM.createPortal(
             <SearchMapInfoCard key={key} {...componentProps} config={config} />,
@@ -481,6 +630,12 @@ class SearchMapWithMapbox extends Component {
           )
         : null;
     };
+
+    // Update delivery address marker when map is ready
+    if (this.map && this.state.isMapReady) {
+      this.updateDeliveryAddressMarker();
+    }
+
     return (
       <div
         id={id}
@@ -488,7 +643,7 @@ class SearchMapWithMapbox extends Component {
         className={classNames(className, css.fullArea)}
         onClick={this.props.onClick}
       >
-        {this.currentMarkers.map(m => {
+        {this.currentMarkers.map((m) => {
           const { key, ...compProps } = m.componentProps || {};
 
           // Remove existing activeLabel classes and add it only to the correct container

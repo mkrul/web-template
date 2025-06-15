@@ -101,3 +101,10 @@ export const sortConfig = {
     },
   ],
 };
+
+// Add radius enforcement configuration
+export const deliveryRadius = {
+  enabled: true,
+  radiusMiles: 100,
+  showRadiusIndicator: true,
+};

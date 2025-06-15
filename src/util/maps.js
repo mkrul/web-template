@@ -267,3 +267,70 @@ export const generateExternalMapUrl = ({
         : `https://maps.google.com/?q=${encodeURIComponent(address)}`;
   }
 };
+
+/**
+ * Calculate the distance between two coordinates using the Haversine formula
+ *
+ * @param {LatLng} coord1 - first coordinate
+ * @param {LatLng} coord2 - second coordinate
+ * @return {number} distance in meters
+ */
+export const calculateDistance = (coord1, coord2) => {
+  if (!coord1 || !coord2) {
+    return Infinity;
+  }
+
+  const { lat: lat1, lng: lng1 } = coord1;
+  const { lat: lat2, lng: lng2 } = coord2;
+
+  const dLat = (lat2 - lat1) * DEG_TO_RAD;
+  const dLng = (lng2 - lng1) * DEG_TO_RAD;
+
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(lat1 * DEG_TO_RAD) *
+      Math.cos(lat2 * DEG_TO_RAD) *
+      Math.sin(dLng / 2) *
+      Math.sin(dLng / 2);
+
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return EARTH_RADIUS * c;
+};
+
+/**
+ * Convert miles to meters
+ *
+ * @param {number} miles - distance in miles
+ * @return {number} distance in meters
+ */
+export const milesToMeters = (miles) => miles * 1609.344;
+
+/**
+ * Filter listings within a specified radius from a delivery address
+ *
+ * @param {Array} listings - array of listings
+ * @param {LatLng} deliveryAddress - delivery address coordinates
+ * @param {number} radiusMiles - radius in miles
+ * @return {Array} filtered listings within the radius
+ */
+export const filterListingsByRadius = (
+  listings,
+  deliveryAddress,
+  radiusMiles = 100
+) => {
+  if (!deliveryAddress || !listings) {
+    return listings || [];
+  }
+
+  const radiusMeters = milesToMeters(radiusMiles);
+
+  return listings.filter((listing) => {
+    const listingLocation = listing?.attributes?.geolocation;
+    if (!listingLocation) {
+      return false;
+    }
+
+    const distance = calculateDistance(deliveryAddress, listingLocation);
+    return distance <= radiusMeters;
+  });
+};

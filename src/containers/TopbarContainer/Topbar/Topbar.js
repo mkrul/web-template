@@ -1,6 +1,9 @@
 import React from 'react';
 import pickBy from 'lodash/pickBy';
 import classNames from 'classnames';
+import { compose } from 'redux';
+import { connect } from 'react-redux';
+import { injectIntl } from 'react-intl';
 
 import appSettings from '../../../config/settings';
 import { useConfiguration } from '../../../context/configurationContext';
@@ -9,7 +12,11 @@ import { useRouteConfiguration } from '../../../context/routeConfigurationContex
 import { FormattedMessage, useIntl } from '../../../util/reactIntl';
 import { isMainSearchTypeKeywords, isOriginInUse } from '../../../util/search';
 import { parse, stringify } from '../../../util/urlHelpers';
-import { createResourceLocatorString, matchPathname, pathByRouteName } from '../../../util/routes';
+import {
+  createResourceLocatorString,
+  matchPathname,
+  pathByRouteName,
+} from '../../../util/routes';
 import {
   Button,
   LimitedAccessBanner,
@@ -18,6 +25,10 @@ import {
   ModalMissingInformation,
 } from '../../../components';
 import { getSearchPageResourceLocatorStringParams } from '../../SearchPage/SearchPage.shared';
+import { setDeliveryAddress } from '../../SearchPage/SearchPage.duck';
+import { logout } from '../../../ducks/auth.duck';
+import { manageDisableScrolling } from '../../../ducks/ui.duck';
+import { sendVerificationEmail } from '../../../ducks/user.duck';
 
 import MenuIcon from './MenuIcon';
 import SearchIcon from './SearchIcon';
@@ -49,8 +60,8 @@ const redirectToURLWithoutModalState = (history, location, modalStateParam) => {
   history.push(`${pathname}${searchString}`, state);
 };
 
-const isPrimary = o => o.group === 'primary';
-const isSecondary = o => o.group === 'secondary';
+const isPrimary = (o) => o.group === 'primary';
+const isSecondary = (o) => o.group === 'secondary';
 const compareGroups = (a, b) => {
   const isAHigherGroupThanB = isPrimary(a) && isSecondary(b);
   const isALesserGroupThanB = isSecondary(a) && isPrimary(b);
@@ -58,7 +69,7 @@ const compareGroups = (a, b) => {
   return isAHigherGroupThanB ? -1 : isALesserGroupThanB ? 1 : 0;
 };
 // Returns links in order where primary links are returned first
-const sortCustomLinks = customLinks => {
+const sortCustomLinks = (customLinks) => {
   const links = Array.isArray(customLinks) ? customLinks : [];
   return links.sort(compareGroups);
 };
@@ -66,14 +77,17 @@ const sortCustomLinks = customLinks => {
 // Resolves in-app links against route configuration
 const getResolvedCustomLinks = (customLinks, routeConfiguration) => {
   const links = Array.isArray(customLinks) ? customLinks : [];
-  return links.map(linkConfig => {
+  return links.map((linkConfig) => {
     const { type, href } = linkConfig;
     const isInternalLink = type === 'internal' || href.charAt(0) === '/';
     if (isInternalLink) {
       // Internal link
       try {
         const testURL = new URL('http://my.marketplace.com' + href);
-        const matchedRoutes = matchPathname(testURL.pathname, routeConfiguration);
+        const matchedRoutes = matchPathname(
+          testURL.pathname,
+          routeConfiguration
+        );
         if (matchedRoutes.length > 0) {
           const found = matchedRoutes[0];
           const to = { search: testURL.search, hash: testURL.hash };
@@ -94,9 +108,9 @@ const getResolvedCustomLinks = (customLinks, routeConfiguration) => {
   });
 };
 
-const isCMSPage = found =>
+const isCMSPage = (found) =>
   found.route?.name === 'CMSPage' ? `CMSPage:${found.params?.pageId}` : null;
-const isInboxPage = found =>
+const isInboxPage = (found) =>
   found.route?.name === 'InboxPage' ? `InboxPage:${found.params?.tab}` : null;
 // Find the name of the current route/pathname.
 // It's used as handle for currentPage check.
@@ -106,11 +120,15 @@ const getResolvedCurrentPage = (location, routeConfiguration) => {
     const found = matchedRoutes[0];
     const cmsPageName = isCMSPage(found);
     const inboxPageName = isInboxPage(found);
-    return cmsPageName ? cmsPageName : inboxPageName ? inboxPageName : `${found.route?.name}`;
+    return cmsPageName
+      ? cmsPageName
+      : inboxPageName
+        ? inboxPageName
+        : `${found.route?.name}`;
   }
 };
 
-const GenericError = props => {
+const GenericError = (props) => {
   const { show } = props;
   const classes = classNames(css.genericError, {
     [css.genericErrorVisible]: show,
@@ -126,7 +144,7 @@ const GenericError = props => {
   );
 };
 
-const TopbarComponent = props => {
+const TopbarComponent = (props) => {
   const {
     className,
     rootClassName,
@@ -150,13 +168,14 @@ const TopbarComponent = props => {
     sendVerificationEmailInProgress,
     sendVerificationEmailError,
     showGenericError,
-    config,
-    routeConfiguration,
+    dispatch,
   } = props;
 
-  const handleSubmit = values => {
-    const { currentSearchParams, history, location, config, routeConfiguration } = props;
+  // Use configuration hooks instead of expecting config as prop
+  const config = useConfiguration();
+  const routeConfiguration = useRouteConfiguration();
 
+  const handleSubmit = (values) => {
     const topbarSearchParams = () => {
       if (isMainSearchTypeKeywords(config)) {
         return { keywords: values?.keywords };
@@ -166,6 +185,11 @@ const TopbarComponent = props => {
       const { origin, bounds } = selectedPlace;
       const originMaybe = isOriginInUse(config) ? { origin } : {};
 
+      // Set delivery address when user searches by location
+      if (origin) {
+        dispatch(setDeliveryAddress(origin));
+      }
+
       return {
         ...originMaybe,
         address: search,
@@ -173,7 +197,6 @@ const TopbarComponent = props => {
       };
     };
     const searchParams = {
-      ...currentSearchParams,
       ...topbarSearchParams(),
     };
 
@@ -183,7 +206,12 @@ const TopbarComponent = props => {
     );
 
     history.push(
-      createResourceLocatorString(routeName, routeConfiguration, pathParams, searchParams)
+      createResourceLocatorString(
+        routeName,
+        routeConfiguration,
+        pathParams,
+        searchParams
+      )
     );
   };
 
@@ -204,17 +232,25 @@ const TopbarComponent = props => {
     });
   };
 
-  const { mobilemenu, mobilesearch, keywords, address, origin, bounds } = parse(location.search, {
-    latlng: ['origin'],
-    latlngBounds: ['bounds'],
-  });
+  const { mobilemenu, mobilesearch, keywords, address, origin, bounds } = parse(
+    location.search,
+    {
+      latlng: ['origin'],
+      latlngBounds: ['bounds'],
+    }
+  );
 
   // Custom links are sorted so that group="primary" are always at the beginning of the list.
   const sortedCustomLinks = sortCustomLinks(config.topbar?.customLinks);
-  const customLinks = getResolvedCustomLinks(sortedCustomLinks, routeConfiguration);
-  const resolvedCurrentPage = currentPage || getResolvedCurrentPage(location, routeConfiguration);
+  const customLinks = getResolvedCustomLinks(
+    sortedCustomLinks,
+    routeConfiguration
+  );
+  const resolvedCurrentPage =
+    currentPage || getResolvedCurrentPage(location, routeConfiguration);
 
-  const notificationDot = notificationCount > 0 ? <div className={css.notificationDot} /> : null;
+  const notificationDot =
+    notificationCount > 0 ? <div className={css.notificationDot} /> : null;
 
   const hasMatchMedia = typeof window !== 'undefined' && window?.matchMedia;
   const isMobileLayout = hasMatchMedia
@@ -257,7 +293,8 @@ const TopbarComponent = props => {
 
   const classes = classNames(rootClassName || css.root, className);
 
-  const { display: searchFormDisplay = SEARCH_DISPLAY_ALWAYS } = config?.topbar?.searchBar || {};
+  const { display: searchFormDisplay = SEARCH_DISPLAY_ALWAYS } =
+    config?.topbar?.searchBar || {};
 
   // Search form is shown conditionally depending on configuration and
   // the current page.
@@ -266,15 +303,20 @@ const TopbarComponent = props => {
     searchFormDisplay === SEARCH_DISPLAY_ONLY_SEARCH_PAGE &&
     ['SearchPage', 'SearchPageWithListingType'].includes(resolvedCurrentPage);
   const showSearchNotOnLandingPage =
-    searchFormDisplay === SEARCH_DISPLAY_NOT_LANDING_PAGE && resolvedCurrentPage !== 'LandingPage';
+    searchFormDisplay === SEARCH_DISPLAY_NOT_LANDING_PAGE &&
+    resolvedCurrentPage !== 'LandingPage';
 
   const showSearchForm =
-    showSearchOnAllPages || showSearchOnSearchPage || showSearchNotOnLandingPage;
+    showSearchOnAllPages ||
+    showSearchOnSearchPage ||
+    showSearchNotOnLandingPage;
 
   const mobileSearchButtonMaybe = showSearchForm ? (
     <Button
       rootClassName={css.searchMenu}
-      onClick={() => redirectToURLWithModalState(history, location, 'mobilesearch')}
+      onClick={() =>
+        redirectToURLWithModalState(history, location, 'mobilesearch')
+      }
       title={intl.formatMessage({ id: 'Topbar.searchIcon' })}
     >
       <SearchIcon className={css.searchMenuIcon} />
@@ -293,10 +335,17 @@ const TopbarComponent = props => {
         onLogout={handleLogout}
         currentPage={resolvedCurrentPage}
       />
-      <div className={classNames(mobileRootClassName || css.container, mobileClassName)}>
+      <div
+        className={classNames(
+          mobileRootClassName || css.container,
+          mobileClassName
+        )}
+      >
         <Button
           rootClassName={css.menu}
-          onClick={() => redirectToURLWithModalState(history, location, 'mobilemenu')}
+          onClick={() =>
+            redirectToURLWithModalState(history, location, 'mobilemenu')
+          }
           title={intl.formatMessage({ id: 'Topbar.menuIcon' })}
         >
           <MenuIcon className={css.menuIcon} />
@@ -330,7 +379,9 @@ const TopbarComponent = props => {
         id="TopbarMobileMenu"
         containerClassName={css.modalContainer}
         isOpen={isMobileMenuOpen}
-        onClose={() => redirectToURLWithoutModalState(history, location, 'mobilemenu')}
+        onClose={() =>
+          redirectToURLWithoutModalState(history, location, 'mobilemenu')
+        }
         usePortal
         onManageDisableScrolling={onManageDisableScrolling}
       >
@@ -340,7 +391,9 @@ const TopbarComponent = props => {
         id="TopbarMobileSearch"
         containerClassName={css.modalContainerSearchForm}
         isOpen={isMobileSearchOpen}
-        onClose={() => redirectToURLWithoutModalState(history, location, 'mobilesearch')}
+        onClose={() =>
+          redirectToURLWithoutModalState(history, location, 'mobilesearch')
+        }
         usePortal
         onManageDisableScrolling={onManageDisableScrolling}
       >
@@ -374,6 +427,18 @@ const TopbarComponent = props => {
   );
 };
 
+const mapStateToProps = (state) => ({
+  // Add any necessary state props here
+});
+
+const mapDispatchToProps = (dispatch) => ({
+  onLogout: (historyPush) => dispatch(logout(historyPush)),
+  onManageDisableScrolling: (componentId, disableScrolling) =>
+    dispatch(manageDisableScrolling(componentId, disableScrolling)),
+  onResendVerificationEmail: () => dispatch(sendVerificationEmail()),
+  dispatch,
+});
+
 /**
  * Topbar containing logo, main search and navigation links.
  *
@@ -403,18 +468,9 @@ const TopbarComponent = props => {
  * @param {string} props.location.search '?foo=bar'
  * @returns {JSX.Element} topbar component
  */
-const Topbar = props => {
-  const config = useConfiguration();
-  const routeConfiguration = useRouteConfiguration();
-  const intl = useIntl();
-  return (
-    <TopbarComponent
-      config={config}
-      routeConfiguration={routeConfiguration}
-      intl={intl}
-      {...props}
-    />
-  );
-};
+const Topbar = compose(
+  connect(mapStateToProps, mapDispatchToProps),
+  injectIntl
+)(TopbarComponent);
 
 export default Topbar;

@@ -247,6 +247,87 @@ const infoCardComponent = (
 };
 
 /**
+ * Create delivery address marker for OpenStreetMap
+ */
+const createDeliveryAddressMarker = (map, deliveryAddress) => {
+  console.log('🔍 DEBUG: createDeliveryAddressMarker called with:', {
+    map: !!map,
+    deliveryAddress,
+    windowL: !!window.L,
+  });
+
+  if (!deliveryAddress || !map || !window.L) {
+    console.log(
+      '🚨 DEBUG: createDeliveryAddressMarker early return - missing requirements:',
+      {
+        hasDeliveryAddress: !!deliveryAddress,
+        hasMap: !!map,
+        hasWindowL: !!window.L,
+      }
+    );
+    return null;
+  }
+
+  console.log('✅ DEBUG: Creating delivery address marker at coordinates:', {
+    lat: deliveryAddress.lat,
+    lng: deliveryAddress.lng,
+  });
+
+  // Create custom delivery address icon
+  const deliveryIcon = window.L.divIcon({
+    html: `
+      <div style="
+        width: 32px;
+        height: 32px;
+        background: #4CAF50;
+        border: 3px solid #fff;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        position: relative;
+      ">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="white">
+          <path d="M8 2l-4 5h2.5v4h3v-4H12z"/>
+        </svg>
+        <div style="
+          position: absolute;
+          bottom: -8px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 0;
+          height: 0;
+          border-left: 8px solid transparent;
+          border-right: 8px solid transparent;
+          border-top: 8px solid #4CAF50;
+        "></div>
+      </div>
+    `,
+    className: 'delivery-address-marker',
+    iconSize: [32, 40],
+    iconAnchor: [16, 40],
+    popupAnchor: [0, -40],
+  });
+
+  try {
+    const marker = window.L.marker([deliveryAddress.lat, deliveryAddress.lng], {
+      icon: deliveryIcon,
+      title: 'Delivery Address',
+    }).addTo(map);
+
+    console.log(
+      '✅ DEBUG: Delivery address marker created successfully:',
+      marker
+    );
+    return marker;
+  } catch (error) {
+    console.error('🚨 DEBUG: Error creating delivery address marker:', error);
+    return null;
+  }
+};
+
+/**
  * SearchMap component using OpenStreetMap as map provider
  *
  * @component
@@ -269,12 +350,18 @@ const infoCardComponent = (
 class SearchMapWithOpenStreetMap extends Component {
   constructor(props) {
     super(props);
+    console.log(
+      '🔍 DEBUG: SearchMapWithOpenStreetMap constructor - deliveryAddress:',
+      props.deliveryAddress
+    );
+
     this.map =
       typeof window !== 'undefined' && window.leafletMap
         ? window.leafletMap
         : null;
     this.currentMarkers = [];
     this.currentInfoCard = null;
+    this.deliveryAddressMarker = null;
     this.state = { mapContainer: null, isMapReady: false };
     this.viewportBounds = null;
 
@@ -287,6 +374,13 @@ class SearchMapWithOpenStreetMap extends Component {
   }
 
   componentDidUpdate(prevProps) {
+    console.log('🔍 DEBUG: SearchMapWithOpenStreetMap componentDidUpdate:', {
+      prevDeliveryAddress: prevProps.deliveryAddress,
+      currentDeliveryAddress: this.props.deliveryAddress,
+      hasMap: !!this.map,
+      isMapReady: this.state.isMapReady,
+    });
+
     if (!isEqual(prevProps.location, this.props.location)) {
       // If no mapSearch url parameter is given, this is original location search
       const { mapSearch } = parse(this.props.location.search, {
@@ -324,6 +418,12 @@ class SearchMapWithOpenStreetMap extends Component {
       this.map.invalidateSize();
       this.props.onMapLoad(this.map);
     }
+
+    // Handle delivery address marker
+    if (prevProps.deliveryAddress !== this.props.deliveryAddress) {
+      console.log('🔍 DEBUG: Delivery address changed, updating marker');
+      this.updateDeliveryAddressMarker();
+    }
   }
 
   componentWillUnmount() {
@@ -348,6 +448,12 @@ class SearchMapWithOpenStreetMap extends Component {
       this.handleMobilePinchZoom,
       false
     );
+
+    // Clean up delivery address marker
+    if (this.deliveryAddressMarker) {
+      this.map.removeLayer(this.deliveryAddressMarker);
+      this.deliveryAddressMarker = null;
+    }
   }
 
   onMount(element) {
@@ -401,9 +507,18 @@ class SearchMapWithOpenStreetMap extends Component {
   }
 
   initializeMap() {
+    console.log('🔍 DEBUG: initializeMap called');
     const { offsetHeight, offsetWidth } = this.state.mapContainer;
     const hasDimensions = offsetHeight > 0 && offsetWidth > 0;
+
+    console.log('🔍 DEBUG: Map container dimensions:', {
+      offsetHeight,
+      offsetWidth,
+      hasDimensions,
+    });
+
     if (hasDimensions) {
+      console.log('🔍 DEBUG: Creating Leaflet map');
       this.map = window.L.map(this.state.mapContainer, {
         zoomControl: true,
         scrollWheelZoom: false,
@@ -426,6 +541,27 @@ class SearchMapWithOpenStreetMap extends Component {
       // Introduce rerendering after map is ready (to include labels),
       // but keep the map out of state life cycle.
       this.setState({ isMapReady: true });
+
+      console.log(
+        '🔍 DEBUG: Map initialized, checking for delivery address:',
+        this.props.deliveryAddress
+      );
+
+      // Add delivery address marker after map is initialized
+      if (this.props.deliveryAddress) {
+        console.log(
+          '🔍 DEBUG: Delivery address found, calling updateDeliveryAddressMarker'
+        );
+        this.updateDeliveryAddressMarker();
+      } else {
+        console.log(
+          '🚨 DEBUG: No delivery address found during map initialization'
+        );
+      }
+    } else {
+      console.log(
+        '🚨 DEBUG: Map container has no dimensions, cannot initialize'
+      );
     }
   }
 
@@ -440,7 +576,51 @@ class SearchMapWithOpenStreetMap extends Component {
     e.stopPropagation();
   }
 
+  updateDeliveryAddressMarker() {
+    console.log('🔍 DEBUG: updateDeliveryAddressMarker called:', {
+      hasDeliveryAddress: !!this.props.deliveryAddress,
+      deliveryAddress: this.props.deliveryAddress,
+      hasMap: !!this.map,
+      hasExistingMarker: !!this.deliveryAddressMarker,
+    });
+
+    // Remove existing delivery address marker
+    if (this.deliveryAddressMarker) {
+      console.log('🔍 DEBUG: Removing existing delivery address marker');
+      this.map.removeLayer(this.deliveryAddressMarker);
+      this.deliveryAddressMarker = null;
+    }
+
+    // Add new delivery address marker if address exists
+    if (this.props.deliveryAddress && this.map) {
+      console.log('🔍 DEBUG: Creating new delivery address marker');
+      this.deliveryAddressMarker = createDeliveryAddressMarker(
+        this.map,
+        this.props.deliveryAddress
+      );
+
+      if (this.deliveryAddressMarker) {
+        console.log('✅ DEBUG: Delivery address marker created and stored');
+      } else {
+        console.error('🚨 DEBUG: Failed to create delivery address marker');
+      }
+    } else {
+      console.log(
+        '🚨 DEBUG: Cannot create delivery address marker - missing requirements:',
+        {
+          hasDeliveryAddress: !!this.props.deliveryAddress,
+          hasMap: !!this.map,
+        }
+      );
+    }
+  }
+
   render() {
+    console.log(
+      '🔍 DEBUG: SearchMapWithOpenStreetMap render - deliveryAddress:',
+      this.props.deliveryAddress
+    );
+
     const {
       id = 'searchMap',
       className,
