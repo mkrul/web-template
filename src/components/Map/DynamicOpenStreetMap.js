@@ -34,12 +34,6 @@ L.Icon.Default.mergeOptions({
  * @returns {JSX.Element} dynamic version of OpenStreetMap
  */
 class DynamicOpenStreetMap extends Component {
-  constructor(props) {
-    super(props);
-
-    this.mapRef = React.createRef();
-  }
-
   componentDidMount() {
     // Set user agent for OSM tile usage policy compliance
     if (typeof window !== 'undefined' && window.L) {
@@ -70,7 +64,6 @@ class DynamicOpenStreetMap extends Component {
       <div className={containerClassName}>
         <div className={mapClassName}>
           <MapContainer
-            ref={this.mapRef}
             center={leafletCenter}
             zoom={zoom}
             style={{ height: '100%', width: '100%' }}

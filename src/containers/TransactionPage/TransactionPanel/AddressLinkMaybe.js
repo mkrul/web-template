@@ -2,32 +2,41 @@ import React from 'react';
 import classNames from 'classnames';
 
 import { FormattedMessage } from '../../../util/reactIntl';
-
 import { ExternalLink } from '../../../components';
+import { generateExternalMapUrl } from '../../../util/maps';
+import { mapProvider } from '../../../config/configMaps';
 
 import css from './TransactionPanel.module.css';
 
 // Functional component as a helper to build AddressLinkMaybe
-const AddressLinkMaybe = props => {
-  const { className, rootClassName, linkRootClassName, location, geolocation, showAddress } = props;
+const AddressLinkMaybe = (props) => {
+  const {
+    className,
+    rootClassName,
+    linkRootClassName,
+    location,
+    geolocation,
+    showAddress,
+  } = props;
   const { address, building } = location || {};
-  const { lat, lng } = geolocation || {};
-  const hrefToGoogleMaps = geolocation
-    ? `https://maps.google.com/?q=${lat},${lng}`
-    : address
-    ? `https://maps.google.com/?q=${encodeURIComponent(address)}`
-    : null;
+  const hrefToExternalMap = generateExternalMapUrl({
+    address,
+    geolocation,
+    mapProvider,
+  });
 
   const fullAddress =
-    typeof building === 'string' && building.length > 0 ? `${building}, ${address}` : address;
+    typeof building === 'string' && building.length > 0
+      ? `${building}, ${address}`
+      : address;
 
   const classes = classNames(rootClassName || css.address, className);
-  return showAddress && hrefToGoogleMaps ? (
+  return showAddress && hrefToExternalMap ? (
     <p className={classes}>
       {fullAddress} <br />
       <span className={css.viewOnGoogleMapsWrapper}>
-        <ExternalLink className={linkRootClassName} href={hrefToGoogleMaps}>
-          <FormattedMessage id="AddressLinkMaybe.viewOnGoogleMaps" />
+        <ExternalLink className={linkRootClassName} href={hrefToExternalMap}>
+          <FormattedMessage id="AddressLinkMaybe.viewOnMap" />
         </ExternalLink>
       </span>
     </p>

@@ -96,6 +96,12 @@ const placeBounds = (prediction) => {
 
 export const GeocoderAttribution = () => null;
 
+// Export a function to clear cache for testing
+export const clearCache = () => {
+  resultCache.clear();
+  lastRequestTime = 0;
+};
+
 class GeocoderOpenStreetMap {
   getClient() {
     return {
@@ -269,5 +275,49 @@ class GeocoderOpenStreetMap {
     });
   }
 }
+
+// Helper function for testing - wraps the class functionality in a simple function
+export const searchPlaces = async (
+  query,
+  countryLimit = null,
+  locale = null
+) => {
+  try {
+    const geocoder = new GeocoderOpenStreetMap();
+    const result = await geocoder.getPlacePredictions(
+      query,
+      countryLimit,
+      locale
+    );
+
+    // Convert raw Nominatim predictions to the expected test format
+    if (!result.predictions || !Array.isArray(result.predictions)) {
+      return [];
+    }
+
+    return result.predictions
+      .map((prediction) => {
+        try {
+          return {
+            id: prediction.place_id
+              ? prediction.place_id.toString()
+              : prediction.osm_id?.toString() ||
+                prediction.display_name?.replace(/\s+/g, '-').toLowerCase() ||
+                Math.random().toString(),
+            predictionText: prediction.display_name,
+            origin: placeOrigin(prediction),
+            bounds: placeBounds(prediction),
+          };
+        } catch (error) {
+          console.error('Error processing prediction:', error, prediction);
+          return null;
+        }
+      })
+      .filter(Boolean); // Remove any null results
+  } catch (error) {
+    console.error('Error in searchPlaces:', error);
+    return [];
+  }
+};
 
 export default GeocoderOpenStreetMap;

@@ -26,12 +26,6 @@ L.Icon.Default.mergeOptions({
  * @returns {JSX.Element} static (non-interactive) version of OpenStreetMap
  */
 class StaticOpenStreetMap extends Component {
-  constructor(props) {
-    super(props);
-
-    this.mapRef = React.createRef();
-  }
-
   render() {
     const { containerClassName, mapClassName, center, zoom, address } =
       this.props;
@@ -43,7 +37,6 @@ class StaticOpenStreetMap extends Component {
       <div className={containerClassName}>
         <div className={mapClassName}>
           <MapContainer
-            ref={this.mapRef}
             center={leafletCenter}
             zoom={zoom}
             style={{ height: '100%', width: '100%' }}
