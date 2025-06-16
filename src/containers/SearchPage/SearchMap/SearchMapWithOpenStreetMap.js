@@ -273,41 +273,16 @@ const createDeliveryAddressMarker = (map, deliveryAddress) => {
     lng: deliveryAddress.lng,
   });
 
-  // Create custom delivery address icon
-  const deliveryIcon = window.L.divIcon({
-    html: `
-      <div style="
-        width: 32px;
-        height: 32px;
-        background: #4CAF50;
-        border: 3px solid #fff;
-        border-radius: 50%;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-        position: relative;
-      ">
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="white">
-          <path d="M8 2l-4 5h2.5v4h3v-4H12z"/>
-        </svg>
-        <div style="
-          position: absolute;
-          bottom: -8px;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 0;
-          height: 0;
-          border-left: 8px solid transparent;
-          border-right: 8px solid transparent;
-          border-top: 8px solid #4CAF50;
-        "></div>
-      </div>
-    `,
-    className: 'delivery-address-marker',
-    iconSize: [32, 40],
-    iconAnchor: [16, 40],
-    popupAnchor: [0, -40],
+  // Use the standard Leaflet marker with a green icon to distinguish it as the delivery address
+  const deliveryIcon = new window.L.Icon({
+    iconUrl:
+      'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-2x-green.png',
+    shadowUrl:
+      'https://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.7/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41],
   });
 
   try {
@@ -316,6 +291,11 @@ const createDeliveryAddressMarker = (map, deliveryAddress) => {
       title: 'Delivery Address',
     }).addTo(map);
 
+    // Add a popup to make it clear this is the delivery address
+    marker.bindPopup('📍 Delivery Address', {
+      className: 'delivery-address-popup',
+    });
+
     console.log(
       '✅ DEBUG: Delivery address marker created successfully:',
       marker
@@ -323,7 +303,32 @@ const createDeliveryAddressMarker = (map, deliveryAddress) => {
     return marker;
   } catch (error) {
     console.error('🚨 DEBUG: Error creating delivery address marker:', error);
-    return null;
+
+    // Fallback to default marker if the custom icon fails to load
+    try {
+      console.log('🔄 DEBUG: Attempting fallback to default marker');
+      const fallbackMarker = window.L.marker(
+        [deliveryAddress.lat, deliveryAddress.lng],
+        {
+          title: 'Delivery Address',
+        }
+      ).addTo(map);
+
+      fallbackMarker.bindPopup('📍 Delivery Address', {
+        className: 'delivery-address-popup',
+      });
+
+      console.log(
+        '✅ DEBUG: Fallback delivery address marker created successfully'
+      );
+      return fallbackMarker;
+    } catch (fallbackError) {
+      console.error(
+        '🚨 DEBUG: Even fallback marker creation failed:',
+        fallbackError
+      );
+      return null;
+    }
   }
 };
 

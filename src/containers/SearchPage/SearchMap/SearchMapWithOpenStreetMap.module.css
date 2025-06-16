@@ -1,0 +1,20 @@
+/* Delivery address popup styling */
+:global(.delivery-address-popup) {
+  text-align: center;
+  font-weight: 600;
+  color: #2e7d32;
+  background-color: #f1f8e9;
+  border: 1px solid #4caf50;
+  border-radius: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+}
+
+:global(.delivery-address-popup .leaflet-popup-content-wrapper) {
+  border-radius: 4px;
+  background-color: #f1f8e9;
+}
+
+:global(.delivery-address-popup .leaflet-popup-tip) {
+  background-color: #f1f8e9;
+  border-color: #4caf50;
+}
