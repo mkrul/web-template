@@ -153,8 +153,8 @@ export const IncludeScripts = (props) => {
   // We can use that to start listen 'load' events when the library is added on client-side.
   const onChangeClientState = (newState, addedTags) => {
     if (addedTags && addedTags.scriptTags) {
-      const foundScript = addedTags.scriptTags.find((s) =>
-        [MAPBOX_SCRIPT_ID, GOOGLE_MAPS_SCRIPT_ID].includes(s.id)
+      const foundScript = addedTags.scriptTags.find(
+        (s) => s.id === MAPBOX_SCRIPT_ID
       );
       if (foundScript) {
         foundScript.addEventListener('load', onMapLibLoaded, { once: true });

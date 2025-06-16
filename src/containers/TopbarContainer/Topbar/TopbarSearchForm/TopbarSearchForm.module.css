@@ -138,9 +138,7 @@
 }
 
 .mobilePredictionsAttribution {
-  /* When using the Google Maps Places geocoder, the "Powered by Google"
-   text is hidden in Mobile Safari without giving some extra space to
-   it. */
+  /* Extra space for mobile predictions attribution if needed */
   margin-bottom: 100px;
 
   @media (--viewportMedium) {

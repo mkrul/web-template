@@ -9,12 +9,11 @@ import { createSlug } from '../../../util/urlHelpers';
 import { propTypes } from '../../../util/types';
 import {
   obfuscatedCoordinates,
-  getMapProviderApiAccess,
+  getMapProviderConfig,
 } from '../../../util/maps';
 
 import { hasParentWithClassName } from './SearchMap.helpers.js';
 import * as searchMapMapbox from './SearchMapWithMapbox';
-import * as searchMapGoogleMaps from './SearchMapWithGoogleMaps';
 import * as searchMapOpenStreetMap from './SearchMapWithOpenStreetMap';
 import ReusableMapContainer from './ReusableMapContainer';
 import css from './SearchMap.module.css';
@@ -22,12 +21,9 @@ import css from './SearchMap.module.css';
 const REUSABLE_MAP_HIDDEN_HANDLE = 'reusableMapHidden';
 
 const getSearchMapVariant = (mapProvider) => {
-  const isGoogleMapsInUse = mapProvider === 'googleMaps';
   const isOpenStreetMapInUse = mapProvider === 'openStreetMap';
 
-  if (isGoogleMapsInUse) {
-    return searchMapGoogleMaps;
-  } else if (isOpenStreetMapInUse) {
+  if (isOpenStreetMapInUse) {
     return searchMapOpenStreetMap;
   } else {
     return searchMapMapbox;
@@ -197,7 +193,11 @@ export class SearchMapComponent extends Component {
       this.setState({ mapReattachmentCount: window.mapReattachmentCount });
     };
     const mapProvider = config.maps.mapProvider;
-    const hasApiAccessForMapProvider = !!getMapProviderApiAccess(config.maps);
+    const mapProviderConfig = getMapProviderConfig(config.maps);
+    const hasApiAccessForMapProvider =
+      mapProviderConfig.provider === 'openStreetMap'
+        ? true
+        : !!mapProviderConfig.apiKey;
     const SearchMapVariantComponent = getSearchMapVariantComponent(mapProvider);
     const isMapProviderAvailable =
       hasApiAccessForMapProvider &&

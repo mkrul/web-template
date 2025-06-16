@@ -11,7 +11,6 @@ import IconHourGlass from './IconHourGlass';
 import IconCurrentLocation from './IconCurrentLocation';
 import * as geocoderOpenStreetMap from './GeocoderOpenStreetMap';
 import * as geocoderMapbox from './GeocoderMapbox';
-import * as geocoderGoogleMaps from './GeocoderGoogleMaps';
 
 import css from './LocationAutocompleteInput.module.css';
 
@@ -35,11 +34,9 @@ const getTouchCoordinates = (nativeEvent) => {
   return touch ? { x: touch.screenX, y: touch.screenY } : null;
 };
 
-// Get correct geocoding variant: geocoderGoogleMaps, geocoderMapbox, or geocoderOpenStreetMap
+// Get correct geocoding variant: geocoderMapbox, or geocoderOpenStreetMap
 const getGeocoderVariant = (mapProvider) => {
-  if (mapProvider === 'googleMaps') {
-    return geocoderGoogleMaps;
-  } else if (mapProvider === 'openStreetMap') {
+  if (mapProvider === 'openStreetMap') {
     return geocoderOpenStreetMap;
   }
   return geocoderMapbox;
@@ -111,9 +108,6 @@ const LocationPredictionsList = (props) => {
 
   let predictionRootMapProviderClass;
   switch (mapProvider) {
-    case 'googleMaps':
-      predictionRootMapProviderClass = css.predictionsRootGoogle;
-      break;
     case 'openStreetMap':
       predictionRootMapProviderClass = css.predictionsRootOpenStreetMap;
       break;

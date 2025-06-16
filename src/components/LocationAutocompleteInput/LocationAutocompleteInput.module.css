@@ -67,39 +67,14 @@ size and position, etc.
   z-index: calc(var(--zIndexPopup) + 1);
 }
 
-.predictionsRootGoogle {
-  /* Google Maps needs 72px bottom padding to accommodate logo, Mapbox doesn't have one */
-  padding-bottom: 72px;
-}
-
 .predictionsRootMapbox {
-  /* Google Maps needs 72px bottom padding to accommodate logo, Mapbox doesn't have one */
+  /* Mapbox doesn't require logo attribution in the autocomplete */
   padding-bottom: 8px;
 }
 
 .predictionsRootOpenStreetMap {
-  /* OpenStreetMap doesn't require any logo attribution in the autocomplete like Google Maps */
+  /* OpenStreetMap doesn't require any logo attribution in the autocomplete */
   padding-bottom: 8px;
-}
-
-/*
-The Google Maps API TOS requires us to show a Powered by Google logo
-next to the autocomplete service predictions. It is rendered to the
-bottom of the container.
-*/
-.poweredByGoogle {
-  position: absolute;
-  bottom: 30px;
-  width: 100%;
-  height: 18px;
-  background-image: url(./images/powered_by_google_on_non_white_hdpi.png);
-  background-size: auto 18px;
-  background-position: center;
-
-  @media (--viewportMedium) {
-    background-position: center left 36px;
-    margin-bottom: 0;
-  }
 }
 
 /* List of predictions, with a responsive padding size */

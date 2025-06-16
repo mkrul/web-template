@@ -11,16 +11,6 @@ describe('maps utilities for OpenStreetMap integration', () => {
       expect(result).toBe(true);
     });
 
-    it('returns googleMapsAPIKey for googleMaps provider', () => {
-      const mapConfig = {
-        mapProvider: 'googleMaps',
-        googleMapsAPIKey: 'test-google-key',
-      };
-
-      const result = getMapProviderApiAccess(mapConfig);
-      expect(result).toBe('test-google-key');
-    });
-
     it('returns mapboxAccessToken for mapbox provider', () => {
       const mapConfig = {
         mapProvider: 'mapbox',
@@ -118,37 +108,17 @@ describe('maps utilities for OpenStreetMap integration', () => {
       });
     });
 
-    describe('googleMaps provider', () => {
-      it('generates URL with coordinates', () => {
-        const params = {
-          geolocation: { lat: 40.7128, lng: -74.006 },
-          mapProvider: 'googleMaps',
-        };
-
-        const result = generateExternalMapUrl(params);
-        expect(result).toBe('https://maps.google.com/?q=40.7128,-74.006');
-      });
-
-      it('generates URL with address when no geolocation', () => {
-        const params = {
-          address: 'New York, NY',
-          mapProvider: 'googleMaps',
-        };
-
-        const result = generateExternalMapUrl(params);
-        expect(result).toBe('https://maps.google.com/?q=New%20York%2C%20NY');
-      });
-    });
-
     describe('mapbox provider', () => {
-      it('falls back to Google Maps URL format', () => {
+      it('falls back to OpenStreetMap URL format', () => {
         const params = {
           geolocation: { lat: 40.7128, lng: -74.006 },
           mapProvider: 'mapbox',
         };
 
         const result = generateExternalMapUrl(params);
-        expect(result).toBe('https://maps.google.com/?q=40.7128,-74.006');
+        expect(result).toBe(
+          'https://www.openstreetmap.org/?mlat=40.7128&mlon=-74.006&zoom=15'
+        );
       });
     });
 

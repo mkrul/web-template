@@ -2,15 +2,14 @@ import React from 'react';
 import classNames from 'classnames';
 
 import { useConfiguration } from '../../context/configurationContext';
-import { getMapProviderApiAccess } from '../../util/maps';
+import { getMapProviderConfig } from '../../util/maps';
 import * as mapboxMap from './MapboxMap';
-import * as googleMapsMap from './GoogleMap';
 import * as openStreetMap from './OpenStreetMap';
 
 import css from './Map.module.css';
 
 /**
- * Map component that uses StaticMap or DynamicMap from the configured map provider: Mapbox, Google Maps, or OpenStreetMap
+ * Map component that uses StaticMap or DynamicMap from the configured map provider: Mapbox or OpenStreetMap
  *
  * @component
  * @param {Object} props
@@ -43,18 +42,17 @@ export const Map = (props) => {
     useStaticMap,
   } = props;
   const mapsConfiguration = mapsConfig || config.maps;
+  const mapProviderConfig = getMapProviderConfig(mapsConfiguration);
   const hasApiAccessForMapProvider =
-    !!getMapProviderApiAccess(mapsConfiguration);
+    mapProviderConfig.provider === 'openStreetMap'
+      ? true
+      : !!mapProviderConfig.apiKey;
 
   // Determine which map provider components to use
   const mapProvider = mapsConfiguration.mapProvider;
   let StaticMap, DynamicMap, isMapsLibLoaded;
 
-  if (mapProvider === 'googleMaps') {
-    StaticMap = googleMapsMap.StaticMap;
-    DynamicMap = googleMapsMap.DynamicMap;
-    isMapsLibLoaded = googleMapsMap.isMapsLibLoaded;
-  } else if (mapProvider === 'openStreetMap') {
+  if (mapProvider === 'openStreetMap') {
     StaticMap = openStreetMap.StaticMap;
     DynamicMap = openStreetMap.DynamicMap;
     isMapsLibLoaded = openStreetMap.isMapsLibLoaded;

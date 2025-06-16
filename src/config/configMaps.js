@@ -14,6 +14,13 @@ export const googleMapsAPIKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
 //       To use this built-in configuration, you need to remove the overwrite from configHelper.js (mergeMapConfig func)
 export const mapProvider = 'openStreetMap';
 
+// OpenStreetMap specific configuration
+export const openStreetMapConfig = {
+  // No API key needed for OpenStreetMap
+  attribution: '© OpenStreetMap contributors',
+  tileUrl: 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+};
+
 // The location search input can be configured to show default
 // searches when the user focuses on the input and hasn't yet typed
 // anything. This reduces typing and avoids too many Geolocation API

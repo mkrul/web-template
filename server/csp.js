@@ -8,7 +8,9 @@ const unsafeEval = "'unsafe-eval'";
 const data = 'data:';
 const blob = 'blob:';
 const devImagesMaybe = dev ? ['*.localhost:8000'] : [];
-const baseUrl = process.env.REACT_APP_SHARETRIBE_SDK_BASE_URL || 'https://flex-api.sharetribe.com';
+const baseUrl =
+  process.env.REACT_APP_SHARETRIBE_SDK_BASE_URL ||
+  'https://flex-api.sharetribe.com';
 // Asset Delivery API is using a different domain than other Sharetribe APIs
 // cdn.st-api.com
 // If assetCdnBaseUrl is used to initialize SDK (for proxy purposes), then that URL needs to be in CSP
@@ -41,8 +43,6 @@ const defaultDirectives = {
     baseUrl,
     assetCdnBaseUrl,
     '*.st-api.com',
-    'maps.googleapis.com',
-    'places.googleapis.com',
     '*.tiles.mapbox.com',
     'api.mapbox.com',
     'events.mapbox.com',
@@ -60,13 +60,11 @@ const defaultDirectives = {
     'plausible.io',
     '*.plausible.io',
 
-    'fonts.googleapis.com',
-
     'sentry.io',
     '*.sentry.io',
     '*.stripe.com',
   ],
-  fontSrc: [self, data, 'assets-sharetribecom.sharetribe.com', 'fonts.gstatic.com'],
+  fontSrc: [self, data, 'assets-sharetribecom.sharetribe.com'],
   formAction: [self],
   frameSrc: [
     self,
@@ -88,10 +86,6 @@ const defaultDirectives = {
     '*.picsum.photos',
 
     'api.mapbox.com',
-    'maps.googleapis.com',
-    '*.gstatic.com',
-    '*.googleapis.com',
-    '*.ggpht.com',
 
     // Giphy
     '*.giphy.com',
@@ -114,8 +108,6 @@ const defaultDirectives = {
     self,
     (req, res) => `'nonce-${res.locals.cspNonce}'`,
     unsafeEval,
-    'maps.googleapis.com',
-    'api.mapbox.com',
     '*.googletagmanager.com',
     '*.google-analytics.com',
     'www.googleadservices.com',
@@ -124,7 +116,7 @@ const defaultDirectives = {
     // Plausible analytics
     'plausible.io',
   ],
-  styleSrc: [self, unsafeInline, 'fonts.googleapis.com', 'api.mapbox.com'],
+  styleSrc: [self, unsafeInline, 'api.mapbox.com'],
 };
 
 /**
@@ -159,7 +151,11 @@ exports.csp = (reportUri, reportOnly) => {
   // See Helmet's default directives:
   // https://github.com/helmetjs/helmet/blob/bdb09348c17c78698b0c94f0f6cc6b3968cd43f9/middlewares/content-security-policy/index.ts#L51
 
-  const directives = Object.assign({ reportUri: [reportUri] }, defaultDirectives, customDirectives);
+  const directives = Object.assign(
+    { reportUri: [reportUri] },
+    defaultDirectives,
+    customDirectives
+  );
   if (!reportOnly && !dev) {
     directives.upgradeInsecureRequests = [];
   }
