@@ -164,16 +164,6 @@ export class SearchMapComponent extends Component {
     const isMapProviderAvailable =
       hasApiAccessForMapProvider && searchMapOpenStreetMap.isMapsLibLoaded();
 
-    console.log('SearchMap render:', {
-      hasApiAccessForMapProvider,
-      isMapProviderAvailable,
-      SearchMapVariantComponent: !!SearchMapVariantComponent,
-      bounds,
-      center,
-      listings: listings.length,
-      reusableContainerClassName,
-    });
-
     return isMapProviderAvailable ? (
       <ReusableMapContainer
         className={reusableContainerClassName}

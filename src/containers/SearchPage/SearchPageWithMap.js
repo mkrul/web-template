@@ -787,19 +787,7 @@ export class SearchPageComponent extends Component {
                   }}
                   messages={intl.messages}
                 />
-              ) : (
-                <div
-                  style={{
-                    padding: '20px',
-                    background: '#f0f0f0',
-                    border: '1px solid #ccc',
-                  }}
-                >
-                  DEBUG: shouldShowSearchMap is false - isMobileLayout:{' '}
-                  {isMobileLayout.toString()}, isSearchMapOpenOnMobile:{' '}
-                  {this.state.isSearchMapOpenOnMobile.toString()}
-                </div>
-              )}
+              ) : null}
             </div>
           </ModalInMobile>
         </div>

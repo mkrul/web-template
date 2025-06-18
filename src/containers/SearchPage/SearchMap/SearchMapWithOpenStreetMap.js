@@ -287,14 +287,6 @@ class SearchMapWithOpenStreetMap extends Component {
   }
 
   componentDidUpdate(prevProps) {
-    console.log('SearchMapWithOpenStreetMap componentDidUpdate:', {
-      hasMap: !!this.map,
-      hasMapContainer: !!this.state.mapContainer,
-      propsChanged: !isEqual(prevProps.location, this.props.location),
-      bounds: this.props.bounds,
-      center: this.props.center,
-    });
-
     if (!isEqual(prevProps.location, this.props.location)) {
       // If no mapSearch url parameter is given, this is original location search
       const { mapSearch } = parse(this.props.location.search, {
@@ -321,9 +313,6 @@ class SearchMapWithOpenStreetMap extends Component {
     }
 
     if (!this.map && this.state.mapContainer) {
-      console.log(
-        'SearchMapWithOpenStreetMap calling initializeMap from componentDidUpdate'
-      );
       this.initializeMap();
 
       /* Notify parent component that Leaflet map is loaded */
@@ -362,13 +351,6 @@ class SearchMapWithOpenStreetMap extends Component {
   }
 
   onMount(element) {
-    console.log('SearchMapWithOpenStreetMap onMount called:', {
-      element: !!element,
-      elementId: element?.id,
-      hasMap: !!this.map,
-      currentMapContainer: !!this.state.mapContainer,
-    });
-
     if (element) {
       // This prevents pinch zoom to affect whole page on mobile Safari.
       document.addEventListener(
@@ -388,59 +370,52 @@ class SearchMapWithOpenStreetMap extends Component {
       );
 
       this.setState({ mapContainer: element });
-      console.log('SearchMapWithOpenStreetMap mapContainer set in state');
     }
   }
 
   onMoveend(e) {
-    if (this.map) {
-      // If reusableMapHiddenHandle is given and parent element has that class,
-      // we don't listen moveend events.
-      // This fixes mobile Chrome bug that sends map events to invisible map components.
-      const isHiddenByReusableMap =
-        this.props.reusableMapHiddenHandle &&
-        this.state.mapContainer.parentElement.classList.contains(
-          this.props.reusableMapHiddenHandle
-        );
-      if (!isHiddenByReusableMap) {
-        const viewportMapBounds = getMapBounds(this.map);
-        const viewportMapCenter = getMapCenter(this.map);
-        const viewportBounds = sdkBoundsToFixedCoordinates(
-          viewportMapBounds,
-          BOUNDS_FIXED_PRECISION
-        );
+    try {
+      if (this.map) {
+        // If reusableMapHiddenHandle is given and parent element has that class,
+        // we don't listen moveend events.
+        // This fixes mobile Chrome bug that sends map events to invisible map components.
+        const isHiddenByReusableMap =
+          this.props.reusableMapHiddenHandle &&
+          this.state.mapContainer &&
+          this.state.mapContainer.parentElement &&
+          this.state.mapContainer.parentElement.classList.contains(
+            this.props.reusableMapHiddenHandle
+          );
+        if (!isHiddenByReusableMap) {
+          const viewportMapBounds = getMapBounds(this.map);
+          const viewportMapCenter = getMapCenter(this.map);
+          const viewportBounds = sdkBoundsToFixedCoordinates(
+            viewportMapBounds,
+            BOUNDS_FIXED_PRECISION
+          );
 
-        // ViewportBounds from (previous) rendering differ from viewportBounds currently set to map
-        // I.e. user has changed the map somehow: moved, panned, zoomed, resized
-        const viewportBoundsChanged =
-          this.viewportBounds &&
-          !hasSameSDKBounds(this.viewportBounds, viewportBounds);
+          // ViewportBounds from (previous) rendering differ from viewportBounds currently set to map
+          // I.e. user has changed the map somehow: moved, panned, zoomed, resized
+          const viewportBoundsChanged =
+            this.viewportBounds &&
+            !hasSameSDKBounds(this.viewportBounds, viewportBounds);
 
-        this.props.onMapMoveEnd(viewportBoundsChanged, {
-          viewportBounds,
-          viewportMapCenter,
-        });
-        this.viewportBounds = viewportBounds;
+          this.props.onMapMoveEnd(viewportBoundsChanged, {
+            viewportBounds,
+            viewportMapCenter,
+          });
+          this.viewportBounds = viewportBounds;
+        }
       }
+    } catch (error) {
+      console.warn('SearchMapWithOpenStreetMap onMoveend error:', error);
+      // Silently handle the error to prevent component crash
     }
   }
 
   initializeMap() {
     const { offsetHeight, offsetWidth } = this.state.mapContainer;
     const hasDimensions = offsetHeight > 0 && offsetWidth > 0;
-
-    console.log('SearchMapWithOpenStreetMap initializeMap:', {
-      mapContainer: !!this.state.mapContainer,
-      offsetHeight,
-      offsetWidth,
-      hasDimensions,
-      windowL: !!window.L,
-      props: {
-        bounds: this.props.bounds,
-        center: this.props.center,
-        zoom: this.props.zoom,
-      },
-    });
 
     if (hasDimensions) {
       const { bounds, center, zoom = 11 } = this.props;
@@ -464,19 +439,12 @@ class SearchMapWithOpenStreetMap extends Component {
         initialZoom = 11;
       }
 
-      console.log('SearchMapWithOpenStreetMap creating map with:', {
-        initialCenter,
-        initialZoom,
-      });
-
       this.map = window.L.map(this.state.mapContainer, {
         center: initialCenter,
         zoom: initialZoom,
         zoomControl: true,
         scrollWheelZoom: false,
       });
-
-      console.log('SearchMapWithOpenStreetMap map created:', !!this.map);
 
       // Add OpenStreetMap tile layer
       window.L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -494,8 +462,6 @@ class SearchMapWithOpenStreetMap extends Component {
       // Introduce rerendering after map is ready (to include labels),
       // but keep the map out of state life cycle.
       this.setState({ isMapReady: true });
-
-      console.log('SearchMapWithOpenStreetMap initialization complete');
     }
   }
 
