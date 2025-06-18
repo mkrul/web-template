@@ -11,23 +11,23 @@ describe('maps utilities for OpenStreetMap integration', () => {
       expect(result).toBe(true);
     });
 
-    it('returns googleMapsAPIKey for googleMaps provider', () => {
+    it('returns true for googleMaps provider (OpenStreetMap only)', () => {
       const mapConfig = {
         mapProvider: 'googleMaps',
         googleMapsAPIKey: 'test-google-key',
       };
 
       const result = getMapProviderApiAccess(mapConfig);
-      expect(result).toBe('test-google-key');
+      expect(result).toBe(true);
     });
 
-    it('returns null for unknown provider (default case)', () => {
+    it('returns true for unknown provider (OpenStreetMap only)', () => {
       const mapConfig = {
         mapProvider: 'unknown',
       };
 
       const result = getMapProviderApiAccess(mapConfig);
-      expect(result).toBeNull();
+      expect(result).toBe(true);
     });
   });
 
@@ -107,25 +107,29 @@ describe('maps utilities for OpenStreetMap integration', () => {
       });
     });
 
-    describe('googleMaps provider', () => {
-      it('generates URL with coordinates', () => {
+    describe('googleMaps provider (uses OpenStreetMap)', () => {
+      it('generates OpenStreetMap URL with coordinates', () => {
         const params = {
           geolocation: { lat: 40.7128, lng: -74.006 },
           mapProvider: 'googleMaps',
         };
 
         const result = generateExternalMapUrl(params);
-        expect(result).toBe('https://maps.google.com/?q=40.7128,-74.006');
+        expect(result).toBe(
+          'https://www.openstreetmap.org/?mlat=40.7128&mlon=-74.006&zoom=15'
+        );
       });
 
-      it('generates URL with address when no geolocation', () => {
+      it('generates OpenStreetMap URL with address when no geolocation', () => {
         const params = {
           address: 'New York, NY',
           mapProvider: 'googleMaps',
         };
 
         const result = generateExternalMapUrl(params);
-        expect(result).toBe('https://maps.google.com/?q=New%20York%2C%20NY');
+        expect(result).toBe(
+          'https://www.openstreetmap.org/search?query=New%20York%2C%20NY'
+        );
       });
     });
 
