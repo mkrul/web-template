@@ -11,6 +11,7 @@ import { ensureListing } from '../../../util/data';
 import {
   sdkBoundsToFixedCoordinates,
   hasSameSDKBounds,
+  getBoundsForConstantRadius,
 } from '../../../util/maps';
 
 import SearchMapPriceLabel from '../SearchMapPriceLabel/SearchMapPriceLabel';
@@ -35,7 +36,20 @@ const { LatLng: SDKLatLng, LatLngBounds: SDKLatLngBounds } = sdkTypes;
 export const fitMapToBounds = (map, bounds, options) => {
   const { padding = 0, isAutocompleteSearch = false } = options;
 
-  const leafletBounds = sdkBoundsToLeafletBounds(bounds);
+  let boundsToFit = bounds;
+
+  // For autocomplete searches, expand bounds to show 100-mile radius
+  if (isAutocompleteSearch && bounds && bounds.ne && bounds.sw) {
+    // Calculate center point from the small bounds
+    const centerLat = (bounds.ne.lat + bounds.sw.lat) / 2;
+    const centerLng = (bounds.ne.lng + bounds.sw.lng) / 2;
+    const center = { lat: centerLat, lng: centerLng };
+
+    // Create expanded bounds with 100-mile radius (160934 meters)
+    boundsToFit = getBoundsForConstantRadius(center, 160934);
+  }
+
+  const leafletBounds = sdkBoundsToLeafletBounds(boundsToFit);
   const paddingOptions = padding != null ? { padding: [padding, padding] } : {};
 
   if (map && leafletBounds) {
@@ -276,6 +290,7 @@ class SearchMapWithOpenStreetMap extends Component {
     this.currentMarkers = [];
     this.currentInfoCard = null;
     this.currentOriginMarker = null;
+    this.currentRadiusCircle = null;
     this.state = { mapContainer: null, isMapReady: false };
     this.viewportBounds = null;
 
@@ -337,14 +352,23 @@ class SearchMapWithOpenStreetMap extends Component {
   }
 
   componentWillUnmount() {
+    // Clean up event listeners
+    if (this.map) {
+      this.map.off('moveend', this.onMoveend);
+    }
+
+    // Clean up markers and circle
+    if (this.currentOriginMarker) {
+      this.map.removeLayer(this.currentOriginMarker);
+    }
+    if (this.currentRadiusCircle) {
+      this.map.removeLayer(this.currentRadiusCircle);
+    }
     if (this.currentInfoCard && this.currentInfoCard.markerContainer) {
       this.currentInfoCard.markerContainer.removeEventListener(
         'dblclick',
         this.handleDoubleClickOnInfoCard
       );
-    }
-    if (this.currentOriginMarker) {
-      this.map.removeLayer(this.currentOriginMarker);
     }
     document.removeEventListener(
       'gesturestart',
@@ -630,6 +654,34 @@ class SearchMapWithOpenStreetMap extends Component {
           this.map.removeLayer(this.currentOriginMarker);
           this.currentOriginMarker = null;
         }
+      }
+
+      /* Create radius circle for search origin (visual indicator of 100-mile search area) */
+      const { mapSearch } = parse(this.props.location.search, {
+        latlng: ['origin'],
+        latlngBounds: ['bounds'],
+      });
+
+      // Show circle for initial autocomplete search, but not when user manually moves map
+      const shouldShowRadiusCircle = !mapSearch || this.viewportBounds === null;
+
+      if (shouldShowRadiusCircle && !this.currentRadiusCircle) {
+        // Create a semi-transparent circle showing 100-mile radius
+        this.currentRadiusCircle = window.L.circle([center.lat, center.lng], {
+          radius: 160934, // 100 miles in meters
+          color: '#3388ff', // Blue color
+          weight: 2,
+          opacity: 0.6,
+          fillColor: '#3388ff',
+          fillOpacity: 0.1,
+        }).addTo(this.map);
+      } else if (shouldShowRadiusCircle && this.currentRadiusCircle) {
+        // Update existing circle position
+        this.currentRadiusCircle.setLatLng([center.lat, center.lng]);
+      } else if (!shouldShowRadiusCircle && this.currentRadiusCircle) {
+        // Remove circle when user has moved the map manually
+        this.map.removeLayer(this.currentRadiusCircle);
+        this.currentRadiusCircle = null;
       }
     } else {
       console.log('🗺️ Map not yet initialized, skipping marker creation');
