@@ -68,13 +68,8 @@ size and position, etc.
 }
 
 .predictionsRootGoogle {
-  /* Google Maps needs 72px bottom padding to accommodate logo, Mapbox doesn't have one */
+  /* Google Maps needs 72px bottom padding to accommodate logo */
   padding-bottom: 72px;
-}
-
-.predictionsRootMapbox {
-  /* Google Maps needs 72px bottom padding to accommodate logo, Mapbox doesn't have one */
-  padding-bottom: 8px;
 }
 
 .predictionsRootOpenStreetMap {

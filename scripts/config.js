@@ -20,7 +20,7 @@ const run = () => {
 
   if (process.argv[2] && process.argv[2] === '--check') {
     if (!hasEnvFile) {
-      process.on('exit', code => {
+      process.on('exit', (code) => {
         console.log(`
 
 ${chalk.bold.red(`You don't have required .env file!`)}
@@ -48,13 +48,13 @@ Remember to restart the application after editing the environment variables! You
           default: false,
         },
       ])
-      .then(answers => {
+      .then((answers) => {
         if (answers.editEnvFile) {
           const settings = findSavedValues();
           askQuestions(settings);
         }
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(chalk.red(`An error occurred due to: ${err.message}`));
       });
   } else {
@@ -65,13 +65,13 @@ Remember to restart the application after editing the environment variables! You
           name: 'createEmptyEnv',
           message: `Do you want to configure required environment variables now?
 ${chalk.dim(
-  `If you don't set up variables now .env file is created based on .env-template file. The application will not work correctly without Sharetribe marketplace client ID, client secret, Stripe publishable API key and MapBox acces token.
+  `If you don't set up variables now .env file is created based on .env-template file. The application will not work correctly without Sharetribe marketplace client ID, client secret, and Stripe publishable API key.
 We recommend setting up the required variables before starting the application!`
 )}`,
           default: true,
         },
       ])
-      .then(answers => {
+      .then((answers) => {
         createEnvFile();
         if (answers.createEmptyEnv) {
           askQuestions();
@@ -79,7 +79,7 @@ We recommend setting up the required variables before starting the application!`
           showSuccessMessage();
         }
       })
-      .catch(err => {
+      .catch((err) => {
         console.log(chalk.red(`An error occurred due to: ${err.message}`));
       });
   }
@@ -95,7 +95,7 @@ We recommend setting up the required variables before starting the application!`
  * @returns array of questions passed to Inquirer
  *
  */
-const mandatoryVariables = settings => {
+const mandatoryVariables = (settings) => {
   const clientIdDefaultMaybe =
     settings &&
     settings.REACT_APP_SHARETRIBE_SDK_CLIENT_ID !== '' &&
@@ -109,10 +109,6 @@ const mandatoryVariables = settings => {
   const stripeDefaultMaybe =
     settings && settings.REACT_APP_STRIPE_PUBLISHABLE_KEY !== ''
       ? { default: settings.REACT_APP_STRIPE_PUBLISHABLE_KEY }
-      : {};
-  const mapBoxDefaultMaybe =
-    settings && settings.REACT_APP_MAPBOX_ACCESS_TOKEN !== ''
-      ? { default: settings.REACT_APP_MAPBOX_ACCESS_TOKEN }
       : {};
   const marketplaceNameDefaultMaybe =
     settings && settings.REACT_APP_MARKETPLACE_NAME !== ''
@@ -128,8 +124,12 @@ ${chalk.dim(
   'Client ID is needed for connecting with Sharetribe API. You can find your client ID from the Console.'
 )}
 `,
-      validate: function(value) {
-        if (value.match(/^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$/i)) {
+      validate: function (value) {
+        if (
+          value.match(
+            /^[a-z0-9]{8}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{4}-[a-z0-9]{12}$/i
+          )
+        ) {
           return true;
         }
         return 'Please enter valid Sharetribe Client ID. You can check it form Sharetribe Console!';
@@ -156,23 +156,13 @@ ${chalk.dim(
 If you don't set the Stripe key, payments won't work in the application.`
 )}
 `,
-      validate: function(value) {
+      validate: function (value) {
         if (value.match(/^pk_/) || value === '') {
           return true;
         }
         return 'Please enter Stripe publishable key with prefix pk_!';
       },
       ...stripeDefaultMaybe,
-    },
-    {
-      type: 'input',
-      name: 'REACT_APP_MAPBOX_ACCESS_TOKEN',
-      message: `What is your Mapbox access token?
-${chalk.dim(
-  `The Mapbox access token should be set via the Sharetribe Console. You can also configure it as an environment variable, which will be used as a fallback value.`
-)}
-`,
-      ...mapBoxDefaultMaybe,
     },
     {
       type: 'input',
@@ -198,8 +188,10 @@ ${chalk.dim(
  *
  */
 
-const advancedSettings = settings => {
-  const rootUrlDefault = settings ? settings.REACT_APP_MARKETPLACE_ROOT_URL : null;
+const advancedSettings = (settings) => {
+  const rootUrlDefault = settings
+    ? settings.REACT_APP_MARKETPLACE_ROOT_URL
+    : null;
   const cspDefault = settings ? settings.REACT_APP_CSP : null;
 
   return [
@@ -217,10 +209,10 @@ ${chalk.dim(
   'Canonical root URL of the marketplace is needed for social media sharing, SEO optimization, and social logins. When developing the template application locally URL is usually http://localhost:3000 (Note: you should omit any trailing slash)'
 )}
 `,
-      default: function() {
+      default: function () {
         return rootUrlDefault ? rootUrlDefault : 'http://localhost:3000';
       },
-      when: function(answers) {
+      when: function (answers) {
         return answers.showAdvancedSettings;
       },
     },
@@ -232,10 +224,10 @@ ${chalk.dim(
   'Content Security Policy should be on "block" mode, when the app is live. However, for development purposes "report" mode might make sense. The default value for this settings is true.'
 )}
 `,
-      default: function() {
+      default: function () {
         return cspDefault ? cspDefault : 'report';
       },
-      when: function(answers) {
+      when: function (answers) {
         return answers.showAdvancedSettings;
       },
     },
@@ -250,29 +242,29 @@ ${chalk.dim(
  *
  */
 
-const askQuestions = settings => {
+const askQuestions = (settings) => {
   inquirer
     .prompt(mandatoryVariables(settings))
-    .then(answers => {
+    .then((answers) => {
       return readLines(answers);
     })
-    .then(values => {
+    .then((values) => {
       const data = getData(values);
       updateEnvFile(data);
 
       console.log(chalk.yellow.bold(`Advanced settings:`));
       inquirer
         .prompt(advancedSettings(settings))
-        .then(answers => {
+        .then((answers) => {
           return readLines(answers);
         })
-        .then(values => {
+        .then((values) => {
           const data = getData(values);
           updateEnvFile(data);
           showSuccessMessage();
         });
     })
-    .catch(err => {
+    .catch((err) => {
       console.log(chalk.red(`An error occurred due to: ${err.message}`));
     });
 };
@@ -311,10 +303,7 @@ const findSavedValues = () => {
     const splits = line.split('=');
     const key = splits[0].trim();
     if (splits.length > 1) {
-      obj[key] = splits
-        .slice(1)
-        .join('=')
-        .trim();
+      obj[key] = splits.slice(1).join('=').trim();
     }
     return obj;
   }, {});
@@ -332,14 +321,14 @@ const findSavedValues = () => {
  * @return returns a Promise that resolves with values object containing user input and read lines
  */
 
-const readLines = answers => {
+const readLines = (answers) => {
   return new Promise((resolve, reject) => {
     const rl = readline.createInterface({
       input: fs.createReadStream('./.env'),
     });
 
     const lines = [];
-    rl.on('line', function(line) {
+    rl.on('line', function (line) {
       lines.push(line);
     });
 
@@ -358,10 +347,10 @@ const readLines = answers => {
  *
  * @returns array containing the data that needs to be saved to .env file
  */
-const getData = values => {
+const getData = (values) => {
   const { lines, answers } = values;
 
-  const data = lines.map(line => {
+  const data = lines.map((line) => {
     const key = getKeyFromAnswers(answers, line);
     if (key) {
       const value = `${answers[key]}`;
@@ -379,7 +368,7 @@ const getData = values => {
  *
  * @param {array} data arry of lines to be written into .env file
  */
-const updateEnvFile = data => {
+const updateEnvFile = (data) => {
   fs.writeFileSync('./.env', data.join(''));
 };
 
@@ -394,7 +383,7 @@ const updateEnvFile = data => {
 const getKeyFromAnswers = (answers, line) => {
   let foundKey;
   if (answers) {
-    foundKey = Object.keys(answers).find(function(key) {
+    foundKey = Object.keys(answers).find(function (key) {
       if (line.includes(key)) {
         return key;
       }
