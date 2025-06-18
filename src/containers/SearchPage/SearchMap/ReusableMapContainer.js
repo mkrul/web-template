@@ -30,7 +30,9 @@ class ReusableMapContainer extends React.Component {
         window.reusableSearchMapElement || document.createElement('div');
 
       if (!props.className) {
-        console.warn('ReusableMapContainer should get className prop which defines its layout');
+        console.warn(
+          'ReusableMapContainer should get className prop which defines its layout'
+        );
       }
       // If no className is given, we use some defaults, which makes it easier to debug loading.
       const mapLayoutClassName = props.className || css.defaultMapLayout;
@@ -45,10 +47,12 @@ class ReusableMapContainer extends React.Component {
   }
 
   componentDidMount() {
+    console.log('ReusableMapContainer componentDidMount');
     this.renderSearchMap();
   }
 
   componentDidUpdate() {
+    console.log('ReusableMapContainer componentDidUpdate');
     this.renderSearchMap();
   }
 
@@ -60,6 +64,13 @@ class ReusableMapContainer extends React.Component {
   }
 
   renderSearchMap() {
+    console.log('ReusableMapContainer renderSearchMap called:', {
+      el: !!this.el,
+      elId: this.el?.id,
+      mountNode: !!this.mountNode,
+      windowReusableSearchMapElement: !!window.reusableSearchMapElement,
+    });
+
     // Prepare rendering child (MapWithGoogleMap component) to new location
     // We need to add translations (IntlProvider) for map overlay components
     //
@@ -68,7 +79,11 @@ class ReusableMapContainer extends React.Component {
     const renderChildren = () => {
       const { config, messages } = this.props;
       const children = (
-        <IntlProvider locale={config.localization.locale} messages={messages} textComponent="span">
+        <IntlProvider
+          locale={config.localization.locale}
+          messages={messages}
+          textComponent="span"
+        >
           {this.props.children}
         </IntlProvider>
       );
@@ -78,21 +93,29 @@ class ReusableMapContainer extends React.Component {
       // (The question is if portal re-initializes the map - which is pricing factor.)
       window.mapRoot = window.mapRoot || ReactDOMClient.createRoot(this.el);
       window.mapRoot.render(children);
+      console.log('ReusableMapContainer children rendered');
     };
 
     const targetDomNode = document.getElementById(this.el.id);
+    console.log('ReusableMapContainer targetDomNode:', !!targetDomNode);
 
     // Check if we have already added map somewhere on the DOM
     if (!targetDomNode) {
+      console.log(
+        'ReusableMapContainer no existing DOM node, creating new one'
+      );
       if (this.mountNode && !this.mountNode.firstChild) {
         // If mountable, but not yet mounted, append rendering context inside SPA rendering tree.
         this.mountNode.appendChild(this.el);
+        console.log('ReusableMapContainer appended to mountNode');
       } else if (!this.mountNode) {
         // if no mountNode is found, append this outside SPA rendering tree (to document body)
         document.body.appendChild(this.el);
+        console.log('ReusableMapContainer appended to document.body');
       }
       renderChildren();
     } else {
+      console.log('ReusableMapContainer found existing DOM node, reusing');
       this.el.classList.remove(css.reusableMapHidden);
       this.el.classList.remove(this.props.reusableMapHiddenHandle);
 
@@ -105,8 +128,10 @@ class ReusableMapContainer extends React.Component {
         // render children and call reattach
         renderChildren();
         this.props.onReattach();
+        console.log('ReusableMapContainer moved and reattached');
       } else {
         renderChildren();
+        console.log('ReusableMapContainer reused existing');
       }
     }
   }
@@ -115,7 +140,7 @@ class ReusableMapContainer extends React.Component {
     return (
       <div
         className={css.reusableMap}
-        ref={node => {
+        ref={(node) => {
           this.mountNode = node;
         }}
       />

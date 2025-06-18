@@ -41,3 +41,21 @@ body > .reusableMapHidden {
     right: auto;
   }
 }
+
+.fullArea {
+  width: 100%;
+  height: 100%;
+  min-height: 400px; /* Ensure minimum height for map rendering */
+}
+
+.labelContainer {
+  z-index: 1000;
+}
+
+.activeLabel {
+  z-index: 1001;
+}
+
+.infoCardContainer {
+  z-index: 1002;
+}
