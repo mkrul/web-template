@@ -146,7 +146,8 @@ export class SearchPageComponent extends Component {
       window.location &&
       window.location.pathname;
 
-    // When using the ReusableMapContainer onMapMoveEnd can fire from other pages than SearchPage too
+    // When using the ReusableMapContainer, we don't want to call onMapMoveEnd
+    // if the map is hidden (user is not on the SearchPage).
     const isSearchPage = currentPath === searchPagePath;
 
     // If mapSearch url param is given

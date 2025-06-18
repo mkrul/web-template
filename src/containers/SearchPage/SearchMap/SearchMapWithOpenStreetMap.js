@@ -45,16 +45,16 @@ export const fitMapToBounds = (map, bounds, options) => {
     const centerLng = (bounds.ne.lng + bounds.sw.lng) / 2;
     const center = { lat: centerLat, lng: centerLng };
 
-    // Create expanded bounds with 100-mile radius (160934 meters)
-    boundsToFit = getBoundsForConstantRadius(center, 160934);
+    // Create expanded bounds for 100-mile radius (160934 meters)
+    const expandedBounds = getBoundsForConstantRadius(center, 160934);
+    boundsToFit = expandedBounds;
   }
 
-  const leafletBounds = sdkBoundsToLeafletBounds(boundsToFit);
-  const paddingOptions = padding != null ? { padding: [padding, padding] } : {};
-
-  if (map && leafletBounds) {
+  if (map && boundsToFit) {
+    const leafletBounds = sdkBoundsToLeafletBounds(boundsToFit);
+    // Use fitBounds to set the map view to the expanded bounds
     map.fitBounds(leafletBounds, {
-      ...paddingOptions,
+      padding: [padding, padding],
       animate: false,
     });
   }
@@ -437,15 +437,22 @@ class SearchMapWithOpenStreetMap extends Component {
             this.viewportBounds &&
             !hasSameSDKBounds(this.viewportBounds, viewportBounds);
 
-          this.props.onMapMoveEnd(viewportBoundsChanged, {
-            viewportBounds,
-            viewportMapCenter,
-          });
+          // For initial autocomplete searches, we want to trigger a search even if this.viewportBounds is null
+          // This handles the case where fitMapToBounds expands the bounds but doesn't trigger a search
+          const isInitialAutocompleteSearch =
+            !this.viewportBounds && this.props.center;
+
+          this.props.onMapMoveEnd(
+            viewportBoundsChanged || isInitialAutocompleteSearch,
+            {
+              viewportBounds,
+              viewportMapCenter,
+            }
+          );
           this.viewportBounds = viewportBounds;
         }
       }
     } catch (error) {
-      console.warn('SearchMapWithOpenStreetMap onMoveend error:', error);
       // Silently handle the error to prevent component crash
     }
   }
@@ -498,7 +505,9 @@ class SearchMapWithOpenStreetMap extends Component {
 
       // Introduce rerendering after map is ready (to include labels),
       // but keep the map out of state life cycle.
-      this.setState({ isMapReady: true });
+      this.setState({ isMapReady: true }, () => {
+        this.forceUpdate();
+      });
     }
   }
 
@@ -583,7 +592,13 @@ class SearchMapWithOpenStreetMap extends Component {
             const markerContainer = document.createElement('div');
             markerContainer.setAttribute('id', m.markerId);
             markerContainer.classList.add(css.labelContainer);
+
+            // Ensure the container is attached to the document before creating the marker
+            document.body.appendChild(markerContainer);
             const marker = createMarker(m, markerContainer);
+            // Remove from body after Leaflet has captured the HTML
+            document.body.removeChild(markerContainer);
+
             return { ...m, markerContainer, marker };
           }
         });
@@ -662,8 +677,9 @@ class SearchMapWithOpenStreetMap extends Component {
         latlngBounds: ['bounds'],
       });
 
-      // Show circle for initial autocomplete search, but not when user manually moves map
-      const shouldShowRadiusCircle = !mapSearch || this.viewportBounds === null;
+      // Show circle for address-based searches (when center is provided)
+      // Only hide it if user has manually moved the map significantly away from the original search
+      const shouldShowRadiusCircle = center && center.lat && center.lng;
 
       if (shouldShowRadiusCircle && !this.currentRadiusCircle) {
         // Create a semi-transparent circle showing 100-mile radius
@@ -679,12 +695,10 @@ class SearchMapWithOpenStreetMap extends Component {
         // Update existing circle position
         this.currentRadiusCircle.setLatLng([center.lat, center.lng]);
       } else if (!shouldShowRadiusCircle && this.currentRadiusCircle) {
-        // Remove circle when user has moved the map manually
+        // Remove circle when no center is provided
         this.map.removeLayer(this.currentRadiusCircle);
         this.currentRadiusCircle = null;
       }
-    } else {
-      console.log('🗺️ Map not yet initialized, skipping marker creation');
     }
 
     const CurrentInfoCardMaybe = (props) => {
@@ -725,17 +739,26 @@ class SearchMapWithOpenStreetMap extends Component {
             : null;
 
           // Create component portals for correct marker containers
-          if (isMapReadyForMarkers && m.type === 'price') {
+          if (
+            isMapReadyForMarkers &&
+            portalDOMContainer &&
+            m.type === 'price'
+          ) {
             return ReactDOM.createPortal(
               <SearchMapPriceLabel key={key} {...compProps} config={config} />,
               portalDOMContainer
             );
-          } else if (isMapReadyForMarkers && m.type === 'group') {
+          } else if (
+            isMapReadyForMarkers &&
+            portalDOMContainer &&
+            m.type === 'group'
+          ) {
             return ReactDOM.createPortal(
               <SearchMapGroupLabel key={key} {...compProps} />,
               portalDOMContainer
             );
           }
+
           return null;
         })}
         <CurrentInfoCardMaybe
