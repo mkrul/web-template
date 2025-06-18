@@ -586,6 +586,7 @@ export class SearchPageComponent extends Component {
     );
 
     const { bounds, origin } = searchParamsInURL || {};
+
     const { title, description, schema } = createSearchResultSchema(
       listings,
       searchParamsInURL || {},

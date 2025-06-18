@@ -275,6 +275,7 @@ class SearchMapWithOpenStreetMap extends Component {
         : null;
     this.currentMarkers = [];
     this.currentInfoCard = null;
+    this.currentOriginMarker = null;
     this.state = { mapContainer: null, isMapReady: false };
     this.viewportBounds = null;
 
@@ -312,6 +313,15 @@ class SearchMapWithOpenStreetMap extends Component {
       }
     }
 
+    // Handle center prop changes for origin marker
+    if (!isEqual(prevProps.center, this.props.center)) {
+      // Center changed, need to recreate origin marker
+      if (this.currentOriginMarker) {
+        this.map.removeLayer(this.currentOriginMarker);
+        this.currentOriginMarker = null;
+      }
+    }
+
     if (!this.map && this.state.mapContainer) {
       this.initializeMap();
 
@@ -332,6 +342,9 @@ class SearchMapWithOpenStreetMap extends Component {
         'dblclick',
         this.handleDoubleClickOnInfoCard
       );
+    }
+    if (this.currentOriginMarker) {
+      this.map.removeLayer(this.currentOriginMarker);
     }
     document.removeEventListener(
       'gesturestart',
@@ -480,6 +493,7 @@ class SearchMapWithOpenStreetMap extends Component {
     const {
       id = 'searchMap',
       className,
+      bounds,
       listings = [],
       activeListingId,
       infoCardOpen,
@@ -588,6 +602,37 @@ class SearchMapWithOpenStreetMap extends Component {
         }
         this.currentInfoCard = null;
       }
+
+      /* Create marker for search origin (the searched location) */
+      const { center } = this.props;
+      if (center && center.lat && center.lng) {
+        if (!this.currentOriginMarker) {
+          // Create a green marker using Leaflet's built-in marker with custom icon
+          const greenIcon = window.L.icon({
+            iconUrl:
+              'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+            shadowUrl:
+              'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png',
+            iconSize: [25, 41],
+            iconAnchor: [12, 41],
+            popupAnchor: [1, -34],
+            shadowSize: [41, 41],
+          });
+
+          this.currentOriginMarker = window.L.marker([center.lat, center.lng], {
+            icon: greenIcon,
+          }).addTo(this.map);
+        } else {
+          this.currentOriginMarker.setLatLng([center.lat, center.lng]);
+        }
+      } else {
+        if (this.currentOriginMarker) {
+          this.map.removeLayer(this.currentOriginMarker);
+          this.currentOriginMarker = null;
+        }
+      }
+    } else {
+      console.log('🗺️ Map not yet initialized, skipping marker creation');
     }
 
     const CurrentInfoCardMaybe = (props) => {
