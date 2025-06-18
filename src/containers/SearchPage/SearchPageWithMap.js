@@ -16,6 +16,7 @@ import {
   isOriginInUse,
   getQueryParamNames,
 } from '../../util/search';
+import { filterListingsByRadius } from '../../util/maps';
 import {
   NO_ACCESS_PAGE_USER_PENDING_APPROVAL,
   NO_ACCESS_PAGE_VIEW_LISTINGS,
@@ -551,7 +552,7 @@ export class SearchPageComponent extends Component {
       searchParamsAreInSync && hasPaginationInfo
         ? pagination.totalItems
         : pagination?.paginationUnsupported
-          ? listings.length
+          ? filteredListings.length
           : 0;
     const listingsAreLoaded =
       !searchInProgress &&
@@ -588,8 +589,14 @@ export class SearchPageComponent extends Component {
 
     const { bounds, origin } = searchParamsInURL || {};
 
+    // Filter listings to only include those within 100-mile radius from delivery address
+    const RADIUS_100_MILES_METERS = 160934; // 100 miles in meters
+    const filteredListings = origin
+      ? filterListingsByRadius(listings, origin, RADIUS_100_MILES_METERS)
+      : listings;
+
     const { title, description, schema } = createSearchResultSchema(
-      listings,
+      filteredListings,
       searchParamsInURL || {},
       intl,
       routeConfiguration,
@@ -754,7 +761,7 @@ export class SearchPageComponent extends Component {
                 ) : null}
                 <SearchResultsPanel
                   className={css.searchListingsPanel}
-                  listings={listings}
+                  listings={filteredListings}
                   pagination={listingsAreLoaded ? pagination : null}
                   search={parse(location.search)}
                   setActiveListing={onActivateListing}
@@ -782,7 +789,7 @@ export class SearchPageComponent extends Component {
                   center={origin}
                   isSearchMapOpenOnMobile={this.state.isSearchMapOpenOnMobile}
                   location={location}
-                  listings={listings || []}
+                  listings={filteredListings || []}
                   onMapMoveEnd={this.onMapMoveEnd}
                   onCloseAsModal={() => {
                     onManageDisableScrolling('SearchPage_map', false);

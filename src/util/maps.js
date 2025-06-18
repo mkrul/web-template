@@ -280,3 +280,56 @@ export const getBoundsForConstantRadius = (latlng, radiusInMeters) => {
 
   return new LatLngBounds(ne, sw);
 };
+
+/**
+ * Calculate the distance between two geographic points using the Haversine formula
+ *
+ * @param {LatLng|Object} point1 - first point with lat and lng properties
+ * @param {LatLng|Object} point2 - second point with lat and lng properties
+ *
+ * @return {number} - distance between the two points in meters
+ */
+export const calculateDistanceBetweenPoints = (point1, point2) => {
+  const { lat: lat1, lng: lng1 } = point1;
+  const { lat: lat2, lng: lng2 } = point2;
+
+  const lat1Rad = lat1 * DEG_TO_RAD;
+  const lat2Rad = lat2 * DEG_TO_RAD;
+  const deltaLatRad = (lat2 - lat1) * DEG_TO_RAD;
+  const deltaLngRad = (lng2 - lng1) * DEG_TO_RAD;
+
+  const a =
+    Math.sin(deltaLatRad / 2) * Math.sin(deltaLatRad / 2) +
+    Math.cos(lat1Rad) *
+      Math.cos(lat2Rad) *
+      Math.sin(deltaLngRad / 2) *
+      Math.sin(deltaLngRad / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+
+  return EARTH_RADIUS * c;
+};
+
+/**
+ * Filter listings to only include those within a specified radius from a center point
+ *
+ * @param {Array} listings - array of listing objects with geolocation attributes
+ * @param {LatLng|Object} center - center point with lat and lng properties
+ * @param {number} radiusInMeters - maximum distance from center in meters
+ *
+ * @return {Array} - filtered array of listings within the specified radius
+ */
+export const filterListingsByRadius = (listings, center, radiusInMeters) => {
+  if (!center || !center.lat || !center.lng || !Array.isArray(listings)) {
+    return listings;
+  }
+
+  return listings.filter((listing) => {
+    const geolocation = listing?.attributes?.geolocation;
+    if (!geolocation || !geolocation.lat || !geolocation.lng) {
+      return false;
+    }
+
+    const distance = calculateDistanceBetweenPoints(center, geolocation);
+    return distance <= radiusInMeters;
+  });
+};
