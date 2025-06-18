@@ -34,7 +34,7 @@ export const search = {
   //         Without the 'origin' parameter, search will not work correctly
   // NOTE 3: Keyword search and ordering search results by distance can't be used at the same time.
   //         You should check that keyword filter is not used in configSearch.js
-  sortSearchByDistance: false,
+  sortSearchByDistance: true,
 
   // Limit location autocomplete to a one or more countries
   // using ISO 3166 alpha 2 country codes separated by commas.

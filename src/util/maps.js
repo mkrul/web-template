@@ -246,3 +246,37 @@ export const generateExternalMapUrl = ({
     ? `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}&zoom=15`
     : `https://www.openstreetmap.org/search?query=${encodeURIComponent(address)}`;
 };
+
+/**
+ * Calculate bounding box that encompasses a given radius around a center point
+ *
+ * @param {LatLng|Object} latlng - center point with lat and lng properties
+ * @param {number} radiusInMeters - radius around the center point in meters
+ *
+ * @return {LatLngBounds} - bounds that encompass the specified radius
+ */
+export const getBoundsForConstantRadius = (latlng, radiusInMeters) => {
+  const { lat, lng } = latlng;
+
+  // Convert latitude to radians for calculation
+  const latRad = lat * DEG_TO_RAD;
+
+  // Calculate latitude offset
+  const latOffset = radiusInMeters / EARTH_RADIUS / DEG_TO_RAD;
+
+  // Calculate longitude offset (accounts for latitude convergence)
+  const lngOffset =
+    radiusInMeters / (EARTH_RADIUS * Math.cos(latRad)) / DEG_TO_RAD;
+
+  // Calculate bounding box corners
+  const northLat = lat + latOffset;
+  const southLat = lat - latOffset;
+  const eastLng = lng + lngOffset;
+  const westLng = lng - lngOffset;
+
+  // Create northeast and southwest corners
+  const ne = new LatLng(northLat, eastLng);
+  const sw = new LatLng(southLat, westLng);
+
+  return new LatLngBounds(ne, sw);
+};
