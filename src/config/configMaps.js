@@ -4,14 +4,6 @@ import defaultLocationSearches from './configDefaultLocationSearches';
 // Configurations related to maps and map providers //
 //////////////////////////////////////////////////////
 
-// Note: The mapboxAccessToken & googleMapsAPIKey come from map asset nowadays by default.
-//       To use this built-in configuration, you need to remove the overwrite from configHelper.js (mergeMapConfig func)
-export const mapboxAccessToken = process.env.REACT_APP_MAPBOX_ACCESS_TOKEN;
-export const googleMapsAPIKey = process.env.REACT_APP_GOOGLE_MAPS_API_KEY;
-
-// Choose map provider: 'mapbox', 'googleMaps', 'openStreetMap'
-// Note: The mapProvider comes from map asset nowadays by default.
-//       To use this built-in configuration, you need to remove the overwrite from configHelper.js (mergeMapConfig func)
 export const mapProvider = 'openStreetMap';
 
 // The location search input can be configured to show default

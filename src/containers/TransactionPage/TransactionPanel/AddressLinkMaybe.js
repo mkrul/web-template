@@ -34,7 +34,7 @@ const AddressLinkMaybe = (props) => {
   return showAddress && hrefToExternalMap ? (
     <p className={classes}>
       {fullAddress} <br />
-      <span className={css.viewOnGoogleMapsWrapper}>
+      <span className={css.viewOnMapWrapper}>
         <ExternalLink className={linkRootClassName} href={hrefToExternalMap}>
           <FormattedMessage id="AddressLinkMaybe.viewOnMap" />
         </ExternalLink>

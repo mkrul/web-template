@@ -34,7 +34,6 @@ export const getDefaultConfiguration = () => {
     marketplaceRootURL: 'http://localhost:3000',
     maps: {
       ...defaultConfig.maps,
-      mapboxAccessToken: 'fake-token',
       googleMapsAPIKey: undefined,
     },
     stripe: {
@@ -192,7 +191,10 @@ export const getDefaultConfiguration = () => {
       mainSearch: {
         searchType: 'keywords',
       },
-      defaultFilters: [defaultConfig.search.dateRangeFilter, defaultConfig.search.priceFilter],
+      defaultFilters: [
+        defaultConfig.search.dateRangeFilter,
+        defaultConfig.search.priceFilter,
+      ],
     },
   };
 };
@@ -218,7 +220,8 @@ export const getHostedConfiguration = () => {
               name: 'scaled2x',
             },
           },
-          assetPath: '/design/branding/logo-0187eb7f-65d9-8e15-96b3-a598edad56c6.png',
+          assetPath:
+            '/design/branding/logo-0187eb7f-65d9-8e15-96b3-a598edad56c6.png',
         },
       },
       favicon: {
@@ -245,7 +248,8 @@ export const getHostedConfiguration = () => {
               name: 'square48',
             },
           },
-          assetPath: '/design/branding/favicon-0187fae8-9128-88ce-a567-5d4f4df9b5b4.png',
+          assetPath:
+            '/design/branding/favicon-0187fae8-9128-88ce-a567-5d4f4df9b5b4.png',
         },
       },
       loginBackgroundImage: {
@@ -272,7 +276,8 @@ export const getHostedConfiguration = () => {
               name: 'scaled2400',
             },
           },
-          assetPath: '/design/branding/login-background-0187eb37-d04e-8863-b5ca-f3fb2bcc3933.png',
+          assetPath:
+            '/design/branding/login-background-0187eb37-d04e-8863-b5ca-f3fb2bcc3933.png',
         },
       },
       marketplaceColors: {
@@ -296,7 +301,8 @@ export const getHostedConfiguration = () => {
               name: 'scaled1200',
             },
           },
-          assetPath: '/design/branding/social-sharing-0187eb39-99a9-8dbf-b2e5-c04c9d4e85f5.jpg',
+          assetPath:
+            '/design/branding/social-sharing-0187eb39-99a9-8dbf-b2e5-c04c9d4e85f5.jpg',
         },
       },
     },
@@ -698,7 +704,7 @@ export const getRouteConfiguration = (layoutConfiguration = {}) => {
 };
 
 export const createFakeDispatch = (getState, sdk) => {
-  const dispatch = jest.fn(actionOrFn => {
+  const dispatch = jest.fn((actionOrFn) => {
     if (typeof actionOrFn === 'function') {
       return actionOrFn(dispatch, getState, sdk);
     }
@@ -708,14 +714,16 @@ export const createFakeDispatch = (getState, sdk) => {
 };
 
 // Get the dispatched actions from the fake dispatch function
-export const dispatchedActions = fakeDispatch => {
+export const dispatchedActions = (fakeDispatch) => {
   return fakeDispatch.mock.calls.reduce((actions, args) => {
     if (Array.isArray(args) && args.length === 1) {
       const action = args[0];
       return typeof action === 'object' ? actions.concat([action]) : actions;
     } else {
       console.error('fake dispatch invalid call args:', args);
-      throw new Error('Fake dispatch function should only be called with a single argument');
+      throw new Error(
+        'Fake dispatch function should only be called with a single argument'
+      );
     }
   }, []);
 };
@@ -726,12 +734,21 @@ const testMessages = mapValues(messages, (val, key) => key);
 
 // Provide all the context for components that connect to the Redux
 // store, i18n, router, etc.
-export const TestProvider = ({ children, initialState, config, routeConfiguration }) => {
+export const TestProvider = ({
+  children,
+  initialState,
+  config,
+  routeConfiguration,
+}) => {
   const store = configureStore(initialState || {});
   const hostedConfig = config || getHostedConfiguration();
   return (
-    <ConfigurationProvider value={mergeConfig(hostedConfig, getDefaultConfiguration())}>
-      <RouteConfigurationProvider value={routeConfiguration || getRouteConfiguration()}>
+    <ConfigurationProvider
+      value={mergeConfig(hostedConfig, getDefaultConfiguration())}
+    >
+      <RouteConfigurationProvider
+        value={routeConfiguration || getRouteConfiguration()}
+      >
         <IntlProvider locale="en" messages={testMessages} textComponent="span">
           <Provider store={store}>
             <HelmetProvider>
@@ -759,7 +776,13 @@ export const TestProvider = ({ children, initialState, config, routeConfiguratio
 
 export const renderWithProviders = (
   ui,
-  { initialState, config, routeConfiguration, withPortals, ...renderOptions } = {}
+  {
+    initialState,
+    config,
+    routeConfiguration,
+    withPortals,
+    ...renderOptions
+  } = {}
 ) => {
   const Wrapper = ({ children }) => {
     return (
@@ -789,6 +812,9 @@ export const renderWithProviders = (
     );
   };
   const WrapperComponent = withPortals ? WrapperWithPortalRoot : Wrapper;
-  return reactTestingLibrary.render(ui, { wrapper: WrapperComponent, ...renderOptions });
+  return reactTestingLibrary.render(ui, {
+    wrapper: WrapperComponent,
+    ...renderOptions,
+  });
 };
 export const testingLibrary = { ...reactTestingLibrary, userEvent };

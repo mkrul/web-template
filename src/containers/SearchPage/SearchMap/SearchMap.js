@@ -13,41 +13,11 @@ import {
 } from '../../../util/maps';
 
 import { hasParentWithClassName } from './SearchMap.helpers.js';
-import * as searchMapMapbox from './SearchMapWithMapbox';
-import * as searchMapGoogleMaps from './SearchMapWithGoogleMaps';
 import * as searchMapOpenStreetMap from './SearchMapWithOpenStreetMap';
 import ReusableMapContainer from './ReusableMapContainer';
 import css from './SearchMap.module.css';
 
 const REUSABLE_MAP_HIDDEN_HANDLE = 'reusableMapHidden';
-
-const getSearchMapVariant = (mapProvider) => {
-  const isGoogleMapsInUse = mapProvider === 'googleMaps';
-  const isOpenStreetMapInUse = mapProvider === 'openStreetMap';
-
-  if (isGoogleMapsInUse) {
-    return searchMapGoogleMaps;
-  } else if (isOpenStreetMapInUse) {
-    return searchMapOpenStreetMap;
-  } else {
-    return searchMapMapbox;
-  }
-};
-const getSearchMapVariantHandles = (mapProvider) => {
-  const searchMapVariant = getSearchMapVariant(mapProvider);
-  return {
-    labelHandle: searchMapVariant.LABEL_HANDLE,
-    infoCardHandle: searchMapVariant.INFO_CARD_HANDLE,
-  };
-};
-const getFitMapToBounds = (mapProvider) => {
-  const searchMapVariant = getSearchMapVariant(mapProvider);
-  return searchMapVariant.fitMapToBounds;
-};
-const getSearchMapVariantComponent = (mapProvider) => {
-  const searchMapVariant = getSearchMapVariant(mapProvider);
-  return searchMapVariant.default;
-};
 
 const withCoordinatesObfuscated = (listings, offset) => {
   return listings.map((listing) => {
@@ -128,16 +98,13 @@ export class SearchMapComponent extends Component {
 
   onMapClicked(e) {
     // Close open listing popup / infobox, unless the click is attached to a price label
-    const variantHandles = getSearchMapVariantHandles(
-      this.props.config.maps.mapProvider
-    );
     const labelClicked = hasParentWithClassName(
       e.nativeEvent.target,
-      variantHandles.labelHandle
+      searchMapOpenStreetMap.LABEL_HANDLE
     );
     const infoCardClicked = hasParentWithClassName(
       e.nativeEvent.target,
-      variantHandles.infoCardHandle
+      searchMapOpenStreetMap.INFO_CARD_HANDLE
     );
     if (this.state.infoCardOpen != null && !labelClicked && !infoCardClicked) {
       this.setState({ infoCardOpen: null });
@@ -149,10 +116,7 @@ export class SearchMapComponent extends Component {
 
     if (this.mapRef && this.state.mapReattachmentCount === 0) {
       // map is ready, let's fit search area's bounds to map's viewport
-      const fitMapToBounds = getFitMapToBounds(
-        this.props.config.maps.mapProvider
-      );
-      fitMapToBounds(this.mapRef, this.props.bounds, {
+      searchMapOpenStreetMap.fitMapToBounds(this.mapRef, this.props.bounds, {
         padding: 0,
         isAutocompleteSearch: true,
       });
@@ -195,12 +159,10 @@ export class SearchMapComponent extends Component {
       // Initiate rerendering
       this.setState({ mapReattachmentCount: window.mapReattachmentCount });
     };
-    const mapProvider = config.maps.mapProvider;
     const hasApiAccessForMapProvider = !!getMapProviderApiAccess(config.maps);
-    const SearchMapVariantComponent = getSearchMapVariantComponent(mapProvider);
+    const SearchMapVariantComponent = searchMapOpenStreetMap.default;
     const isMapProviderAvailable =
-      hasApiAccessForMapProvider &&
-      getSearchMapVariant(mapProvider).isMapsLibLoaded();
+      hasApiAccessForMapProvider && searchMapOpenStreetMap.isMapsLibLoaded();
 
     return isMapProviderAvailable ? (
       <ReusableMapContainer

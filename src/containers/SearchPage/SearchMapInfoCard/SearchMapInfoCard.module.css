@@ -57,7 +57,7 @@
   }
 }
 
-/* Overwrite Mapbox's specific font rules */
+/* Font weight override for map info cards */
 .root .card {
   font-weight: var(--fontWeightSemiBold);
 }

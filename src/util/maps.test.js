@@ -21,24 +21,13 @@ describe('maps utilities for OpenStreetMap integration', () => {
       expect(result).toBe('test-google-key');
     });
 
-    it('returns mapboxAccessToken for mapbox provider', () => {
-      const mapConfig = {
-        mapProvider: 'mapbox',
-        mapboxAccessToken: 'test-mapbox-token',
-      };
-
-      const result = getMapProviderApiAccess(mapConfig);
-      expect(result).toBe('test-mapbox-token');
-    });
-
-    it('returns mapboxAccessToken for unknown provider (default case)', () => {
+    it('returns null for unknown provider (default case)', () => {
       const mapConfig = {
         mapProvider: 'unknown',
-        mapboxAccessToken: 'test-mapbox-token',
       };
 
       const result = getMapProviderApiAccess(mapConfig);
-      expect(result).toBe('test-mapbox-token');
+      expect(result).toBeNull();
     });
   });
 
@@ -137,18 +126,6 @@ describe('maps utilities for OpenStreetMap integration', () => {
 
         const result = generateExternalMapUrl(params);
         expect(result).toBe('https://maps.google.com/?q=New%20York%2C%20NY');
-      });
-    });
-
-    describe('mapbox provider', () => {
-      it('falls back to Google Maps URL format', () => {
-        const params = {
-          geolocation: { lat: 40.7128, lng: -74.006 },
-          mapProvider: 'mapbox',
-        };
-
-        const result = generateExternalMapUrl(params);
-        expect(result).toBe('https://maps.google.com/?q=40.7128,-74.006');
       });
     });
 

@@ -210,22 +210,14 @@ export const hasSameSDKBounds = (sdkBounds1, sdkBounds2) => {
 };
 
 /**
- * Return googleMapsAPIKey, mapboxAccessToken, or true depending on which map provider is selected.
+ * Return true since OpenStreetMap is the only supported map provider.
  * OpenStreetMap doesn't require an API key but needs custom User-Agent headers for tile requests.
  *
  * @param {Object} mapConfig
- * @returns googleMapsAPIKey, mapboxAccessToken, or true for openStreetMap
+ * @returns true for openStreetMap
  */
 export const getMapProviderApiAccess = (mapConfig) => {
-  const { mapProvider } = mapConfig;
-
-  if (mapProvider === 'googleMaps') {
-    return mapConfig.googleMapsAPIKey;
-  } else if (mapProvider === 'openStreetMap') {
-    return true;
-  } else {
-    return mapConfig.mapboxAccessToken;
-  }
+  return true;
 };
 
 /**
@@ -235,7 +227,7 @@ export const getMapProviderApiAccess = (mapConfig) => {
  * @param {Object} params - Parameters for generating the URL
  * @param {LatLng|null} params.geolocation - The geolocation coordinates
  * @param {string|null} params.address - The address string
- * @param {string} params.mapProvider - The map provider ('googleMaps', 'mapbox', 'openStreetMap')
+ * @param {string} params.mapProvider - The map provider (only 'openStreetMap' is supported)
  * @returns {string|null} - URL to view the location on the external map site, or null if no location provided
  */
 export const generateExternalMapUrl = ({
@@ -249,21 +241,8 @@ export const generateExternalMapUrl = ({
 
   const { lat, lng } = geolocation || {};
 
-  switch (mapProvider) {
-    case 'googleMaps':
-      return geolocation
-        ? `https://maps.google.com/?q=${lat},${lng}`
-        : `https://maps.google.com/?q=${encodeURIComponent(address)}`;
-
-    case 'openStreetMap':
-      return geolocation
-        ? `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}&zoom=15`
-        : `https://www.openstreetmap.org/search?query=${encodeURIComponent(address)}`;
-
-    case 'mapbox':
-    default:
-      return geolocation
-        ? `https://maps.google.com/?q=${lat},${lng}`
-        : `https://maps.google.com/?q=${encodeURIComponent(address)}`;
-  }
+  // Only OpenStreetMap is supported
+  return geolocation
+    ? `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}&zoom=15`
+    : `https://www.openstreetmap.org/search?query=${encodeURIComponent(address)}`;
 };
