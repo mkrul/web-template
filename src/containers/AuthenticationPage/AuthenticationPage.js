@@ -20,8 +20,16 @@ import {
 } from '../../util/errors';
 import { pickUserFieldsData, addScopePrefix } from '../../util/userHelpers';
 
-import { login, authenticationInProgress, signup, signupWithIdp } from '../../ducks/auth.duck';
-import { isScrollingDisabled, manageDisableScrolling } from '../../ducks/ui.duck';
+import {
+  login,
+  authenticationInProgress,
+  signup,
+  signupWithIdp,
+} from '../../ducks/auth.duck';
+import {
+  isScrollingDisabled,
+  manageDisableScrolling,
+} from '../../ducks/ui.duck';
 import { sendVerificationEmail } from '../../ducks/user.duck';
 
 import {
@@ -44,6 +52,7 @@ import ConfirmSignupForm from './ConfirmSignupForm/ConfirmSignupForm';
 import LoginForm from './LoginForm/LoginForm';
 import SignupForm from './SignupForm/SignupForm';
 import EmailVerificationInfo from './EmailVerificationInfo';
+import AgreementModal from './AgreementModal/AgreementModal';
 
 // We need to get ToS asset and get it rendered for the modal on this page.
 import { TermsOfServiceContent } from '../../containers/TermsOfServicePage/TermsOfServicePage';
@@ -53,13 +62,16 @@ import { PrivacyPolicyContent } from '../../containers/PrivacyPolicyPage/Privacy
 
 import NotFoundPage from '../NotFoundPage/NotFoundPage';
 
-import { TOS_ASSET_NAME, PRIVACY_POLICY_ASSET_NAME } from './AuthenticationPage.duck';
+import {
+  TOS_ASSET_NAME,
+  PRIVACY_POLICY_ASSET_NAME,
+} from './AuthenticationPage.duck';
 
 import css from './AuthenticationPage.module.css';
 import { FacebookLogo, GoogleLogo } from './socialLoginLogos';
 
 // Social login buttons are needed by AuthenticationForms
-export const SocialLoginButtonsMaybe = props => {
+export const SocialLoginButtonsMaybe = (props) => {
   const routeConfiguration = useRouteConfiguration();
   const { isLogin, showFacebookLogin, showGoogleLogin, from, userType } = props;
   const showSocialLogins = showFacebookLogin || showGoogleLogin;
@@ -134,7 +146,9 @@ export const SocialLoginButtonsMaybe = props => {
 };
 
 const getNonUserFieldParams = (values, userFieldConfigs) => {
-  const userFieldKeys = userFieldConfigs.map(({ scope, key }) => addScopePrefix(scope, key));
+  const userFieldKeys = userFieldConfigs.map(({ scope, key }) =>
+    addScopePrefix(scope, key)
+  );
 
   return Object.entries(values).reduce((picked, [key, value]) => {
     const isUserFieldKey = userFieldKeys.includes(key);
@@ -149,7 +163,7 @@ const getNonUserFieldParams = (values, userFieldConfigs) => {
 };
 
 // Tabs for SignupForm and LoginForm
-export const AuthenticationForms = props => {
+export const AuthenticationForms = (props) => {
   const {
     isLogin,
     showFacebookLogin,
@@ -162,15 +176,22 @@ export const AuthenticationForms = props => {
     signupError,
     authInProgress,
     submitSignup,
-    termsAndConditions,
+    // Phase 2.1: Add new props for agreement modal flow
+    onOpenAgreementModal,
+    setPendingSignupData,
   } = props;
   const config = useConfiguration();
   const { userFields, userTypes = [] } = config.user;
-  const preselectedUserType = userTypes.find(conf => conf.userType === userType)?.userType || null;
+  const preselectedUserType =
+    userTypes.find((conf) => conf.userType === userType)?.userType || null;
 
   const fromMaybe = from ? { from } : null;
-  const signupRouteName = !!preselectedUserType ? 'SignupForUserTypePage' : 'SignupPage';
-  const userTypeMaybe = preselectedUserType ? { userType: preselectedUserType } : null;
+  const signupRouteName = !!preselectedUserType
+    ? 'SignupForUserTypePage'
+    : 'SignupPage';
+  const userTypeMaybe = preselectedUserType
+    ? { userType: preselectedUserType }
+    : null;
   const fromState = { state: { ...fromMaybe, ...userTypeMaybe } };
   const tabs = [
     {
@@ -200,9 +221,12 @@ export const AuthenticationForms = props => {
     },
   ];
 
-  const handleSubmitSignup = values => {
-    const { userType, email, password, fname, lname, displayName, ...rest } = values;
-    const displayNameMaybe = displayName ? { displayName: displayName.trim() } : {};
+  const handleSubmitSignup = (values) => {
+    const { userType, email, password, fname, lname, displayName, ...rest } =
+      values;
+    const displayNameMaybe = displayName
+      ? { displayName: displayName.trim() }
+      : {};
 
     const params = {
       email,
@@ -223,7 +247,9 @@ export const AuthenticationForms = props => {
       },
     };
 
-    submitSignup(params);
+    // Phase 2.1: Store signup data and show agreement modal instead of direct signup
+    setPendingSignupData(params);
+    onOpenAgreementModal();
   };
 
   const loginErrorMessage = (
@@ -252,10 +278,10 @@ export const AuthenticationForms = props => {
     isLogin && !!idpAuthError
       ? idpAuthErrorMessage
       : isLogin && !!loginError
-      ? loginErrorMessage
-      : !!signupError
-      ? signupErrorMessage
-      : null;
+        ? loginErrorMessage
+        : !!signupError
+          ? signupErrorMessage
+          : null;
 
   return (
     <div className={css.content}>
@@ -263,13 +289,16 @@ export const AuthenticationForms = props => {
       {loginOrSignupError}
 
       {isLogin ? (
-        <LoginForm className={css.loginForm} onSubmit={submitLogin} inProgress={authInProgress} />
+        <LoginForm
+          className={css.loginForm}
+          onSubmit={submitLogin}
+          inProgress={authInProgress}
+        />
       ) : (
         <SignupForm
           className={css.signupForm}
           onSubmit={handleSubmitSignup}
           inProgress={authInProgress}
-          termsAndConditions={termsAndConditions}
           preselectedUserType={preselectedUserType}
           userTypes={userTypes}
           userFields={userFields}
@@ -289,22 +318,27 @@ export const AuthenticationForms = props => {
 
 // Form for confirming information from IdP (e.g. Facebook)
 // This is shown before new user is created to Marketplace API
-const ConfirmIdProviderInfoForm = props => {
+const ConfirmIdProviderInfoForm = (props) => {
   const {
     userType,
     authInfo,
     authInProgress,
     confirmError,
     submitSingupWithIdp,
-    termsAndConditions,
+    // Phase 2.1: Add new props for agreement modal flow
+    onOpenAgreementModal,
+    setPendingSignupData,
   } = props;
   const config = useConfiguration();
   const { userFields, userTypes } = config.user;
-  const preselectedUserType = userTypes.find(conf => conf.userType === userType)?.userType || null;
+  const preselectedUserType =
+    userTypes.find((conf) => conf.userType === userType)?.userType || null;
 
-  const idp = authInfo ? authInfo.idpId.replace(/^./, str => str.toUpperCase()) : null;
+  const idp = authInfo
+    ? authInfo.idpId.replace(/^./, (str) => str.toUpperCase())
+    : null;
 
-  const handleSubmitConfirm = values => {
+  const handleSubmitConfirm = (values) => {
     const { idpToken, email, firstName, lastName, idpId } = authInfo;
 
     const {
@@ -316,7 +350,9 @@ const ConfirmIdProviderInfoForm = props => {
       ...rest
     } = values;
 
-    const displayNameMaybe = displayName ? { displayName: displayName.trim() } : {};
+    const displayNameMaybe = displayName
+      ? { displayName: displayName.trim() }
+      : {};
 
     // Pass email, fistName or lastName to Marketplace API only if user has edited them
     // and they can't be fetched directly from idp provider (e.g. Facebook)
@@ -345,13 +381,17 @@ const ConfirmIdProviderInfoForm = props => {
         }
       : {};
 
-    submitSingupWithIdp({
+    // Phase 2.1: Store IdP signup data and show agreement modal instead of direct signup
+    const params = {
       idpToken,
       idpId,
       ...authParams,
       ...displayNameMaybe,
       ...extendedDataMaybe,
-    });
+    };
+
+    setPendingSignupData({ type: 'idp', data: params });
+    onOpenAgreementModal();
   };
 
   const confirmErrorMessage = confirmError ? (
@@ -367,7 +407,10 @@ const ConfirmIdProviderInfoForm = props => {
   return (
     <div className={css.content}>
       <Heading as="h1" rootClassName={css.signupWithIdpTitle}>
-        <FormattedMessage id="AuthenticationPage.confirmSignupWithIdpTitle" values={{ idp }} />
+        <FormattedMessage
+          id="AuthenticationPage.confirmSignupWithIdpTitle"
+          values={{ idp }}
+        />
       </Heading>
 
       <p className={css.confirmInfoText}>
@@ -378,7 +421,6 @@ const ConfirmIdProviderInfoForm = props => {
         className={css.form}
         onSubmit={handleSubmitConfirm}
         inProgress={authInProgress}
-        termsAndConditions={termsAndConditions}
         authInfo={authInfo}
         idp={idp}
         preselectedUserType={preselectedUserType}
@@ -389,7 +431,7 @@ const ConfirmIdProviderInfoForm = props => {
   );
 };
 
-export const AuthenticationOrConfirmInfoForm = props => {
+export const AuthenticationOrConfirmInfoForm = (props) => {
   const {
     tab,
     userType,
@@ -406,6 +448,9 @@ export const AuthenticationOrConfirmInfoForm = props => {
     signupError,
     confirmError,
     termsAndConditions,
+    // Phase 2.1: Add new props for agreement modal flow
+    onOpenAgreementModal,
+    setPendingSignupData,
   } = props;
   const isConfirm = tab === 'confirm';
   const isLogin = tab === 'login';
@@ -417,7 +462,8 @@ export const AuthenticationOrConfirmInfoForm = props => {
       submitSingupWithIdp={submitSingupWithIdp}
       authInProgress={authInProgress}
       confirmError={confirmError}
-      termsAndConditions={termsAndConditions}
+      onOpenAgreementModal={onOpenAgreementModal}
+      setPendingSignupData={setPendingSignupData}
     />
   ) : (
     <AuthenticationForms
@@ -432,7 +478,8 @@ export const AuthenticationOrConfirmInfoForm = props => {
       submitLogin={submitLogin}
       authInProgress={authInProgress}
       submitSignup={submitSignup}
-      termsAndConditions={termsAndConditions}
+      onOpenAgreementModal={onOpenAgreementModal}
+      setPendingSignupData={setPendingSignupData}
     ></AuthenticationForms>
   );
 };
@@ -448,8 +495,9 @@ const getAuthErrorFromCookies = () => {
     : null;
 };
 
-const BlankPage = props => {
-  const { schemaTitle, schemaDescription, scrollingDisabled, topbarClasses } = props;
+const BlankPage = (props) => {
+  const { schemaTitle, schemaDescription, scrollingDisabled, topbarClasses } =
+    props;
   return (
     <Page
       title={schemaTitle}
@@ -503,15 +551,43 @@ const BlankPage = props => {
  * @param {boolean} props.scrollingDisabled - Whether the scrolling is disabled
  * @returns {JSX.Element}
  */
-export const AuthenticationPageComponent = props => {
+export const AuthenticationPageComponent = (props) => {
   const [tosModalOpen, setTosModalOpen] = useState(false);
   const [privacyModalOpen, setPrivacyModalOpen] = useState(false);
   const [authInfo, setAuthInfo] = useState(getAuthInfoFromCookies());
   const [authError, setAuthError] = useState(getAuthErrorFromCookies());
   const [mounted, setMounted] = useState(false);
 
+  // Phase 2.1: Add new state for agreement modal
+  const [agreementModalOpen, setAgreementModalOpen] = useState(false);
+  const [pendingSignupData, setPendingSignupData] = useState(null);
+
   const config = useConfiguration();
   const intl = useIntl();
+
+  // Destructure props early to avoid initialization errors
+  const {
+    authInProgress,
+    currentUser,
+    isAuthenticated,
+    location,
+    params: pathParams,
+    loginError,
+    scrollingDisabled,
+    signupError,
+    submitLogin,
+    submitSignup,
+    confirmError,
+    submitSignupWithIdp,
+    tab = 'signup',
+    sendVerificationEmailInProgress,
+    sendVerificationEmailError,
+    onResendVerificationEmail,
+    onManageDisableScrolling,
+    tosAssetsData,
+    tosFetchInProgress,
+    tosFetchError,
+  } = props;
 
   useEffect(() => {
     // Remove the autherror cookie once the content is saved to state
@@ -525,30 +601,41 @@ export const AuthenticationPageComponent = props => {
   // On mobile, it's better to scroll to top.
   useEffect(() => {
     window.scrollTo(0, 0);
-  }, [tosModalOpen, privacyModalOpen]);
+  }, [tosModalOpen, privacyModalOpen, agreementModalOpen]);
 
-  const {
-    authInProgress,
-    currentUser,
-    isAuthenticated,
-    location,
-    params: pathParams,
-    loginError,
-    scrollingDisabled,
-    signupError,
-    submitLogin,
-    submitSignup,
-    confirmError,
-    submitSingupWithIdp,
-    tab = 'signup',
-    sendVerificationEmailInProgress,
-    sendVerificationEmailError,
-    onResendVerificationEmail,
-    onManageDisableScrolling,
-    tosAssetsData,
-    tosFetchInProgress,
-    tosFetchError,
-  } = props;
+  // Phase 2.3: Clean up agreement modal state when authentication succeeds
+  useEffect(() => {
+    if (isAuthenticated && agreementModalOpen) {
+      // Authentication succeeded, close the modal and clear pending data
+      setAgreementModalOpen(false);
+      setPendingSignupData(null);
+    }
+  }, [isAuthenticated, agreementModalOpen]);
+
+  // Phase 2.1: Define callback functions for agreement modal
+  const handleOpenAgreementModal = () => {
+    setAgreementModalOpen(true);
+  };
+
+  const handleCloseAgreementModal = () => {
+    if (!authInProgress) {
+      // Only allow closing if not in the middle of signup process
+      setAgreementModalOpen(false);
+      setPendingSignupData(null);
+    }
+  };
+
+  const handleAcceptAgreement = (userInfo) => {
+    if (pendingSignupData?.type === 'idp') {
+      // Handle IdP signup
+      submitSignupWithIdp(pendingSignupData.data);
+    } else {
+      // Handle regular signup
+      submitSignup(pendingSignupData);
+    }
+    setAgreementModalOpen(false);
+    setPendingSignupData(null);
+  };
 
   // History API has potentially state tied to this route
   // We have used that state to store previous URL ("from"),
@@ -559,11 +646,14 @@ export const AuthenticationPageComponent = props => {
 
   const isConfirm = tab === 'confirm';
   const userTypeInPushState = location.state?.userType || null;
-  const userTypeInAuthInfo = isConfirm && authInfo?.userType ? authInfo?.userType : null;
-  const userType = pathParams?.userType || userTypeInPushState || userTypeInAuthInfo || null;
+  const userTypeInAuthInfo =
+    isConfirm && authInfo?.userType ? authInfo?.userType : null;
+  const userType =
+    pathParams?.userType || userTypeInPushState || userTypeInAuthInfo || null;
 
   const { userTypes = [] } = config.user;
-  const preselectedUserType = userTypes.find(conf => conf.userType === userType)?.userType || null;
+  const preselectedUserType =
+    userTypes.find((conf) => conf.userType === userType)?.userType || null;
   const show404 = userType && !preselectedUserType;
 
   const user = ensureCurrentUser(currentUser);
@@ -574,15 +664,28 @@ export const AuthenticationPageComponent = props => {
   // tab if the user isn't being redirected somewhere else
   // (i.e. `from` is present). We must also check the `emailVerified`
   // flag only when the current user is fully loaded.
-  const showEmailVerification = !isLogin && currentUserLoaded && !user.attributes.emailVerified;
+  const showEmailVerification =
+    !isLogin && currentUserLoaded && !user.attributes.emailVerified;
 
   const marketplaceName = config.marketplaceName;
   const schemaTitle = isLogin
-    ? intl.formatMessage({ id: 'AuthenticationPage.schemaTitleLogin' }, { marketplaceName })
-    : intl.formatMessage({ id: 'AuthenticationPage.schemaTitleSignup' }, { marketplaceName });
+    ? intl.formatMessage(
+        { id: 'AuthenticationPage.schemaTitleLogin' },
+        { marketplaceName }
+      )
+    : intl.formatMessage(
+        { id: 'AuthenticationPage.schemaTitleSignup' },
+        { marketplaceName }
+      );
   const schemaDescription = isLogin
-    ? intl.formatMessage({ id: 'AuthenticationPage.schemaDescriptionLogin' }, { marketplaceName })
-    : intl.formatMessage({ id: 'AuthenticationPage.schemaDescriptionSignup' }, { marketplaceName });
+    ? intl.formatMessage(
+        { id: 'AuthenticationPage.schemaDescriptionLogin' },
+        { marketplaceName }
+      )
+    : intl.formatMessage(
+        { id: 'AuthenticationPage.schemaDescriptionSignup' },
+        { marketplaceName }
+      );
   const topbarClasses = classNames({
     [css.hideOnMobile]: showEmailVerification,
   });
@@ -667,7 +770,7 @@ export const AuthenticationPageComponent = props => {
               showGoogleLogin={!!process.env.REACT_APP_GOOGLE_CLIENT_ID}
               submitLogin={submitLogin}
               submitSignup={submitSignup}
-              submitSingupWithIdp={submitSingupWithIdp}
+              submitSignupWithIdp={submitSignupWithIdp}
               authInProgress={authInProgress}
               loginError={loginError}
               idpAuthError={authError}
@@ -680,6 +783,8 @@ export const AuthenticationPageComponent = props => {
                   intl={intl}
                 />
               }
+              onOpenAgreementModal={handleOpenAgreementModal}
+              setPendingSignupData={setPendingSignupData}
             />
           )}
         </ResponsiveBackgroundImageContainer>
@@ -714,20 +819,44 @@ export const AuthenticationPageComponent = props => {
           />
         </div>
       </Modal>
+      <AgreementModal
+        id="AuthenticationPage.agreement"
+        isOpen={agreementModalOpen}
+        onClose={handleCloseAgreementModal}
+        onAccept={handleAcceptAgreement}
+        onManageDisableScrolling={onManageDisableScrolling}
+        tosContent={
+          <TermsOfServiceContent
+            inProgress={tosFetchInProgress}
+            error={tosFetchError}
+            data={tosAssetsData?.[camelize(TOS_ASSET_NAME)]?.data}
+          />
+        }
+        userInfo={pendingSignupData}
+        onAcceptInProgress={authInProgress}
+        onAcceptError={signupError || confirmError}
+      />
     </Page>
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   const { isAuthenticated, loginError, signupError, confirmError } = state.auth;
-  const { currentUser, sendVerificationEmailInProgress, sendVerificationEmailError } = state.user;
+  const {
+    currentUser,
+    sendVerificationEmailInProgress,
+    sendVerificationEmailError,
+  } = state.user;
   const {
     pageAssetsData: privacyAssetsData,
     inProgress: privacyFetchInProgress,
     error: privacyFetchError,
   } = state.hostedAssets || {};
-  const { pageAssetsData: tosAssetsData, inProgress: tosFetchInProgress, error: tosFetchError } =
-    state.hostedAssets || {};
+  const {
+    pageAssetsData: tosAssetsData,
+    inProgress: tosFetchInProgress,
+    error: tosFetchError,
+  } = state.hostedAssets || {};
 
   return {
     authInProgress: authenticationInProgress(state),
@@ -748,10 +877,10 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   submitLogin: ({ email, password }) => dispatch(login(email, password)),
-  submitSignup: params => dispatch(signup(params)),
-  submitSingupWithIdp: params => dispatch(signupWithIdp(params)),
+  submitSignup: (params) => dispatch(signup(params)),
+  submitSignupWithIdp: (params) => dispatch(signupWithIdp(params)),
   onResendVerificationEmail: () => dispatch(sendVerificationEmail()),
   onManageDisableScrolling: (componentId, disableScrolling) =>
     dispatch(manageDisableScrolling(componentId, disableScrolling)),
@@ -765,10 +894,7 @@ const mapDispatchToProps = dispatch => ({
 // See: https://github.com/ReactTraining/react-router/issues/4671
 const AuthenticationPage = compose(
   withRouter,
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
+  connect(mapStateToProps, mapDispatchToProps)
 )(AuthenticationPageComponent);
 
 export default AuthenticationPage;

@@ -1,0 +1,160 @@
+@import '../../../styles/customMediaQueries.css';
+
+.root {
+  composes: marketplaceModalBaseStyles from global;
+  padding-top: 70px;
+
+  @media (--viewportMedium) {
+    flex-basis: 567px;
+    min-height: 700px;
+  }
+}
+
+.modalContent {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  flex-grow: 1;
+
+  /* Handle mobile viewport safely */
+  /* Support for devices with notches */
+  padding-left: env(safe-area-inset-left, 0);
+  padding-right: env(safe-area-inset-right, 0);
+
+  /* Ensure content doesn't get cut off on smaller screens */
+  min-height: calc(100vh - 200px);
+
+  @media (--viewportMedium) {
+    min-height: auto;
+    padding-left: 0;
+    padding-right: 0;
+  }
+}
+
+/* Title of the modal */
+.modalTitle {
+  composes: marketplaceModalTitleStyles from global;
+  flex-shrink: 0;
+}
+
+/* Scrollable ToS content area */
+.tosContent {
+  flex-grow: 1;
+  overflow-y: auto;
+  margin: 24px 0;
+  padding: 16px;
+  border: 1px solid var(--colorGrey300);
+  border-radius: var(--borderRadius);
+  background-color: var(--colorGrey50);
+  min-height: 200px;
+  max-height: 300px;
+
+  /* Enhanced mobile scrolling behavior */
+  -webkit-overflow-scrolling: touch;
+  /* Prevent zoom on iOS when focusing */
+  -webkit-text-size-adjust: 100%;
+  /* Improve scroll performance on mobile */
+  will-change: scroll-position;
+
+  /* Adaptive height for small mobile screens */
+  @media (max-height: 600px) {
+    max-height: 180px;
+    min-height: 120px;
+  }
+
+  @media (max-height: 500px) {
+    max-height: 140px;
+    min-height: 100px;
+  }
+
+  /* Focus styling for accessibility */
+  &:focus {
+    outline: none;
+    border-color: var(--marketplaceColor);
+    box-shadow: 0 0 0 3px rgba(var(--marketplaceColorRGB), 0.1);
+  }
+
+  @media (--viewportMedium) {
+    margin: 30px 0;
+    padding: 20px;
+    max-height: 350px;
+  }
+}
+
+.formRoot {
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+
+  /* Layout: size and positioning */
+  width: 100%;
+  height: auto;
+  margin-top: 24px;
+
+  /* Handle mobile keyboard appearance */
+  /* Ensure form remains accessible when virtual keyboard appears */
+  position: relative;
+  z-index: 1;
+
+  @media (--viewportMedium) {
+    margin-top: 30px;
+  }
+}
+
+.agreementCheckbox {
+  margin-bottom: 16px;
+
+  /* Improve touch interaction on mobile */
+  & label {
+    touch-action: manipulation;
+    /* Ensure adequate touch target size */
+    min-height: 44px;
+    display: flex;
+    align-items: center;
+  }
+
+  @media (--viewportMedium) {
+    margin-bottom: 20px;
+
+    & label {
+      min-height: auto;
+    }
+  }
+}
+
+.errorPlaceholder {
+  color: var(--colorFail);
+  min-height: 24px;
+  margin: 0;
+
+  @media (--viewportMedium) {
+    margin: 0;
+    width: 100%;
+    min-height: 32px;
+  }
+}
+
+.submitButton {
+  margin-top: auto;
+  margin-bottom: 96px;
+  flex-shrink: 0;
+
+  /* Ensure button is accessible on mobile */
+  min-height: 44px;
+  /* Improve touch target for mobile */
+  touch-action: manipulation;
+
+  @media (--viewportMedium) {
+    display: inline-block;
+    width: 100%;
+    margin-top: 36px;
+    margin-bottom: 0;
+    min-height: auto;
+  }
+}
