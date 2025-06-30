@@ -22,7 +22,6 @@ export const IncludeScripts = (props) => {
   const { mapProvider, googleMapsAPIKey, mapboxAccessToken } = maps || {};
   const isGoogleMapsInUse = mapProvider === 'googleMaps';
   const isMapboxInUse = mapProvider === 'mapbox';
-  const isOpenStreetMapInUse = mapProvider === 'openStreetMap';
 
   // Add Google Analytics script if correct id exists (it should start with 'G-' prefix)
   // See: https://developers.google.com/analytics/devguides/collection/gtagjs
@@ -70,27 +69,6 @@ export const IncludeScripts = (props) => {
         key="GoogleMapsApi"
         src={`https://maps.googleapis.com/maps/api/js?key=${googleMapsAPIKey}&libraries=places`}
         crossOrigin
-      ></script>
-    );
-  } else if (isOpenStreetMapInUse) {
-    // Add CSS for Leaflet (OpenStreetMap)
-    mapLibraries.push(
-      <link
-        key="leaflet_CSS"
-        href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
-        rel="stylesheet"
-        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY="
-        crossOrigin=""
-      />
-    );
-
-    // Add JavaScript for Leaflet (OpenStreetMap)
-    mapLibraries.push(
-      <script
-        key="leaflet_JS"
-        src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
-        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo="
-        crossOrigin=""
       ></script>
     );
   }

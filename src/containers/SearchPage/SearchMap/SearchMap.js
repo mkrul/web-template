@@ -15,7 +15,6 @@ import {
 import { hasParentWithClassName } from './SearchMap.helpers.js';
 import * as searchMapMapbox from './SearchMapWithMapbox';
 import * as searchMapGoogleMaps from './SearchMapWithGoogleMaps';
-import * as searchMapOpenStreetMap from './SearchMapWithOpenStreetMap';
 import ReusableMapContainer from './ReusableMapContainer';
 import css from './SearchMap.module.css';
 
@@ -23,12 +22,9 @@ const REUSABLE_MAP_HIDDEN_HANDLE = 'reusableMapHidden';
 
 const getSearchMapVariant = (mapProvider) => {
   const isGoogleMapsInUse = mapProvider === 'googleMaps';
-  const isOpenStreetMapInUse = mapProvider === 'openStreetMap';
 
   if (isGoogleMapsInUse) {
     return searchMapGoogleMaps;
-  } else if (isOpenStreetMapInUse) {
-    return searchMapOpenStreetMap;
   } else {
     return searchMapMapbox;
   }

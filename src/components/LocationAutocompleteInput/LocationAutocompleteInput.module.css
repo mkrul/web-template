@@ -77,11 +77,6 @@ size and position, etc.
   padding-bottom: 8px;
 }
 
-.predictionsRootOpenStreetMap {
-  /* OpenStreetMap doesn't require any logo attribution in the autocomplete like Google Maps */
-  padding-bottom: 8px;
-}
-
 /*
 The Google Maps API TOS requires us to show a Powered by Google logo
 next to the autocomplete service predictions. It is rendered to the
