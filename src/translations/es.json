@@ -1,4 +1,5 @@
 {
+  "AddressLinkMaybe.viewOnGoogleMaps": "Ver en Google Maps",
   "AddressLinkMaybe.viewOnMap": "Ver en mapa",
   "AuthenticationPage.confirmSignupInfoText": "Por favor, verifica que tu información sea correcta",
   "AuthenticationPage.confirmSignupWithIdpTitle": "Regístrate con {idp}",

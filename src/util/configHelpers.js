@@ -336,29 +336,42 @@ const validVariantConfig = (
 };
 
 const mergeLayouts = (layoutConfig, defaultLayout) => {
-  const { variantType, ...rest } = layoutConfig || {};
-  const variants = ['cropImage', 'coverImage'];
-  const [isValidVariant, layoutVariant] = validVariantConfig(
-    layoutConfig,
-    defaultLayout,
-    variants,
-    'cropImage'
+  const searchPage = validVariantConfig(
+    layoutConfig?.searchPage,
+    defaultLayout?.searchPage,
+    ['map', 'grid'],
+    { variantType: 'grid' }
   );
 
-  if (!isValidVariant) {
-    return defaultLayout;
-  }
+  const listingPage = validVariantConfig(
+    layoutConfig?.listingPage,
+    defaultLayout?.listingPage,
+    ['coverPhoto', 'carousel'],
+    { variantType: 'carousel' }
+  );
+
+  const listingImage = validVariantConfig(
+    layoutConfig?.listingImage,
+    defaultLayout?.listingImage,
+    ['cropImage'],
+    {
+      variantType: 'cropImage',
+      aspectWidth: 1,
+      aspectHeight: 1,
+      variantPrefix: 'listing-card',
+    }
+  );
 
   return {
-    ...defaultLayout,
-    ...layoutVariant,
-    ...rest,
+    searchPage,
+    listingPage,
+    listingImage,
   };
 };
 
-//////////////////////////////////////
+////////////////////////////////////
 // Validate listing fields config //
-//////////////////////////////////////
+////////////////////////////////////
 
 // Validate enum type strings (if default value is given, value is considered optional)
 const validEnumString = (key, value, options, defaultOption) => {
@@ -579,7 +592,7 @@ const validSchemaOptions = (enumOptions, schemaType) => {
 const filterTypes = ['SelectSingleFilter', 'SelectMultipleFilter'];
 const validFilterType = (filterType, schemaType) => {
   const isEnumSchemaType = ['enum', 'multi-enum'].includes(schemaType);
-  const isUndefined = typeof filterType === 'undefined';
+  const isUndefined = typeof searchMode === 'undefined';
   const isKnownFilterType = filterTypes.includes(filterType);
   const shouldHaveFilterType =
     isEnumSchemaType && (isKnownFilterType || isUndefined);
@@ -976,9 +989,9 @@ const validUserFields = (userFields, userTypesInUse) => {
   }, []);
 };
 
-////////////////////////////////////
+///////////////////////////////////
 // Validate listing types config //
-////////////////////////////////////
+///////////////////////////////////
 
 const validListingTypes = (listingTypes) => {
   // Check what transaction processes this client app supports
@@ -1610,15 +1623,30 @@ const getListingMinimumPrice = (transactionSize) => {
 // Validate and merge map configs //
 ////////////////////////////////////
 const mergeMapConfig = (hostedMapConfig, defaultMapConfig) => {
-  const { ...restOfDefault } = defaultMapConfig;
-  const mapProviderPicked = 'openStreetMap';
+  const { mapProvider, mapboxAccessToken, googleMapsAPIKey, ...restOfDefault } =
+    defaultMapConfig;
+  // const mapProviderPicked = hostedMapConfig?.provider || mapProvider;
+  const mapProviderPicked = mapProvider;
+  const mapboxAccessTokenPicked =
+    hostedMapConfig?.mapboxAccessToken || mapboxAccessToken;
+  const googleMapsAPIKeyPicked =
+    hostedMapConfig?.googleMapsApiKey || googleMapsAPIKey;
 
-  // OpenStreetMap doesn't require an API key
-  const hasApiAccess = true;
+  const hasApiAccess =
+    mapProviderPicked === 'googleMaps'
+      ? !!googleMapsAPIKeyPicked
+      : !!mapboxAccessTokenPicked;
+  if (!hasApiAccess) {
+    console.error(
+      `The access tokens are not in place for the selected map provider (${mapProviderPicked})`
+    );
+  }
 
   return {
     ...restOfDefault,
     mapProvider: mapProviderPicked,
+    mapboxAccessToken: mapboxAccessTokenPicked,
+    googleMapsAPIKey: googleMapsAPIKeyPicked,
   };
 };
 

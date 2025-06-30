@@ -155,6 +155,7 @@ export class SearchPageComponent extends Component {
     // If mapSearch url param is given
     // or original location search is rendered once,
     // we start to react to "mapmoveend" events by generating new searches
+    // (i.e. 'moveend' event in Mapbox and 'bounds_changed' in Google Maps)
     if (viewportBoundsChanged && isSearchPage) {
       const { history, location, config } = this.props;
       const { listingFields: listingFieldsConfig } = config?.listing || {};

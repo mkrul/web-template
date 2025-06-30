@@ -2,10 +2,7 @@ import React, { act } from 'react';
 import '@testing-library/jest-dom';
 
 import { fakeIntl } from '../../../../util/testData';
-import {
-  renderWithProviders as render,
-  testingLibrary,
-} from '../../../../util/testHelpers';
+import { renderWithProviders as render, testingLibrary } from '../../../../util/testHelpers';
 
 import EditListingLocationForm from './EditListingLocationForm';
 
@@ -15,6 +12,17 @@ const noop = () => null;
 
 beforeAll(() => {
   // Mock window.scroll - otherwise, Jest/JSDOM will print a not-implemented error.
+  window.mapboxgl = { accessToken: 'test' };
+  window.mapboxSdk = () => ({
+    geocoding: {
+      forwardGeocode: () => ({
+        send: () =>
+          Promise.resolve({
+            body: { features: [] },
+          }),
+      }),
+    },
+  });
 });
 
 describe('EditListingDeliveryForm', () => {
@@ -46,10 +54,7 @@ describe('EditListingDeliveryForm', () => {
     expect(screen.getByRole('button', { name: saveActionMsg })).toBeDisabled();
 
     await act(async () => {
-      userEvent.type(
-        screen.getByTestId('location-search'),
-        'Erottajankatu 19, Helsinki'
-      );
+      userEvent.type(screen.getByTestId('location-search'), 'Erottajankatu 19, Helsinki');
       userEvent.type(screen.getByRole('textbox', { name: building }), 'B');
     });
   });

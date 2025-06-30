@@ -18,7 +18,7 @@ import SearchMapPriceLabel from '../SearchMapPriceLabel/SearchMapPriceLabel';
 import SearchMapInfoCard from '../SearchMapInfoCard/SearchMapInfoCard';
 import SearchMapGroupLabel from '../SearchMapGroupLabel/SearchMapGroupLabel';
 import { groupedByCoordinates, reducedToArray } from './SearchMap.helpers';
-import css from './SearchMap.module.css';
+import css from './SearchMapWithMapbox.module.css';
 
 export const LABEL_HANDLE = 'SearchMapLabel';
 export const INFO_CARD_HANDLE = 'SearchMapInfoCard';
@@ -499,6 +499,7 @@ class SearchMapWithOpenStreetMap extends Component {
       // Store map reference globally for reuse
       window.leafletMap = this.map;
 
+      // Add zoom control to top-left to match Mapbox behavior
       this.map.zoomControl.setPosition('topleft');
 
       this.map.on('moveend', this.onMoveend);

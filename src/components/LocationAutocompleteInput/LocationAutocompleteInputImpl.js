@@ -10,6 +10,8 @@ import { IconSpinner } from '../../components';
 import IconHourGlass from './IconHourGlass';
 import IconCurrentLocation from './IconCurrentLocation';
 import * as geocoderOpenStreetMap from './GeocoderOpenStreetMap';
+import * as geocoderMapbox from './GeocoderMapbox';
+import * as geocoderGoogleMaps from './GeocoderGoogleMaps';
 
 import css from './LocationAutocompleteInput.module.css';
 
@@ -33,9 +35,14 @@ const getTouchCoordinates = (nativeEvent) => {
   return touch ? { x: touch.screenX, y: touch.screenY } : null;
 };
 
-// Get geocoding variant - now only OpenStreetMap is supported
-const getGeocoderVariant = () => {
-  return geocoderOpenStreetMap;
+// Get correct geocoding variant: geocoderGoogleMaps, geocoderMapbox, or geocoderOpenStreetMap
+const getGeocoderVariant = (mapProvider) => {
+  if (mapProvider === 'googleMaps') {
+    return geocoderGoogleMaps;
+  } else if (mapProvider === 'openStreetMap') {
+    return geocoderOpenStreetMap;
+  }
+  return geocoderMapbox;
 };
 
 // Renders the autocompletion prediction results in a list
@@ -104,11 +111,14 @@ const LocationPredictionsList = (props) => {
 
   let predictionRootMapProviderClass;
   switch (mapProvider) {
+    case 'googleMaps':
+      predictionRootMapProviderClass = css.predictionsRootGoogle;
+      break;
     case 'openStreetMap':
       predictionRootMapProviderClass = css.predictionsRootOpenStreetMap;
       break;
     default:
-      predictionRootMapProviderClass = css.predictionsRootOpenStreetMap;
+      predictionRootMapProviderClass = css.predictionsRootMapbox;
       break;
   }
   const classes = classNames(
@@ -185,7 +195,9 @@ class LocationAutocompleteInputImplementation extends Component {
   }
 
   getGeocoder() {
-    const geocoderVariant = getGeocoderVariant();
+    const geocoderVariant = getGeocoderVariant(
+      this.props.config.maps.mapProvider
+    );
     const Geocoder = geocoderVariant.default;
 
     // Create the Geocoder as late as possible only when it is needed.
@@ -204,7 +216,7 @@ class LocationAutocompleteInputImplementation extends Component {
       fetchedPredictions && fetchedPredictions.length > 0;
     const showDefaultPredictions =
       !search && !hasFetchedPredictions && useDefaultPredictions;
-    const geocoderVariant = getGeocoderVariant();
+    const geocoderVariant = getGeocoderVariant(config.maps.mapProvider);
 
     // A list of default predictions that can be shown when the user
     // focuses on the autocomplete input without typing a search. This can
@@ -500,7 +512,7 @@ class LocationAutocompleteInputImplementation extends Component {
     // might want to hardcode this to `true`. Otherwise the dropdown
     // list will disappear.
     const renderPredictions = this.state.inputHasFocus;
-    const geocoderVariant = getGeocoderVariant();
+    const geocoderVariant = getGeocoderVariant(config.maps.mapProvider);
     const GeocoderAttribution = geocoderVariant.GeocoderAttribution;
     // The first ref option in this optional chain is about callback ref,
     // which was used in previous version of this Template.
@@ -552,6 +564,7 @@ class LocationAutocompleteInputImplementation extends Component {
             useDarkText={useDarkText}
             predictions={predictions}
             currentLocationId={geocoderVariant.CURRENT_LOCATION_ID}
+            mapProvider={config.maps.mapProvider}
             geocoder={this.getGeocoder()}
             highlightedIndex={this.state.highlightedIndex}
             onSelectStart={this.handlePredictionsSelectStart}
