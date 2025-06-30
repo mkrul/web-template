@@ -210,19 +210,16 @@ export const hasSameSDKBounds = (sdkBounds1, sdkBounds2) => {
 };
 
 /**
- * Return googleMapsAPIKey, mapboxAccessToken, or true depending on which map provider is selected.
- * OpenStreetMap doesn't require an API key but needs custom User-Agent headers for tile requests.
+ * Return googleMapsAPIKey or mapboxAccessToken depending on which map provider is selected.
  *
  * @param {Object} mapConfig
- * @returns googleMapsAPIKey, mapboxAccessToken, or true for openStreetMap
+ * @returns googleMapsAPIKey or mapboxAccessToken
  */
 export const getMapProviderApiAccess = (mapConfig) => {
   const { mapProvider } = mapConfig;
 
   if (mapProvider === 'googleMaps') {
     return mapConfig.googleMapsAPIKey;
-  } else if (mapProvider === 'openStreetMap') {
-    return true;
   } else {
     return mapConfig.mapboxAccessToken;
   }
@@ -235,7 +232,7 @@ export const getMapProviderApiAccess = (mapConfig) => {
  * @param {Object} params - Parameters for generating the URL
  * @param {LatLng|null} params.geolocation - The geolocation coordinates
  * @param {string|null} params.address - The address string
- * @param {string} params.mapProvider - The map provider ('googleMaps', 'mapbox', 'openStreetMap')
+ * @param {string} params.mapProvider - The map provider ('googleMaps', 'mapbox')
  * @returns {string|null} - URL to view the location on the external map site, or null if no location provided
  */
 export const generateExternalMapUrl = ({
@@ -254,11 +251,6 @@ export const generateExternalMapUrl = ({
       return geolocation
         ? `https://maps.google.com/?q=${lat},${lng}`
         : `https://maps.google.com/?q=${encodeURIComponent(address)}`;
-
-    case 'openStreetMap':
-      return geolocation
-        ? `https://www.openstreetmap.org/?mlat=${lat}&mlon=${lng}&zoom=15`
-        : `https://www.openstreetmap.org/search?query=${encodeURIComponent(address)}`;
 
     case 'mapbox':
     default:

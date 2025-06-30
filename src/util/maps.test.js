@@ -1,25 +1,16 @@
 import { getMapProviderApiAccess, generateExternalMapUrl } from './maps';
 import { calculateDistanceBetweenPoints, filterListingsByRadius } from './maps';
 
-describe('maps utilities for OpenStreetMap integration', () => {
+describe('maps utilities', () => {
   describe('getMapProviderApiAccess', () => {
-    it('returns true for openStreetMap provider', () => {
-      const mapConfig = {
-        mapProvider: 'openStreetMap',
-      };
-
-      const result = getMapProviderApiAccess(mapConfig);
-      expect(result).toBe(true);
-    });
-
-    it('returns true for googleMaps provider (OpenStreetMap only)', () => {
+    it('returns googleMapsAPIKey for googleMaps provider', () => {
       const mapConfig = {
         mapProvider: 'googleMaps',
         googleMapsAPIKey: 'test-google-key',
       };
 
       const result = getMapProviderApiAccess(mapConfig);
-      expect(result).toBe(true);
+      expect(result).toBe('test-google-key');
     });
 
     it('returns mapboxAccessToken for mapbox provider', () => {
@@ -44,40 +35,36 @@ describe('maps utilities for OpenStreetMap integration', () => {
   });
 
   describe('generateExternalMapUrl', () => {
-    describe('openStreetMap provider', () => {
-      it('generates URL with coordinates', () => {
+    describe('googleMaps provider', () => {
+      it('generates Google Maps URL with coordinates', () => {
         const params = {
           geolocation: { lat: 40.7128, lng: -74.006 },
-          mapProvider: 'openStreetMap',
+          mapProvider: 'googleMaps',
         };
 
         const result = generateExternalMapUrl(params);
-        expect(result).toBe(
-          'https://www.openstreetmap.org/?mlat=40.7128&mlon=-74.006&zoom=15'
-        );
+        expect(result).toBe('https://maps.google.com/?q=40.7128,-74.006');
       });
 
-      it('generates URL with address when no geolocation', () => {
+      it('generates Google Maps URL with address when no geolocation', () => {
         const params = {
           address: 'New York, NY',
-          mapProvider: 'openStreetMap',
+          mapProvider: 'googleMaps',
         };
 
         const result = generateExternalMapUrl(params);
-        expect(result).toBe(
-          'https://www.openstreetmap.org/search?query=New%20York%2C%20NY'
-        );
+        expect(result).toBe('https://maps.google.com/?q=New%20York%2C%20NY');
       });
 
       it('handles special characters in address', () => {
         const params = {
           address: 'Café & Restaurant, Paris',
-          mapProvider: 'openStreetMap',
+          mapProvider: 'googleMaps',
         };
 
         const result = generateExternalMapUrl(params);
         expect(result).toBe(
-          'https://www.openstreetmap.org/search?query=Caf%C3%A9%20%26%20Restaurant%2C%20Paris'
+          'https://maps.google.com/?q=Caf%C3%A9%20%26%20Restaurant%2C%20Paris'
         );
       });
 
@@ -85,63 +72,31 @@ describe('maps utilities for OpenStreetMap integration', () => {
         const params = {
           geolocation: { lat: 40.7128, lng: -74.006 },
           address: 'New York, NY',
-          mapProvider: 'openStreetMap',
+          mapProvider: 'googleMaps',
         };
 
         const result = generateExternalMapUrl(params);
-        expect(result).toBe(
-          'https://www.openstreetmap.org/?mlat=40.7128&mlon=-74.006&zoom=15'
-        );
+        expect(result).toBe('https://maps.google.com/?q=40.7128,-74.006');
       });
 
       it('handles negative coordinates', () => {
         const params = {
           geolocation: { lat: -33.8688, lng: 151.2093 }, // Sydney
-          mapProvider: 'openStreetMap',
+          mapProvider: 'googleMaps',
         };
 
         const result = generateExternalMapUrl(params);
-        expect(result).toBe(
-          'https://www.openstreetmap.org/?mlat=-33.8688&mlon=151.2093&zoom=15'
-        );
+        expect(result).toBe('https://maps.google.com/?q=-33.8688,151.2093');
       });
 
       it('handles zero coordinates', () => {
         const params = {
           geolocation: { lat: 0, lng: 0 },
-          mapProvider: 'openStreetMap',
-        };
-
-        const result = generateExternalMapUrl(params);
-        expect(result).toBe(
-          'https://www.openstreetmap.org/?mlat=0&mlon=0&zoom=15'
-        );
-      });
-    });
-
-    describe('googleMaps provider (uses OpenStreetMap)', () => {
-      it('generates OpenStreetMap URL with coordinates', () => {
-        const params = {
-          geolocation: { lat: 40.7128, lng: -74.006 },
           mapProvider: 'googleMaps',
         };
 
         const result = generateExternalMapUrl(params);
-        expect(result).toBe(
-          'https://www.openstreetmap.org/?mlat=40.7128&mlon=-74.006&zoom=15'
-        );
-      });
-
-      it('generates OpenStreetMap URL with address when no geolocation', () => {
-        const params = {
-          address: 'New York, NY',
-          mapProvider: 'googleMaps',
-        };
-
-        const result = generateExternalMapUrl(params);
-        expect(result).toBe(
-          'https://www.openstreetmap.org/search?query=New%20York%2C%20NY'
-        );
+        expect(result).toBe('https://maps.google.com/?q=0,0');
       });
     });
 
@@ -155,12 +110,22 @@ describe('maps utilities for OpenStreetMap integration', () => {
         const result = generateExternalMapUrl(params);
         expect(result).toBe('https://maps.google.com/?q=40.7128,-74.006');
       });
+
+      it('falls back to Google Maps URL format with address', () => {
+        const params = {
+          address: 'New York, NY',
+          mapProvider: 'mapbox',
+        };
+
+        const result = generateExternalMapUrl(params);
+        expect(result).toBe('https://maps.google.com/?q=New%20York%2C%20NY');
+      });
     });
 
     describe('edge cases', () => {
       it('returns null when no geolocation and no address', () => {
         const params = {
-          mapProvider: 'openStreetMap',
+          mapProvider: 'googleMaps',
         };
 
         const result = generateExternalMapUrl(params);
@@ -171,7 +136,7 @@ describe('maps utilities for OpenStreetMap integration', () => {
         const params = {
           geolocation: null,
           address: null,
-          mapProvider: 'openStreetMap',
+          mapProvider: 'googleMaps',
         };
 
         const result = generateExternalMapUrl(params);
@@ -182,7 +147,7 @@ describe('maps utilities for OpenStreetMap integration', () => {
         const params = {
           geolocation: undefined,
           address: undefined,
-          mapProvider: 'openStreetMap',
+          mapProvider: 'googleMaps',
         };
 
         const result = generateExternalMapUrl(params);
@@ -192,11 +157,11 @@ describe('maps utilities for OpenStreetMap integration', () => {
       it('handles empty string address', () => {
         const params = {
           address: '',
-          mapProvider: 'openStreetMap',
+          mapProvider: 'googleMaps',
         };
 
         const result = generateExternalMapUrl(params);
-        expect(result).toBe('https://www.openstreetmap.org/search?query=');
+        expect(result).toBe('https://maps.google.com/?q=');
       });
     });
   });
