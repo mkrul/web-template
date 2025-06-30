@@ -10,6 +10,7 @@ import { propTypes } from '../../../util/types';
 import {
   obfuscatedCoordinates,
   getMapProviderApiAccess,
+  filterListingsByRadius,
 } from '../../../util/maps';
 
 import { hasParentWithClassName } from './SearchMap.helpers.js';
@@ -177,12 +178,19 @@ export class SearchMapComponent extends Component {
     const listingsWithLocation = listingsArray.filter(
       (l) => !!l.attributes.geolocation
     );
+
+    // Filter listings by 100-mile radius if center is provided (address-based search)
+    const radiusFilteredListings =
+      center && center.lat && center.lng
+        ? filterListingsByRadius(listingsWithLocation, center, 160934) // 100 miles in meters
+        : listingsWithLocation;
+
     const listings = config.maps.fuzzy.enabled
       ? withCoordinatesObfuscated(
-          listingsWithLocation,
+          radiusFilteredListings,
           config.maps.fuzzy.offset
         )
-      : listingsWithLocation;
+      : radiusFilteredListings;
     const infoCardOpen = this.state.infoCardOpen;
 
     const forceUpdateHandler = () => {
