@@ -8,7 +8,12 @@ import { types as sdkTypes } from '../../../util/sdkLoader';
 import { parse } from '../../../util/urlHelpers';
 import { propTypes } from '../../../util/types';
 import { ensureListing } from '../../../util/data';
-import { sdkBoundsToFixedCoordinates, hasSameSDKBounds } from '../../../util/maps';
+import {
+  sdkBoundsToFixedCoordinates,
+  hasSameSDKBounds,
+  getBoundsForConstantRadius,
+  circlePolyline,
+} from '../../../util/maps';
 import { getOffsetOverride, getLayoutStyles } from '../../../util/googleMaps';
 
 import SearchMapPriceLabel from '../SearchMapPriceLabel/SearchMapPriceLabel';
@@ -41,11 +46,27 @@ const { LatLng: SDKLatLng, LatLngBounds: SDKLatLngBounds } = sdkTypes;
  * @param {SDK.LatLngBounds} bounds - the area that needs to be visible when map loads.
  */
 export const fitMapToBounds = (map, bounds, options) => {
-  const { padding } = options;
+  const { padding, isAutocompleteSearch = false } = options;
 
-  const { ne, sw } = bounds || {};
+  let boundsToFit = bounds;
+
+  // For autocomplete searches, expand bounds to show 100-mile radius
+  if (isAutocompleteSearch && bounds && bounds.ne && bounds.sw) {
+    // Calculate center point from the small bounds
+    const centerLat = (bounds.ne.lat + bounds.sw.lat) / 2;
+    const centerLng = (bounds.ne.lng + bounds.sw.lng) / 2;
+    const center = { lat: centerLat, lng: centerLng };
+
+    // Create expanded bounds for 100-mile radius (160934 meters)
+    const expandedBounds = getBoundsForConstantRadius(center, 160934);
+    boundsToFit = expandedBounds;
+  }
+
+  const { ne, sw } = boundsToFit || {};
   // map bounds as string literal for google.maps
-  const mapBounds = bounds ? { north: ne.lat, east: ne.lng, south: sw.lat, west: sw.lng } : null;
+  const mapBounds = boundsToFit
+    ? { north: ne.lat, east: ne.lng, south: sw.lat, west: sw.lng }
+    : null;
 
   // If bounds are given, use it (defaults to center & zoom).
   if (map && mapBounds) {
@@ -64,7 +85,7 @@ export const fitMapToBounds = (map, bounds, options) => {
  *
  * @return {SDKLatLng} - Converted latLng coordinate
  */
-export const googleLatLngToSDKLatLng = googleLatLng => {
+export const googleLatLngToSDKLatLng = (googleLatLng) => {
   if (!googleLatLng) {
     return null;
   }
@@ -78,17 +99,20 @@ export const googleLatLngToSDKLatLng = googleLatLng => {
  *
  * @return {SDKLatLngBounds} - Converted bounds
  */
-export const googleBoundsToSDKBounds = googleBounds => {
+export const googleBoundsToSDKBounds = (googleBounds) => {
   if (!googleBounds) {
     return null;
   }
   const ne = googleBounds.getNorthEast();
   const sw = googleBounds.getSouthWest();
-  return new SDKLatLngBounds(new SDKLatLng(ne.lat(), ne.lng()), new SDKLatLng(sw.lat(), sw.lng()));
+  return new SDKLatLngBounds(
+    new SDKLatLng(ne.lat(), ne.lng()),
+    new SDKLatLng(sw.lat(), sw.lng())
+  );
 };
 
-export const getMapBounds = map => googleBoundsToSDKBounds(map.getBounds());
-export const getMapCenter = map => googleLatLngToSDKLatLng(map.getCenter());
+export const getMapBounds = (map) => googleBoundsToSDKBounds(map.getBounds());
+export const getMapCenter = (map) => googleLatLngToSDKLatLng(map.getCenter());
 
 /**
  * Check if map library is loaded
@@ -153,7 +177,11 @@ class CustomOverlayView extends Component {
       y: 0,
       ...getOffsetOverride(this.containerElement, this.props),
     };
-    const layoutStyles = getLayoutStyles(mapCanvasProjection, offset, this.props);
+    const layoutStyles = getLayoutStyles(
+      mapCanvasProjection,
+      offset,
+      this.props
+    );
     Object.assign(this.containerElement.style, layoutStyles);
   }
 
@@ -168,7 +196,10 @@ class CustomOverlayView extends Component {
 
   render() {
     if (this.containerElement) {
-      return ReactDOM.createPortal(React.Children.only(this.props.children), this.containerElement);
+      return ReactDOM.createPortal(
+        React.Children.only(this.props.children),
+        this.containerElement
+      );
     }
     return false;
   }
@@ -191,12 +222,19 @@ class SearchMapPriceLabelWithOverlay extends Component {
     const currentListing = ensureListing(this.props.listing);
     const nextListing = ensureListing(nextProps.listing);
     const isSameListing = currentListing.id.uuid === nextListing.id.uuid;
-    const hasSamePrice = currentListing.attributes.price === nextListing.attributes.price;
+    const hasSamePrice =
+      currentListing.attributes.price === nextListing.attributes.price;
     const hasSameActiveStatus = this.props.isActive === nextProps.isActive;
     const hasSameRefreshToken =
-      this.props.mapComponentRefreshToken === nextProps.mapComponentRefreshToken;
+      this.props.mapComponentRefreshToken ===
+      nextProps.mapComponentRefreshToken;
 
-    return !(isSameListing && hasSamePrice && hasSameActiveStatus && hasSameRefreshToken);
+    return !(
+      isSameListing &&
+      hasSamePrice &&
+      hasSameActiveStatus &&
+      hasSameRefreshToken
+    );
   }
 
   render() {
@@ -238,12 +276,18 @@ class SearchMapPriceLabelWithOverlay extends Component {
  */
 class SearchMapGroupLabelWithOverlay extends Component {
   shouldComponentUpdate(nextProps) {
-    const hasSameAmountOfListings = nextProps.listings.length === this.props.listings.length;
+    const hasSameAmountOfListings =
+      nextProps.listings.length === this.props.listings.length;
     const hasSameActiveStatus = this.props.isActive === nextProps.isActive;
     const hasSameRefreshToken =
-      this.props.mapComponentRefreshToken === nextProps.mapComponentRefreshToken;
+      this.props.mapComponentRefreshToken ===
+      nextProps.mapComponentRefreshToken;
 
-    return !(hasSameAmountOfListings && hasSameActiveStatus && hasSameRefreshToken);
+    return !(
+      hasSameAmountOfListings &&
+      hasSameActiveStatus &&
+      hasSameRefreshToken
+    );
   }
 
   render() {
@@ -279,7 +323,7 @@ class SearchMapGroupLabelWithOverlay extends Component {
 /**
  * Render price labels or group "markers" based on listings array.
  */
-const PriceLabelsAndGroups = props => {
+const PriceLabelsAndGroups = (props) => {
   const {
     map,
     listings,
@@ -289,17 +333,23 @@ const PriceLabelsAndGroups = props => {
     mapComponentRefreshToken,
     config,
   } = props;
-  const listingArraysInLocations = reducedToArray(groupedByCoordinates(listings));
-  const priceLabels = listingArraysInLocations.reverse().map(listingArr => {
+  const listingArraysInLocations = reducedToArray(
+    groupedByCoordinates(listings)
+  );
+  const priceLabels = listingArraysInLocations.reverse().map((listingArr) => {
     const isActive = activeListingId
-      ? !!listingArr.find(l => activeListingId.uuid === l.id.uuid)
+      ? !!listingArr.find((l) => activeListingId.uuid === l.id.uuid)
       : false;
-    const classes = classNames(css.labelContainer, LABEL_HANDLE, { [css.activeLabel]: isActive });
+    const classes = classNames(css.labelContainer, LABEL_HANDLE, {
+      [css.activeLabel]: isActive,
+    });
 
     // If location contains only one listing, print price label
     if (listingArr.length === 1) {
       const listing = listingArr[0];
-      const infoCardOpenIds = Array.isArray(infoCardOpen) ? infoCardOpen.map(l => l.id.uuid) : [];
+      const infoCardOpenIds = Array.isArray(infoCardOpen)
+        ? infoCardOpen.map((l) => l.id.uuid)
+        : [];
 
       // if the listing is open, don't print price label
       if (infoCardOpen != null && infoCardOpenIds.includes(listing.id.uuid)) {
@@ -351,7 +401,7 @@ const PriceLabelsAndGroups = props => {
 /**
  * Render info-card overlay if the card is open.
  */
-const InfoCardComponent = props => {
+const InfoCardComponent = (props) => {
   const {
     map,
     infoCardOpen,
@@ -360,7 +410,9 @@ const InfoCardComponent = props => {
     mapComponentRefreshToken,
     config,
   } = props;
-  const listingsArray = Array.isArray(infoCardOpen) ? infoCardOpen : [infoCardOpen];
+  const listingsArray = Array.isArray(infoCardOpen)
+    ? infoCardOpen
+    : [infoCardOpen];
 
   if (!infoCardOpen) {
     return null;
@@ -417,6 +469,8 @@ class SearchMapWithGoogleMaps extends Component {
     this.map = null;
     this.viewportBounds = null;
     this.idleListener = null;
+    this.currentOriginMarker = null;
+    this.currentRadiusCircle = null;
     this.state = { mapContainer: null, isMapReady: false };
 
     this.initializeMap = this.initializeMap.bind(this);
@@ -436,6 +490,19 @@ class SearchMapWithGoogleMaps extends Component {
       }
     }
 
+    // Handle center prop changes for origin marker
+    if (!isEqual(prevProps.center, this.props.center)) {
+      // Center changed, need to recreate origin marker
+      if (this.currentOriginMarker) {
+        this.currentOriginMarker.setMap(null);
+        this.currentOriginMarker = null;
+      }
+      if (this.currentRadiusCircle) {
+        this.currentRadiusCircle.setMap(null);
+        this.currentRadiusCircle = null;
+      }
+    }
+
     if (this.map) {
       const currentBounds = getMapBounds(this.map);
 
@@ -443,12 +510,23 @@ class SearchMapWithGoogleMaps extends Component {
       // Our bounds are viewport bounds, and fitBounds will try to add margins around those bounds
       // that would result to zoom-loop (bound change -> fitmap -> bounds change -> ...)
       if (!isEqual(this.props.bounds, currentBounds) && !this.viewportBounds) {
-        fitMapToBounds(this.map, this.props.bounds, { padding: 0 });
+        // For address-based searches (when center is provided), expand bounds to show 100-mile radius
+        const isAddressBasedSearch =
+          this.props.center && this.props.center.lat && this.props.center.lng;
+        fitMapToBounds(this.map, this.props.bounds, {
+          padding: 0,
+          isAutocompleteSearch: isAddressBasedSearch,
+        });
       }
 
       if (prevProps.infoCardOpen !== this.props.infoCardOpen) {
-        this.map.setOptions({ disableDoubleClickZoom: !!this.props.infoCardOpen });
+        this.map.setOptions({
+          disableDoubleClickZoom: !!this.props.infoCardOpen,
+        });
       }
+
+      // Add origin marker and radius circle
+      this.updateOriginMarkerAndRadius();
     }
 
     if (!this.map && this.state.mapContainer) {
@@ -456,14 +534,93 @@ class SearchMapWithGoogleMaps extends Component {
 
       /* Notify parent component that the map is loaded */
       this.props.onMapLoad(this.map);
-    } else if (prevProps.mapComponentRefreshToken !== this.props.mapComponentRefreshToken) {
+    } else if (
+      prevProps.mapComponentRefreshToken !== this.props.mapComponentRefreshToken
+    ) {
       /* Notify parent component that the map is loaded */
       this.props.onMapLoad(this.map);
     }
   }
 
   componentWillUnmount() {
-    this.idleListener.remove();
+    // Clean up markers and circle
+    if (this.currentOriginMarker) {
+      this.currentOriginMarker.setMap(null);
+    }
+    if (this.currentRadiusCircle) {
+      this.currentRadiusCircle.setMap(null);
+    }
+    if (this.idleListener) {
+      this.idleListener.remove();
+    }
+  }
+
+  updateOriginMarkerAndRadius() {
+    if (!this.map) return;
+
+    const { center } = this.props;
+
+    /* Create marker for search origin (the searched location) */
+    if (center && center.lat && center.lng) {
+      if (!this.currentOriginMarker) {
+        // Create a green marker for the search origin
+        this.currentOriginMarker = new window.google.maps.Marker({
+          position: { lat: center.lat, lng: center.lng },
+          map: this.map,
+          icon: {
+            url: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png',
+            scaledSize: new window.google.maps.Size(25, 41),
+            anchor: new window.google.maps.Point(12, 41),
+          },
+          title: 'Search origin',
+        });
+      } else {
+        this.currentOriginMarker.setPosition({
+          lat: center.lat,
+          lng: center.lng,
+        });
+      }
+    } else {
+      if (this.currentOriginMarker) {
+        this.currentOriginMarker.setMap(null);
+        this.currentOriginMarker = null;
+      }
+    }
+
+    /* Create radius circle for search origin (visual indicator of 100-mile search area) */
+    const shouldShowRadiusCircle = center && center.lat && center.lng;
+
+    if (shouldShowRadiusCircle && !this.currentRadiusCircle) {
+      // Create a circle using Polygon for better rendering
+      const centerLatLng = { lat: center.lat, lng: center.lng };
+      const radius = 160934; // 100 miles in meters
+      const path = circlePolyline(centerLatLng, radius).map(
+        (c) => new window.google.maps.LatLng(c[0], c[1])
+      );
+
+      this.currentRadiusCircle = new window.google.maps.Polygon({
+        paths: path,
+        strokeColor: '#3388ff',
+        strokeOpacity: 0.6,
+        strokeWeight: 2,
+        fillColor: '#3388ff',
+        fillOpacity: 0.1,
+        map: this.map,
+        clickable: false,
+      });
+    } else if (shouldShowRadiusCircle && this.currentRadiusCircle) {
+      // Update existing circle position
+      const centerLatLng = { lat: center.lat, lng: center.lng };
+      const radius = 160934; // 100 miles in meters
+      const path = circlePolyline(centerLatLng, radius).map(
+        (c) => new window.google.maps.LatLng(c[0], c[1])
+      );
+      this.currentRadiusCircle.setPaths(path);
+    } else if (!shouldShowRadiusCircle && this.currentRadiusCircle) {
+      // Remove circle when no center is provided
+      this.currentRadiusCircle.setMap(null);
+      this.currentRadiusCircle = null;
+    }
   }
 
   initializeMap() {
@@ -471,20 +628,31 @@ class SearchMapWithGoogleMaps extends Component {
     const hasDimensions = offsetHeight > 0 && offsetWidth > 0;
 
     if (hasDimensions) {
-      const { bounds, center = new sdkTypes.LatLng(0, 0), zoom = 11 } = this.props;
+      const {
+        bounds,
+        center = new sdkTypes.LatLng(0, 0),
+        zoom = 11,
+      } = this.props;
       const maps = window.google.maps;
       const controlPosition = maps.ControlPosition.LEFT_TOP;
       const zoomOutToShowEarth = { zoom: 1, center: { lat: 0, lng: 0 } };
-      const zoomAndCenter = !bounds && !center ? zoomOutToShowEarth : { zoom, center };
+      const zoomAndCenter =
+        !bounds && !center ? zoomOutToShowEarth : { zoom, center };
 
       const mapConfig = {
         // Disable all controls except zoom
         // https://developers.google.com/maps/documentation/javascript/reference/map#MapOptions
         mapTypeControl: false,
-        scrollwheel: false,
+        scrollwheel: true,
         fullscreenControl: false,
         clickableIcons: false,
         streetViewControl: false,
+
+        // Enable zoom controls with + and - buttons
+        zoomControl: true,
+        zoomControlOptions: {
+          position: maps.ControlPosition.RIGHT_BOTTOM,
+        },
 
         cameraControlOptions: {
           position: controlPosition,
@@ -520,7 +688,10 @@ class SearchMapWithGoogleMaps extends Component {
         const viewportMapBounds = getMapBounds(this.map);
         const viewportMapCenter = getMapCenter(this.map);
         const viewportBounds = viewportMapBounds
-          ? sdkBoundsToFixedCoordinates(viewportMapBounds, BOUNDS_FIXED_PRECISION)
+          ? sdkBoundsToFixedCoordinates(
+              viewportMapBounds,
+              BOUNDS_FIXED_PRECISION
+            )
           : null;
 
         // ViewportBounds from (previous) rendering differ from viewportBounds currently set to map
@@ -530,7 +701,18 @@ class SearchMapWithGoogleMaps extends Component {
           viewportBounds &&
           !hasSameSDKBounds(this.viewportBounds, viewportBounds);
 
-        this.props.onMapMoveEnd(viewportBoundsChanged, { viewportBounds, viewportMapCenter });
+        // For initial autocomplete searches, we want to trigger a search even if this.viewportBounds is null
+        // This handles the case where fitMapToBounds expands the bounds but doesn't trigger a search
+        const isInitialAutocompleteSearch =
+          !this.viewportBounds && this.props.center;
+
+        this.props.onMapMoveEnd(
+          viewportBoundsChanged || isInitialAutocompleteSearch,
+          {
+            viewportBounds,
+            viewportMapCenter,
+          }
+        );
         this.viewportBounds = viewportBounds;
       }
     }
