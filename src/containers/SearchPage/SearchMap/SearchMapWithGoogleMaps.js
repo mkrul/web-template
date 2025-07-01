@@ -643,7 +643,7 @@ class SearchMapWithGoogleMaps extends Component {
         // Disable all controls except zoom
         // https://developers.google.com/maps/documentation/javascript/reference/map#MapOptions
         mapTypeControl: false,
-        scrollwheel: false,
+        scrollwheel: true,
         fullscreenControl: false,
         clickableIcons: false,
         streetViewControl: false,
