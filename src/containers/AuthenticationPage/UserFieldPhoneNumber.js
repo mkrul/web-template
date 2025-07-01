@@ -7,6 +7,8 @@ import * as validators from '../../util/validators';
 
 import { FieldPhoneNumberInput } from '../../components';
 
+import css from './AuthenticationPage.module.css';
+
 /**
  * A component that renders the phone number field.
  *
@@ -20,10 +22,12 @@ import { FieldPhoneNumberInput } from '../../components';
  * @param {intlShape} props.intl - The intl object
  * @returns {JSX.Element}
  */
-const UserFieldPhoneNumber = props => {
-  const { rootClassName, className, formId, formName, userTypeConfig, intl } = props;
+const UserFieldPhoneNumber = (props) => {
+  const { rootClassName, className, formId, formName, userTypeConfig, intl } =
+    props;
 
-  const { displayInSignUp, required } = userTypeConfig?.phoneNumberSettings || {};
+  const { displayInSignUp, required } =
+    userTypeConfig?.phoneNumberSettings || {};
   const isDisabled = userTypeConfig?.defaultUserFields?.phoneNumber === false;
   const isAllowedInSignUp = displayInSignUp === true;
 
@@ -43,19 +47,24 @@ const UserFieldPhoneNumber = props => {
     : {};
 
   return (
-    <FieldPhoneNumberInput
-      className={classNames(className, { [rootClassName]: !!rootClassName })}
-      type="text"
-      id={formId ? `${formId}.phoneNumber` : 'phoneNumber'}
-      name="phoneNumber"
-      label={intl.formatMessage({
-        id: `${formName}.phoneNumberLabel`,
-      })}
-      placeholder={intl.formatMessage({
-        id: `${formName}.phoneNumberPlaceholder`,
-      })}
-      {...validateMaybe}
-    />
+    <div>
+      <FieldPhoneNumberInput
+        className={classNames(className, { [rootClassName]: !!rootClassName })}
+        type="text"
+        id={formId ? `${formId}.phoneNumber` : 'phoneNumber'}
+        name="phoneNumber"
+        label={intl.formatMessage({
+          id: `${formName}.phoneNumberLabel`,
+        })}
+        placeholder={intl.formatMessage({
+          id: `${formName}.phoneNumberPlaceholder`,
+        })}
+        {...validateMaybe}
+      />
+      <p className={css.modalHelperText}>
+        * Your phone number will be hidden and not viewable to the public.
+      </p>
+    </div>
   );
 };
 

@@ -8,7 +8,12 @@ import { propTypes } from '../../../util/types';
 import * as validators from '../../../util/validators';
 import { getPropsForCustomUserFieldInputs } from '../../../util/userHelpers';
 
-import { Form, PrimaryButton, FieldTextInput, CustomExtendedDataField } from '../../../components';
+import {
+  Form,
+  PrimaryButton,
+  FieldTextInput,
+  CustomExtendedDataField,
+} from '../../../components';
 
 import FieldSelectUserType from '../FieldSelectUserType';
 import UserFieldDisplayName from '../UserFieldDisplayName';
@@ -16,15 +21,20 @@ import UserFieldPhoneNumber from '../UserFieldPhoneNumber';
 
 import css from './ConfirmSignupForm.module.css';
 
-const getSoleUserTypeMaybe = userTypes =>
-  Array.isArray(userTypes) && userTypes.length === 1 ? userTypes[0].userType : null;
+const getSoleUserTypeMaybe = (userTypes) =>
+  Array.isArray(userTypes) && userTypes.length === 1
+    ? userTypes[0].userType
+    : null;
 
-const ConfirmSignupFormComponent = props => (
+const ConfirmSignupFormComponent = (props) => (
   <FinalForm
     {...props}
     mutators={{ ...arrayMutators }}
-    initialValues={{ userType: props.preselectedUserType || getSoleUserTypeMaybe(props.userTypes) }}
-    render={formRenderProps => {
+    initialValues={{
+      userType:
+        props.preselectedUserType || getSoleUserTypeMaybe(props.userTypes),
+    }}
+    render={(formRenderProps) => {
       const {
         rootClassName,
         className,
@@ -40,6 +50,7 @@ const ConfirmSignupFormComponent = props => (
         userTypes,
         userFields,
         values,
+        termsAccepted,
       } = formRenderProps;
 
       const { userType } = values || {};
@@ -58,16 +69,23 @@ const ConfirmSignupFormComponent = props => (
 
       // Custom user fields. Since user types are not supported here,
       // only fields with no user type id limitation are selected.
-      const userFieldProps = getPropsForCustomUserFieldInputs(userFields, intl, userType);
+      const userFieldProps = getPropsForCustomUserFieldInputs(
+        userFields,
+        intl,
+        userType
+      );
 
       const noUserTypes = !userType && !(userTypes?.length > 0);
-      const userTypeConfig = userTypes.find(config => config.userType === userType);
+      const userTypeConfig = userTypes.find(
+        (config) => config.userType === userType
+      );
       const showDefaultUserFields = userType || noUserTypes;
-      const showCustomUserFields = (userType || noUserTypes) && userFieldProps?.length > 0;
+      const showCustomUserFields =
+        (userType || noUserTypes) && userFieldProps?.length > 0;
 
       const classes = classNames(rootClassName || css.root, className);
       const submitInProgress = inProgress;
-      const submitDisabled = invalid || submitInProgress;
+      const submitDisabled = invalid || submitInProgress || !termsAccepted;
 
       // If authInfo is not available we should not show the ConfirmForm
       if (!authInfo) {
@@ -100,7 +118,10 @@ const ConfirmSignupFormComponent = props => (
                   id: 'ConfirmSignupForm.emailPlaceholder',
                 })}
                 initialValue={email}
-                validate={validators.composeValidators(emailRequired, emailValid)}
+                validate={validators.composeValidators(
+                  emailRequired,
+                  emailValid
+                )}
               />
               <div className={css.name}>
                 <FieldTextInput
@@ -161,15 +182,26 @@ const ConfirmSignupFormComponent = props => (
           {showCustomUserFields ? (
             <div className={css.customFields}>
               {userFieldProps.map(({ key, ...fieldProps }) => (
-                <CustomExtendedDataField key={key} {...fieldProps} formId={formId} />
+                <CustomExtendedDataField
+                  key={key}
+                  {...fieldProps}
+                  formId={formId}
+                />
               ))}
             </div>
           ) : null}
 
           <div className={css.bottomWrapper}>
             {termsAndConditions}
-            <PrimaryButton type="submit" inProgress={submitInProgress} disabled={submitDisabled}>
-              <FormattedMessage id="ConfirmSignupForm.signUp" values={{ idp: idp }} />
+            <PrimaryButton
+              type="submit"
+              inProgress={submitInProgress}
+              disabled={submitDisabled}
+            >
+              <FormattedMessage
+                id="ConfirmSignupForm.signUp"
+                values={{ idp: idp }}
+              />
             </PrimaryButton>
           </div>
         </Form>
@@ -193,7 +225,7 @@ const ConfirmSignupFormComponent = props => (
  * @param {propTypes.listingFields} props.userFields - The user fields
  * @returns {JSX.Element}
  */
-const ConfirmSignupForm = props => {
+const ConfirmSignupForm = (props) => {
   const intl = useIntl();
   return <ConfirmSignupFormComponent {...props} intl={intl} />;
 };
