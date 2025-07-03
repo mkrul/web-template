@@ -94,6 +94,7 @@ const EditListingPhotosPanel = (props) => {
         updated={panelUpdated}
         updateInProgress={updateInProgress}
         listingImageConfig={listingImageConfig}
+        listing={listing}
       />
     </div>
   );

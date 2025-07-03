@@ -152,6 +152,7 @@ const FieldListingImage = (props) => {
  * @param {number} props.listingImageConfig.aspectWidth - The aspect width
  * @param {number} props.listingImageConfig.aspectHeight - The aspect height
  * @param {string} props.listingImageConfig.variantPrefix - The variant prefix
+ * @param {propTypes.ownListing} props.listing - The listing object
  * @returns {JSX.Element}
  */
 export const EditListingPhotosForm = (props) => {
@@ -198,6 +199,7 @@ export const EditListingPhotosForm = (props) => {
           errors,
           values,
           listingImageConfig,
+          listing,
         } = formRenderProps;
 
         const images = values.images || [];
@@ -206,6 +208,9 @@ export const EditListingPhotosForm = (props) => {
           aspectHeight = 1,
           variantPrefix,
         } = listingImageConfig;
+
+        // Get crate type from listing data
+        const crateType = listing?.attributes?.publicData?.crateType;
 
         const {
           publishListingError,
@@ -261,8 +266,14 @@ export const EditListingPhotosForm = (props) => {
                 validate={composeValidators(
                   requiredCratePhotos(
                     intl.formatMessage({
-                      id: 'EditListingPhotosForm.cratePhotosRequired',
-                    })
+                      id:
+                        crateType === 'wire'
+                          ? 'EditListingPhotosForm.wirePhotosRequired'
+                          : crateType === 'solid'
+                            ? 'EditListingPhotosForm.solidPhotosRequired'
+                            : 'EditListingPhotosForm.cratePhotosRequired',
+                    }),
+                    crateType
                   )
                 )}
               >
@@ -317,7 +328,15 @@ export const EditListingPhotosForm = (props) => {
             />
 
             <p className={css.tip}>
-              <FormattedMessage id="EditListingPhotosForm.addImagesTip" />
+              <FormattedMessage
+                id={
+                  crateType === 'wire'
+                    ? 'EditListingPhotosForm.wireImagesTip'
+                    : crateType === 'solid'
+                      ? 'EditListingPhotosForm.solidImagesTip'
+                      : 'EditListingPhotosForm.addImagesTip'
+                }
+              />
             </p>
 
             <PublishListingError error={publishListingError} />

@@ -103,9 +103,28 @@ export const nonEmptyArray = (message) => (value) => {
   return value && Array.isArray(value) && value.length > 0 ? VALID : message;
 };
 
-export const requiredCratePhotos = (message) => (value) => {
+export const requiredCratePhotos = (message, crateType) => (value) => {
   const isValidArray = value && Array.isArray(value);
-  const hasValidLength = isValidArray && value.length >= 6 && value.length <= 7;
+
+  if (!isValidArray) {
+    return message;
+  }
+
+  // Different photo requirements based on crate type
+  let minPhotos, maxPhotos;
+  if (crateType === 'wire') {
+    minPhotos = 3;
+    maxPhotos = 4;
+  } else if (crateType === 'solid') {
+    minPhotos = 6;
+    maxPhotos = 7;
+  } else {
+    // Default fallback (if no crate type selected yet)
+    minPhotos = 3;
+    maxPhotos = 7;
+  }
+
+  const hasValidLength = value.length >= minPhotos && value.length <= maxPhotos;
   return hasValidLength ? VALID : message;
 };
 

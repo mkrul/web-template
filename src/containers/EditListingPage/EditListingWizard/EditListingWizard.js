@@ -288,7 +288,32 @@ const tabCompleted = (tab, listing, config) => {
     case CRATE_TYPE:
       return !!publicData?.crateType;
     case PHOTOS:
-      return images && images.length > 0;
+      // Check if photos meet crate type requirements
+      if (!images || images.length === 0) {
+        return false;
+      }
+
+      const crateType = publicData?.crateType;
+      if (!crateType) {
+        // If no crate type set, use basic check
+        return images.length > 0;
+      }
+
+      // Apply same validation logic as photo form
+      let minPhotos, maxPhotos;
+      if (crateType === 'wire') {
+        minPhotos = 3;
+        maxPhotos = 4;
+      } else if (crateType === 'solid') {
+        minPhotos = 6;
+        maxPhotos = 7;
+      } else {
+        // Default fallback
+        minPhotos = 3;
+        maxPhotos = 7;
+      }
+
+      return images.length >= minPhotos && images.length <= maxPhotos;
     default:
       return false;
   }
