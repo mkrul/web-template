@@ -8,7 +8,7 @@ const { LatLng, Money } = sdkTypes;
 export const PASSWORD_MIN_LENGTH = 8;
 export const PASSWORD_MAX_LENGTH = 256;
 
-const isNonEmptyString = val => {
+const isNonEmptyString = (val) => {
   return typeof val === 'string' && val.trim().length > 0;
 };
 
@@ -19,7 +19,7 @@ const isNonEmptyString = val => {
 // Final Form expects and undefined value for a successful validation
 const VALID = undefined;
 
-export const required = message => value => {
+export const required = (message) => (value) => {
   if (typeof value === 'undefined' || value === null) {
     // undefined or null values are invalid
     return message;
@@ -31,17 +31,17 @@ export const required = message => value => {
   return VALID;
 };
 
-export const requiredStringNoTrim = message => value => {
+export const requiredStringNoTrim = (message) => (value) => {
   return typeof value === 'string' && value.length > 0 ? VALID : message;
 };
 
 // DEPRECATED in favor of required
-export const requiredBoolean = message => value => {
+export const requiredBoolean = (message) => (value) => {
   return typeof value === 'boolean' ? VALID : message;
 };
 
 // DEPRECATED in favor of required
-export const requiredAndNonEmptyString = message => value => {
+export const requiredAndNonEmptyString = (message) => (value) => {
   return isNonEmptyString(value) ? VALID : message;
 };
 
@@ -52,39 +52,46 @@ export const requiredAndNonEmptyString = message => value => {
  * @param {Function} toSlug - Function that converts a string to a slug.
  * @returns {string} - VALID if the string is unique, otherwise the error message.
  */
-export const uniqueString = (currentIndex, stringArray, getMessage, toSlug) => value => {
-  if (typeof value === 'undefined' || value === null) {
-    // undefined or null values are invalid
-    return getMessage('', '');
-  }
-  const slug = toSlug(value);
-  const otherSlugs = stringArray.map(toSlug).filter((_, i) => i !== currentIndex);
-  const isUnique = !otherSlugs.includes(slug);
-  return isUnique ? VALID : getMessage(value, slug);
-};
+export const uniqueString =
+  (currentIndex, stringArray, getMessage, toSlug) => (value) => {
+    if (typeof value === 'undefined' || value === null) {
+      // undefined or null values are invalid
+      return getMessage('', '');
+    }
+    const slug = toSlug(value);
+    const otherSlugs = stringArray
+      .map(toSlug)
+      .filter((_, i) => i !== currentIndex);
+    const isUnique = !otherSlugs.includes(slug);
+    return isUnique ? VALID : getMessage(value, slug);
+  };
 
-export const requiredFieldArrayCheckbox = message => value => {
+export const requiredFieldArrayCheckbox = (message) => (value) => {
   if (!value) {
     return message;
   }
 
   const entries = toPairs(value);
-  const hasSelectedValues = entries.filter(e => !!e[1]).length > 0;
+  const hasSelectedValues = entries.filter((e) => !!e[1]).length > 0;
   return hasSelectedValues ? VALID : message;
 };
 
-export const requiredSelectTreeOption = message => value => {
-  if (typeof value === 'undefined' || value === null || Object.values(value)?.length === 0) {
+export const requiredSelectTreeOption = (message) => (value) => {
+  if (
+    typeof value === 'undefined' ||
+    value === null ||
+    Object.values(value)?.length === 0
+  ) {
     return message;
   }
 };
 
-export const minLength = (message, minimumLength) => value => {
+export const minLength = (message, minimumLength) => (value) => {
   const hasLength = value && typeof value.length === 'number';
   return hasLength && value.length >= minimumLength ? VALID : message;
 };
 
-export const maxLength = (message, maximumLength) => value => {
+export const maxLength = (message, maximumLength) => (value) => {
   if (!value) {
     return VALID;
   }
@@ -92,15 +99,21 @@ export const maxLength = (message, maximumLength) => value => {
   return hasLength && value.length <= maximumLength ? VALID : message;
 };
 
-export const nonEmptyArray = message => value => {
+export const nonEmptyArray = (message) => (value) => {
   return value && Array.isArray(value) && value.length > 0 ? VALID : message;
 };
 
-export const autocompleteSearchRequired = message => value => {
+export const requiredCratePhotos = (message) => (value) => {
+  const isValidArray = value && Array.isArray(value);
+  const hasValidLength = isValidArray && value.length >= 6 && value.length <= 7;
+  return hasValidLength ? VALID : message;
+};
+
+export const autocompleteSearchRequired = (message) => (value) => {
   return value && value.search ? VALID : message;
 };
 
-export const autocompletePlaceSelected = message => value => {
+export const autocompletePlaceSelected = (message) => (value) => {
   const selectedPlaceIsValid =
     value &&
     value.selectedPlace &&
@@ -109,47 +122,56 @@ export const autocompletePlaceSelected = message => value => {
   return selectedPlaceIsValid ? VALID : message;
 };
 
-export const bookingDateRequired = inValidDateMessage => value => {
+export const bookingDateRequired = (inValidDateMessage) => (value) => {
   const dateIsValid = value && value.date instanceof Date;
   return !dateIsValid ? inValidDateMessage : VALID;
 };
 
-export const bookingDatesRequired = (inValidStartDateMessage, inValidEndDateMessage) => value => {
-  const startDateIsValid = value && value.startDate instanceof Date;
-  const endDateIsValid = value && value.endDate instanceof Date;
+export const bookingDatesRequired =
+  (inValidStartDateMessage, inValidEndDateMessage) => (value) => {
+    const startDateIsValid = value && value.startDate instanceof Date;
+    const endDateIsValid = value && value.endDate instanceof Date;
 
-  if (!startDateIsValid) {
-    return inValidStartDateMessage;
-  } else if (!endDateIsValid) {
-    return inValidEndDateMessage;
-  } else {
-    return VALID;
-  }
-};
+    if (!startDateIsValid) {
+      return inValidStartDateMessage;
+    } else if (!endDateIsValid) {
+      return inValidEndDateMessage;
+    } else {
+      return VALID;
+    }
+  };
 
 // Source: http://www.regular-expressions.info/email.html
 // See the link above for an explanation of the tradeoffs.
 const EMAIL_RE = /^[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}$/i;
 
-export const emailFormatValid = message => value => {
+export const emailFormatValid = (message) => (value) => {
   return value && EMAIL_RE.test(value) ? VALID : message;
 };
 
-export const moneySubUnitAmountAtLeast = (message, minValue) => value => {
+export const moneySubUnitAmountAtLeast = (message, minValue) => (value) => {
   return value instanceof Money && value.amount >= minValue ? VALID : message;
 };
 
-const parseNum = str => {
+const parseNum = (str) => {
   const num = Number.parseInt(str, 10);
   return Number.isNaN(num) ? null : num;
 };
 
-export const numberAtLeast = (message, minNumber) => value => {
+export const numberAtLeast = (message, minNumber) => (value) => {
   const valueNum = parseNum(value);
-  return typeof valueNum === 'number' && valueNum >= minNumber ? VALID : message;
+  return typeof valueNum === 'number' && valueNum >= minNumber
+    ? VALID
+    : message;
 };
 
-export const validateInteger = (value, max, min, numberTooSmallMessage, numberTooBigMessage) => {
+export const validateInteger = (
+  value,
+  max,
+  min,
+  numberTooSmallMessage,
+  numberTooBigMessage
+) => {
   const parsedValue = Number.parseInt(value, 10);
   if (parsedValue > max) {
     return numberTooBigMessage;
@@ -165,7 +187,7 @@ export const validateYoutubeURL = (url, message) => {
   return url ? (extractYouTubeID(url) ? VALID : message) : VALID;
 };
 
-export const ageAtLeast = (message, minYears) => value => {
+export const ageAtLeast = (message, minYears) => (value) => {
   const { year, month, day } = value;
   const dayNum = parseNum(day);
   const monthNum = parseNum(month);
@@ -177,12 +199,14 @@ export const ageAtLeast = (message, minYears) => value => {
     const age = new Date(yearNum, monthNum - 1, dayNum);
     const ageInYears = diffInTime(now, age, 'years', true);
 
-    return age && age instanceof Date && ageInYears >= minYears ? VALID : message;
+    return age && age instanceof Date && ageInYears >= minYears
+      ? VALID
+      : message;
   }
   return message;
 };
 
-export const validBusinessURL = message => value => {
+export const validBusinessURL = (message) => (value) => {
   if (typeof value === 'undefined' || value === null) {
     return message;
   }
@@ -190,21 +214,28 @@ export const validBusinessURL = message => value => {
   const disallowedChars = /[^-A-Za-z0-9+&@#/%?=~_|!:,.;()]/;
   const protocolTokens = value.split(':');
   const includesProtocol = protocolTokens.length > 1;
-  const usesHttpProtocol = includesProtocol && !!protocolTokens[0].match(/^(https?)/);
+  const usesHttpProtocol =
+    includesProtocol && !!protocolTokens[0].match(/^(https?)/);
 
   const invalidCharacters = !!value.match(disallowedChars);
   const invalidProtocol = !(usesHttpProtocol || !includesProtocol);
   // Stripe checks against example.com
-  const isExampleDotCom = !!value.match(/^(https?:\/\/example\.com|example\.com)/);
-  const isLocalhost = !!value.match(/^(https?:\/\/localhost($|:|\/)|localhost($|:|\/))/);
-  return invalidCharacters || invalidProtocol || isExampleDotCom || isLocalhost ? message : VALID;
+  const isExampleDotCom = !!value.match(
+    /^(https?:\/\/example\.com|example\.com)/
+  );
+  const isLocalhost = !!value.match(
+    /^(https?:\/\/localhost($|:|\/)|localhost($|:|\/))/
+  );
+  return invalidCharacters || invalidProtocol || isExampleDotCom || isLocalhost
+    ? message
+    : VALID;
 };
 
-export const validSsnLast4 = message => value => {
+export const validSsnLast4 = (message) => (value) => {
   return value.length === 4 ? VALID : message;
 };
 
-export const validHKID = message => value => {
+export const validHKID = (message) => (value) => {
   // Accept value 000000000 for testing Stripe
   if (value.length === 9 && value.match(/([0]{9})/)) {
     return VALID;
@@ -217,8 +248,12 @@ export const validHKID = message => value => {
   }
 
   // Handle possible brackets in value
-  if (value.charAt(value.length - 3) === '(' && value.charAt(value.length - 1) === ')') {
-    value = value.substring(0, value.length - 3) + value.charAt(value.length - 2);
+  if (
+    value.charAt(value.length - 3) === '(' &&
+    value.charAt(value.length - 1) === ')'
+  ) {
+    value =
+      value.substring(0, value.length - 3) + value.charAt(value.length - 2);
   }
   value = value.toUpperCase();
 
@@ -260,14 +295,17 @@ export const validHKID = message => value => {
   const remaining = checkSum % 11;
   let verify = remaining === 0 ? 0 : 11 - remaining;
   verify = verify.toString();
-  const isValid = verify === checkDigit || (verify === 10 && checkDigit === 'A');
+  const isValid =
+    verify === checkDigit || (verify === 10 && checkDigit === 'A');
 
   return isValid ? VALID : message;
 };
 
-export const validSGID = message => value => {
+export const validSGID = (message) => (value) => {
   return value.length === 9 ? VALID : message;
 };
 
-export const composeValidators = (...validators) => value =>
-  validators.reduce((error, validator) => error || validator(value), VALID);
+export const composeValidators =
+  (...validators) =>
+  (value) =>
+    validators.reduce((error, validator) => error || validator(value), VALID);

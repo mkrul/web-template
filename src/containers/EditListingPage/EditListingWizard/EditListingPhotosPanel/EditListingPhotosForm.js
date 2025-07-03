@@ -9,7 +9,11 @@ import classNames from 'classnames';
 // Import configs and util modules
 import { FormattedMessage, useIntl } from '../../../../util/reactIntl';
 import { propTypes } from '../../../../util/types';
-import { nonEmptyArray, composeValidators } from '../../../../util/validators';
+import {
+  nonEmptyArray,
+  composeValidators,
+  requiredCratePhotos,
+} from '../../../../util/validators';
 import { isUploadImageOverLimitError } from '../../../../util/errors';
 
 // Import shared components
@@ -21,7 +25,7 @@ import css from './EditListingPhotosForm.module.css';
 
 const ACCEPT_IMAGES = 'image/*';
 
-const ImageUploadError = props => {
+const ImageUploadError = (props) => {
   return props.uploadOverLimit ? (
     <p className={css.error}>
       <FormattedMessage id="EditListingPhotosForm.imageUploadFailed.uploadOverLimit" />
@@ -36,7 +40,7 @@ const ImageUploadError = props => {
 // NOTE: PublishListingError and ShowListingsError are here since Photos panel is the last visible panel
 // before creating a new listing. If that order is changed, these should be changed too.
 // Create and show listing errors are shown above submit button
-const PublishListingError = props => {
+const PublishListingError = (props) => {
   return props.error ? (
     <p className={css.error}>
       <FormattedMessage id="EditListingPhotosForm.publishListingFailed" />
@@ -44,7 +48,7 @@ const PublishListingError = props => {
   ) : null;
 };
 
-const ShowListingsError = props => {
+const ShowListingsError = (props) => {
   return props.error ? (
     <p className={css.error}>
       <FormattedMessage id="EditListingPhotosForm.showListingFailed" />
@@ -53,14 +57,20 @@ const ShowListingsError = props => {
 };
 
 // Field component that uses file-input to allow user to select images.
-export const FieldAddImage = props => {
-  const { formApi, onImageUploadHandler, aspectWidth = 1, aspectHeight = 1, ...rest } = props;
+export const FieldAddImage = (props) => {
+  const {
+    formApi,
+    onImageUploadHandler,
+    aspectWidth = 1,
+    aspectHeight = 1,
+    ...rest
+  } = props;
   return (
     <Field form={null} {...rest}>
-      {fieldprops => {
+      {(fieldprops) => {
         const { accept, input, label, disabled: fieldDisabled } = fieldprops;
         const { name, type } = input;
-        const onChange = e => {
+        const onChange = (e) => {
           const file = e.target.files[0];
           formApi.change(`addImage`, file);
           formApi.blur(`addImage`);
@@ -70,7 +80,9 @@ export const FieldAddImage = props => {
         return (
           <div className={css.addImageWrapper}>
             <AspectRatioWrapper width={aspectWidth} height={aspectHeight}>
-              {fieldDisabled ? null : <input {...inputProps} className={css.addImageInput} />}
+              {fieldDisabled ? null : (
+                <input {...inputProps} className={css.addImageInput} />
+              )}
               <label htmlFor={name} className={css.addImage}>
                 {label}
               </label>
@@ -83,11 +95,18 @@ export const FieldAddImage = props => {
 };
 
 // Component that shows listing images from "images" field array
-const FieldListingImage = props => {
-  const { name, intl, onRemoveImage, aspectWidth, aspectHeight, variantPrefix } = props;
+const FieldListingImage = (props) => {
+  const {
+    name,
+    intl,
+    onRemoveImage,
+    aspectWidth,
+    aspectHeight,
+    variantPrefix,
+  } = props;
   return (
     <Field name={name}>
-      {fieldProps => {
+      {(fieldProps) => {
         const { input } = fieldProps;
         const image = input.value;
         return image ? (
@@ -135,16 +154,19 @@ const FieldListingImage = props => {
  * @param {string} props.listingImageConfig.variantPrefix - The variant prefix
  * @returns {JSX.Element}
  */
-export const EditListingPhotosForm = props => {
+export const EditListingPhotosForm = (props) => {
   const [state, setState] = useState({ imageUploadRequested: false });
   const [submittedImages, setSubmittedImages] = useState([]);
 
-  const onImageUploadHandler = file => {
+  const onImageUploadHandler = (file) => {
     const { listingImageConfig, onImageUpload } = props;
     if (file) {
       setState({ imageUploadRequested: true });
 
-      onImageUpload({ id: `${file.name}_${Date.now()}`, file }, listingImageConfig)
+      onImageUpload(
+        { id: `${file.name}_${Date.now()}`, file },
+        listingImageConfig
+      )
         .then(() => {
           setState({ imageUploadRequested: false });
         })
@@ -159,7 +181,7 @@ export const EditListingPhotosForm = props => {
     <FinalForm
       {...props}
       mutators={{ ...arrayMutators }}
-      render={formRenderProps => {
+      render={(formRenderProps) => {
         const {
           form,
           className,
@@ -179,32 +201,50 @@ export const EditListingPhotosForm = props => {
         } = formRenderProps;
 
         const images = values.images || [];
-        const { aspectWidth = 1, aspectHeight = 1, variantPrefix } = listingImageConfig;
+        const {
+          aspectWidth = 1,
+          aspectHeight = 1,
+          variantPrefix,
+        } = listingImageConfig;
 
-        const { publishListingError, showListingsError, updateListingError, uploadImageError } =
-          fetchErrors || {};
+        const {
+          publishListingError,
+          showListingsError,
+          updateListingError,
+          uploadImageError,
+        } = fetchErrors || {};
         const uploadOverLimit = isUploadImageOverLimitError(uploadImageError);
 
         // imgs can contain added images (with temp ids) and submitted images with uniq ids.
-        const arrayOfImgIds = imgs => imgs?.map(i => (typeof i.id === 'string' ? i.imageId : i.id));
+        const arrayOfImgIds = (imgs) =>
+          imgs?.map((i) => (typeof i.id === 'string' ? i.imageId : i.id));
         const imageIdsFromProps = arrayOfImgIds(images);
         const imageIdsFromPreviousSubmit = arrayOfImgIds(submittedImages);
-        const imageArrayHasSameImages = isEqual(imageIdsFromProps, imageIdsFromPreviousSubmit);
+        const imageArrayHasSameImages = isEqual(
+          imageIdsFromProps,
+          imageIdsFromPreviousSubmit
+        );
         const submittedOnce = submittedImages.length > 0;
-        const pristineSinceLastSubmit = submittedOnce && imageArrayHasSameImages;
+        const pristineSinceLastSubmit =
+          submittedOnce && imageArrayHasSameImages;
 
         const submitReady = (updated && pristineSinceLastSubmit) || ready;
         const submitInProgress = updateInProgress;
         const submitDisabled =
-          invalid || disabled || submitInProgress || state.imageUploadRequested || ready;
-        const imagesError = touched.images && errors?.images && errors.images[ARRAY_ERROR];
+          invalid ||
+          disabled ||
+          submitInProgress ||
+          state.imageUploadRequested ||
+          ready;
+        const imagesError =
+          touched.images && errors?.images && errors.images[ARRAY_ERROR];
 
         const classes = classNames(css.root, className);
 
         return (
           <Form
             className={classes}
-            onSubmit={e => {
+            onSubmit={(e) => {
               setSubmittedImages(images);
               handleSubmit(e);
             }}
@@ -219,9 +259,9 @@ export const EditListingPhotosForm = props => {
               <FieldArray
                 name="images"
                 validate={composeValidators(
-                  nonEmptyArray(
+                  requiredCratePhotos(
                     intl.formatMessage({
-                      id: 'EditListingPhotosForm.imageRequired',
+                      id: 'EditListingPhotosForm.cratePhotosRequired',
                     })
                   )
                 )}
@@ -231,7 +271,7 @@ export const EditListingPhotosForm = props => {
                     <FieldListingImage
                       key={name}
                       name={name}
-                      onRemoveImage={imageId => {
+                      onRemoveImage={(imageId) => {
                         fields.remove(index);
                         onRemoveImage(imageId);
                       }}
@@ -267,7 +307,9 @@ export const EditListingPhotosForm = props => {
               />
             </div>
 
-            {imagesError ? <div className={css.arrayError}>{imagesError}</div> : null}
+            {imagesError ? (
+              <div className={css.arrayError}>{imagesError}</div>
+            ) : null}
 
             <ImageUploadError
               uploadOverLimit={uploadOverLimit}
