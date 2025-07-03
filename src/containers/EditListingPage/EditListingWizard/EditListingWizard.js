@@ -56,6 +56,7 @@ import EditListingWizardTab, {
   DELIVERY,
   LOCATION,
   AVAILABILITY,
+  CRATE_TYPE,
   PHOTOS,
 } from './EditListingWizardTab';
 import css from './EditListingWizard.module.css';
@@ -68,7 +69,14 @@ import css from './EditListingWizard.module.css';
 //         Details tab asks for "title" and is therefore the first tab in the wizard flow.
 const TABS_DETAILS_ONLY = [DETAILS];
 const TABS_PRODUCT = [DETAILS, PRICING_AND_STOCK, DELIVERY, PHOTOS];
-const TABS_BOOKING = [DETAILS, LOCATION, PRICING, AVAILABILITY, PHOTOS];
+const TABS_BOOKING = [
+  DETAILS,
+  LOCATION,
+  PRICING,
+  AVAILABILITY,
+  CRATE_TYPE,
+  PHOTOS,
+];
 const TABS_INQUIRY = [DETAILS, LOCATION, PRICING, PHOTOS];
 const TABS_ALL = [...TABS_PRODUCT, ...TABS_BOOKING, ...TABS_INQUIRY];
 
@@ -81,7 +89,7 @@ const STRIPE_ONBOARDING_RETURN_URL_FAILURE = 'failure';
 // Pick only allowed tabs from the given list
 const getTabs = (processTabs, disallowedTabs) => {
   return disallowedTabs.length > 0
-    ? processTabs.filter(tab => !disallowedTabs.includes(tab))
+    ? processTabs.filter((tab) => !disallowedTabs.includes(tab))
     : processTabs;
 };
 // Pick only allowed booking tabs (location could be omitted)
@@ -92,7 +100,8 @@ const tabsForBookingProcess = (processTabs, listingTypeConfig) => {
 // Pick only allowed purchase tabs (delivery could be omitted)
 const tabsForPurchaseProcess = (processTabs, listingTypeConfig) => {
   const isDeliveryDisabled =
-    !displayDeliveryPickup(listingTypeConfig) && !displayDeliveryShipping(listingTypeConfig);
+    !displayDeliveryPickup(listingTypeConfig) &&
+    !displayDeliveryShipping(listingTypeConfig);
   const disallowedTabs = isDeliveryDisabled ? [DELIVERY] : [];
   return getTabs(processTabs, disallowedTabs);
 };
@@ -111,7 +120,13 @@ const tabsForInquiryProcess = (processTabs, listingTypeConfig) => {
  * @param {boolean} isNewListingFlow
  * @param {string} processName
  */
-const tabLabelAndSubmit = (intl, tab, isNewListingFlow, isPriceDisabled, processName) => {
+const tabLabelAndSubmit = (
+  intl,
+  tab,
+  isNewListingFlow,
+  isPriceDisabled,
+  processName
+) => {
   const processNameString = isNewListingFlow ? `${processName}.` : '';
   const newOrEdit = isNewListingFlow ? 'new' : 'edit';
 
@@ -138,6 +153,9 @@ const tabLabelAndSubmit = (intl, tab, isNewListingFlow, isPriceDisabled, process
   } else if (tab === AVAILABILITY) {
     labelKey = 'EditListingWizard.tabLabelAvailability';
     submitButtonKey = `EditListingWizard.${processNameString}${newOrEdit}.saveAvailability`;
+  } else if (tab === CRATE_TYPE) {
+    labelKey = 'EditListingWizard.tabLabelCrateType';
+    submitButtonKey = `EditListingWizard.${processNameString}${newOrEdit}.saveCrateType`;
   } else if (tab === PHOTOS) {
     labelKey = 'EditListingWizard.tabLabelPhotos';
     submitButtonKey = `EditListingWizard.${processNameString}${newOrEdit}.savePhotos`;
@@ -156,42 +174,60 @@ const tabLabelAndSubmit = (intl, tab, isNewListingFlow, isPriceDisabled, process
  * @param {Object} publicData
  * @param {Object} privateData
  */
-const hasValidListingFieldsInExtendedData = (publicData, privateData, config) => {
+const hasValidListingFieldsInExtendedData = (
+  publicData,
+  privateData,
+  config
+) => {
   const isValidField = (fieldConfig, fieldData) => {
     const { key, schemaType, enumOptions = [], saveConfig = {} } = fieldConfig;
 
-    const schemaOptionKeys = enumOptions.map(o => `${o.option}`);
-    const hasValidEnumValue = optionData => {
+    const schemaOptionKeys = enumOptions.map((o) => `${o.option}`);
+    const hasValidEnumValue = (optionData) => {
       return schemaOptionKeys.includes(optionData);
     };
-    const hasValidMultiEnumValues = savedOptions => {
-      return savedOptions.every(optionData => schemaOptionKeys.includes(optionData));
+    const hasValidMultiEnumValues = (savedOptions) => {
+      return savedOptions.every((optionData) =>
+        schemaOptionKeys.includes(optionData)
+      );
     };
 
     const categoryKey = config.categoryConfiguration.key;
     const categoryOptions = config.categoryConfiguration.categories;
-    const categoriesObj = pickCategoryFields(publicData, categoryKey, 1, categoryOptions);
+    const categoriesObj = pickCategoryFields(
+      publicData,
+      categoryKey,
+      1,
+      categoryOptions
+    );
     const currentCategories = Object.values(categoriesObj);
 
-    const isTargetListingType = isFieldForListingType(publicData?.listingType, fieldConfig);
+    const isTargetListingType = isFieldForListingType(
+      publicData?.listingType,
+      fieldConfig
+    );
     const isTargetCategory = isFieldForCategory(currentCategories, fieldConfig);
-    const isRequired = !!saveConfig.isRequired && isTargetListingType && isTargetCategory;
+    const isRequired =
+      !!saveConfig.isRequired && isTargetListingType && isTargetCategory;
 
     if (isRequired) {
       const savedListingField = fieldData[key];
       return schemaType === SCHEMA_TYPE_ENUM
-        ? typeof savedListingField === 'string' && hasValidEnumValue(savedListingField)
+        ? typeof savedListingField === 'string' &&
+            hasValidEnumValue(savedListingField)
         : schemaType === SCHEMA_TYPE_MULTI_ENUM
-        ? Array.isArray(savedListingField) && hasValidMultiEnumValues(savedListingField)
-        : schemaType === SCHEMA_TYPE_TEXT
-        ? typeof savedListingField === 'string'
-        : schemaType === SCHEMA_TYPE_LONG
-        ? typeof savedListingField === 'number' && Number.isInteger(savedListingField)
-        : schemaType === SCHEMA_TYPE_BOOLEAN
-        ? savedListingField === true || savedListingField === false
-        : schemaType === SCHEMA_TYPE_YOUTUBE
-        ? typeof savedListingField === 'string'
-        : false;
+          ? Array.isArray(savedListingField) &&
+            hasValidMultiEnumValues(savedListingField)
+          : schemaType === SCHEMA_TYPE_TEXT
+            ? typeof savedListingField === 'string'
+            : schemaType === SCHEMA_TYPE_LONG
+              ? typeof savedListingField === 'number' &&
+                Number.isInteger(savedListingField)
+              : schemaType === SCHEMA_TYPE_BOOLEAN
+                ? savedListingField === true || savedListingField === false
+                : schemaType === SCHEMA_TYPE_YOUTUBE
+                  ? typeof savedListingField === 'string'
+                  : false;
     }
     return true;
   };
@@ -220,8 +256,13 @@ const tabCompleted = (tab, listing, config) => {
     privateData,
   } = listing.attributes;
   const images = listing.images;
-  const { listingType, transactionProcessAlias, unitType, shippingEnabled, pickupEnabled } =
-    publicData || {};
+  const {
+    listingType,
+    transactionProcessAlias,
+    unitType,
+    shippingEnabled,
+    pickupEnabled,
+  } = publicData || {};
   const deliveryOptionPicked = publicData && (shippingEnabled || pickupEnabled);
 
   switch (tab) {
@@ -244,6 +285,8 @@ const tabCompleted = (tab, listing, config) => {
       return !!(geolocation && publicData?.location?.address);
     case AVAILABILITY:
       return !!availabilityPlan;
+    case CRATE_TYPE:
+      return !!publicData?.crateType;
     case PHOTOS:
       return images && images.length > 0;
     default:
@@ -263,12 +306,20 @@ const tabCompleted = (tab, listing, config) => {
  */
 const tabsActive = (isNew, listing, tabs, config) => {
   return tabs.reduce((acc, tab) => {
-    const previousTabIndex = tabs.findIndex(t => t === tab) - 1;
+    const previousTabIndex = tabs.findIndex((t) => t === tab) - 1;
     const validTab = previousTabIndex >= 0;
     const hasListingType = !!listing?.attributes?.publicData?.listingType;
-    const prevTabComletedInNewFlow = tabCompleted(tabs[previousTabIndex], listing, config);
+    const prevTabComletedInNewFlow = tabCompleted(
+      tabs[previousTabIndex],
+      listing,
+      config
+    );
     const isActive =
-      validTab && !isNew ? hasListingType : validTab && isNew ? prevTabComletedInNewFlow : true;
+      validTab && !isNew
+        ? hasListingType
+        : validTab && isNew
+          ? prevTabComletedInNewFlow
+          : true;
     return { ...acc, [tab]: isActive };
   }, {});
 };
@@ -296,10 +347,11 @@ const createReturnURL = (returnURLType, rootURL, routes, pathParams) => {
 };
 
 // Get attribute: stripeAccountData
-const getStripeAccountData = stripeAccount => stripeAccount.attributes.stripeAccountData || null;
+const getStripeAccountData = (stripeAccount) =>
+  stripeAccount.attributes.stripeAccountData || null;
 
 // Get last 4 digits of bank account returned in Stripe account
-const getBankAccountLast4Digits = stripeAccountData =>
+const getBankAccountLast4Digits = (stripeAccountData) =>
   stripeAccountData && stripeAccountData.external_accounts.data.length > 0
     ? stripeAccountData.external_accounts.data[0].last4
     : null;
@@ -312,13 +364,14 @@ const hasRequirements = (stripeAccountData, requirementType) =>
   stripeAccountData.requirements[requirementType].length > 0;
 
 // Redirect user to Stripe's hosted Connect account onboarding form
-const handleGetStripeConnectAccountLinkFn = (getLinkFn, commonParams) => type => () => {
-  getLinkFn({ type, ...commonParams })
-    .then(url => {
-      window.location.href = url;
-    })
-    .catch(err => console.error(err));
-};
+const handleGetStripeConnectAccountLinkFn =
+  (getLinkFn, commonParams) => (type) => () => {
+    getLinkFn({ type, ...commonParams })
+      .then((url) => {
+        window.location.href = url;
+      })
+      .catch((err) => console.error(err));
+  };
 
 const RedirectToStripe = ({ redirectFn }) => {
   useEffect(redirectFn('custom_account_verification'), []);
@@ -331,12 +384,14 @@ const getListingTypeConfig = (listing, selectedListingType, config) => {
   const hasOnlyOneListingType = validListingTypes?.length === 1;
 
   const listingTypeConfig = existingListingType
-    ? validListingTypes.find(conf => conf.listingType === existingListingType)
+    ? validListingTypes.find((conf) => conf.listingType === existingListingType)
     : selectedListingType
-    ? validListingTypes.find(conf => conf.listingType === selectedListingType.listingType)
-    : hasOnlyOneListingType
-    ? validListingTypes[0]
-    : null;
+      ? validListingTypes.find(
+          (conf) => conf.listingType === selectedListingType.listingType
+        )
+      : hasOnlyOneListingType
+        ? validListingTypes[0]
+        : null;
   return listingTypeConfig;
 };
 
@@ -396,7 +451,8 @@ class EditListingWizard extends Component {
       selectedListingType: null,
       mounted: false,
     };
-    this.handleCreateFlowTabScrolling = this.handleCreateFlowTabScrolling.bind(this);
+    this.handleCreateFlowTabScrolling =
+      this.handleCreateFlowTabScrolling.bind(this);
     this.handlePublishListing = this.handlePublishListing.bind(this);
     this.handlePayoutModalClose = this.handlePayoutModalClose.bind(this);
   }
@@ -417,18 +473,31 @@ class EditListingWizard extends Component {
   }
 
   handlePublishListing(id) {
-    const { onPublishListingDraft, currentUser, stripeAccount, listing, config } = this.props;
-    const processName = listing?.attributes?.publicData?.transactionProcessAlias.split('/')[0];
+    const {
+      onPublishListingDraft,
+      currentUser,
+      stripeAccount,
+      listing,
+      config,
+    } = this.props;
+    const processName =
+      listing?.attributes?.publicData?.transactionProcessAlias.split('/')[0];
     const isInquiryProcess = processName === INQUIRY_PROCESS_NAME;
 
-    const listingTypeConfig = getListingTypeConfig(listing, this.state.selectedListingType, config);
+    const listingTypeConfig = getListingTypeConfig(
+      listing,
+      this.state.selectedListingType,
+      config
+    );
     // Through hosted configs (listingTypeConfig.defaultListingFields?.payoutDetails),
     // it's possible to publish listing without payout details set by provider.
     // Customers can't purchase these listings - but it gives operator opportunity to discuss with providers who fail to do so.
     const isPayoutDetailsRequired = requirePayoutDetails(listingTypeConfig);
 
     const stripeConnected = !!currentUser?.stripeAccount?.id;
-    const stripeAccountData = stripeConnected ? getStripeAccountData(stripeAccount) : null;
+    const stripeAccountData = stripeConnected
+      ? getStripeAccountData(stripeAccount)
+      : null;
     const stripeRequirementsMissing =
       stripeAccount &&
       (hasRequirements(stripeAccountData, 'past_due') ||
@@ -482,15 +551,18 @@ class EditListingWizard extends Component {
     } = this.props;
 
     const selectedTab = params.tab;
-    const isNewListingFlow = [LISTING_PAGE_PARAM_TYPE_NEW, LISTING_PAGE_PARAM_TYPE_DRAFT].includes(
-      params.type
-    );
+    const isNewListingFlow = [
+      LISTING_PAGE_PARAM_TYPE_NEW,
+      LISTING_PAGE_PARAM_TYPE_DRAFT,
+    ].includes(params.type);
     const rootClasses = rootClassName || css.root;
     const classes = classNames(rootClasses, className);
     const currentListing = ensureListing(listing);
-    const savedProcessAlias = currentListing.attributes?.publicData?.transactionProcessAlias;
+    const savedProcessAlias =
+      currentListing.attributes?.publicData?.transactionProcessAlias;
     const transactionProcessAlias =
-      savedProcessAlias || this.state.selectedListingType?.transactionProcessAlias;
+      savedProcessAlias ||
+      this.state.selectedListingType?.transactionProcessAlias;
 
     // NOTE: If the listing has invalid configuration in place,
     // the listing is considered deprecated and we don't allow user to modify the listing anymore.
@@ -501,8 +573,10 @@ class EditListingWizard extends Component {
       this.state.selectedListingType,
       config
     );
-    const existingListingType = currentListing.attributes?.publicData?.listingType;
-    const invalidExistingListingType = existingListingType && !listingTypeConfig;
+    const existingListingType =
+      currentListing.attributes?.publicData?.listingType;
+    const invalidExistingListingType =
+      existingListingType && !listingTypeConfig;
     // TODO: displayPrice aka config.defaultListingFields?.price with false value is only available with inquiry process
     //       if it's enabled with other processes, translations for "new" flow needs to be updated.
     const isPriceDisabled = !displayPrice(listingTypeConfig);
@@ -512,29 +586,46 @@ class EditListingWizard extends Component {
     const processName = transactionProcessAlias
       ? transactionProcessAlias.split('/')[0]
       : validListingTypes.length === 1
-      ? validListingTypes[0].transactionType.process
-      : INQUIRY_PROCESS_NAME;
+        ? validListingTypes[0].transactionType.process
+        : INQUIRY_PROCESS_NAME;
 
     const hasListingTypeSelected =
-      existingListingType || this.state.selectedListingType || validListingTypes.length === 1;
+      existingListingType ||
+      this.state.selectedListingType ||
+      validListingTypes.length === 1;
 
     // For oudated draft listing, we don't show other tabs but the "details"
     const tabs =
-      isNewListingFlow && (invalidExistingListingType || !hasListingTypeSelected)
+      isNewListingFlow &&
+      (invalidExistingListingType || !hasListingTypeSelected)
         ? TABS_DETAILS_ONLY
         : isBookingProcess(processName)
-        ? tabsForBookingProcess(TABS_BOOKING, listingTypeConfig)
-        : isPurchaseProcess(processName)
-        ? tabsForPurchaseProcess(TABS_PRODUCT, listingTypeConfig)
-        : tabsForInquiryProcess(TABS_INQUIRY, listingTypeConfig);
+          ? tabsForBookingProcess(TABS_BOOKING, listingTypeConfig)
+          : isPurchaseProcess(processName)
+            ? tabsForPurchaseProcess(TABS_PRODUCT, listingTypeConfig)
+            : tabsForInquiryProcess(TABS_INQUIRY, listingTypeConfig);
 
     // Check if wizard tab is active / linkable.
     // When creating a new listing, we don't allow users to access next tab until the current one is completed.
-    const tabsStatus = tabsActive(isNewListingFlow, currentListing, tabs, config);
+    const tabsStatus = tabsActive(
+      isNewListingFlow,
+      currentListing,
+      tabs,
+      config
+    );
 
     // Redirect user to first tab when encoutering outdated draft listings.
-    if (invalidExistingListingType && isNewListingFlow && selectedTab !== tabs[0]) {
-      return <NamedRedirect name="EditListingPage" params={{ ...params, tab: tabs[0] }} />;
+    if (
+      invalidExistingListingType &&
+      isNewListingFlow &&
+      selectedTab !== tabs[0]
+    ) {
+      return (
+        <NamedRedirect
+          name="EditListingPage"
+          params={{ ...params, tab: tabs[0] }}
+        />
+      );
     }
 
     // If selectedTab is not active for listing with valid listing type,
@@ -544,18 +635,24 @@ class EditListingWizard extends Component {
       const nearestActiveTab = tabs
         .slice(0, currentTabIndex)
         .reverse()
-        .find(t => tabsStatus[t]);
+        .find((t) => tabsStatus[t]);
 
       console.log(
         `You tried to access an EditListingWizard tab (${selectedTab}), which was not yet activated.`
       );
-      return <NamedRedirect name="EditListingPage" params={{ ...params, tab: nearestActiveTab }} />;
+      return (
+        <NamedRedirect
+          name="EditListingPage"
+          params={{ ...params, tab: nearestActiveTab }}
+        />
+      );
     }
 
     const isBrowser = typeof window !== 'undefined';
     const hasMatchMedia = isBrowser && window?.matchMedia;
     const isMobileLayout = hasMatchMedia
-      ? window.matchMedia(`(max-width: ${MAX_HORIZONTAL_NAV_SCREEN_WIDTH}px)`)?.matches
+      ? window.matchMedia(`(max-width: ${MAX_HORIZONTAL_NAV_SCREEN_WIDTH}px)`)
+          ?.matches
       : true;
 
     const hasHorizontalTabLayout = this.mounted && isMobileLayout;
@@ -570,14 +667,15 @@ class EditListingWizard extends Component {
       this.hasScrolledToTab = true;
     }
 
-    const tabLink = tab => {
+    const tabLink = (tab) => {
       return { name: 'EditListingPage', params: { ...params, tab } };
     };
 
     const formDisabled = getAccountLinkInProgress;
     const ensuredCurrentUser = ensureCurrentUser(currentUser);
     const currentUserLoaded = !!ensuredCurrentUser.id;
-    const stripeConnected = currentUserLoaded && !!stripeAccount && !!stripeAccount.id;
+    const stripeConnected =
+      currentUserLoaded && !!stripeAccount && !!stripeAccount.id;
 
     const rootURL = config.marketplaceRootURL;
     const { returnURLType, ...pathParams } = params;
@@ -595,7 +693,9 @@ class EditListingWizard extends Component {
     );
 
     const accountId = stripeConnected ? stripeAccount.id : null;
-    const stripeAccountData = stripeConnected ? getStripeAccountData(stripeAccount) : null;
+    const stripeAccountData = stripeConnected
+      ? getStripeAccountData(stripeAccount)
+      : null;
 
     const requirementsMissing =
       stripeAccount &&
@@ -603,26 +703,34 @@ class EditListingWizard extends Component {
         hasRequirements(stripeAccountData, 'currently_due'));
 
     const savedCountry = stripeAccountData ? stripeAccountData.country : null;
-    const savedAccountType = stripeAccountData ? stripeAccountData.business_type : null;
+    const savedAccountType = stripeAccountData
+      ? stripeAccountData.business_type
+      : null;
 
     const { marketplaceName } = config;
     const payoutModalInfo = stripeAccountData ? (
-      <FormattedMessage id="EditListingWizard.payoutModalInfo" values={{ marketplaceName }} />
+      <FormattedMessage
+        id="EditListingWizard.payoutModalInfo"
+        values={{ marketplaceName }}
+      />
     ) : (
-      <FormattedMessage id="EditListingWizard.payoutModalInfoNew" values={{ marketplaceName }} />
+      <FormattedMessage
+        id="EditListingWizard.payoutModalInfoNew"
+        values={{ marketplaceName }}
+      />
     );
 
-    const handleGetStripeConnectAccountLink = handleGetStripeConnectAccountLinkFn(
-      onGetStripeConnectAccountLink,
-      {
+    const handleGetStripeConnectAccountLink =
+      handleGetStripeConnectAccountLinkFn(onGetStripeConnectAccountLink, {
         accountId,
         successURL,
         failureURL,
-      }
-    );
+      });
 
-    const returnedNormallyFromStripe = returnURLType === STRIPE_ONBOARDING_RETURN_URL_SUCCESS;
-    const returnedAbnormallyFromStripe = returnURLType === STRIPE_ONBOARDING_RETURN_URL_FAILURE;
+    const returnedNormallyFromStripe =
+      returnURLType === STRIPE_ONBOARDING_RETURN_URL_SUCCESS;
+    const returnedAbnormallyFromStripe =
+      returnURLType === STRIPE_ONBOARDING_RETURN_URL_FAILURE;
     const showVerificationNeeded = stripeConnected && requirementsMissing;
 
     // Redirect from success URL to basic path for StripePayoutPage
@@ -637,7 +745,7 @@ class EditListingWizard extends Component {
           navRootClassName={css.nav}
           tabRootClassName={css.tab}
         >
-          {tabs.map(tab => {
+          {tabs.map((tab) => {
             const tabTranslations = tabLabelAndSubmit(
               intl,
               tab,
@@ -663,7 +771,9 @@ class EditListingWizard extends Component {
                 handleCreateFlowTabScrolling={this.handleCreateFlowTabScrolling}
                 handlePublishListing={this.handlePublishListing}
                 fetchInProgress={fetchInProgress}
-                onListingTypeChange={selectedListingType => this.setState({ selectedListingType })}
+                onListingTypeChange={(selectedListingType) =>
+                  this.setState({ selectedListingType })
+                }
                 onManageDisableScrolling={onManageDisableScrolling}
                 config={config}
                 routeConfiguration={routeConfiguration}
@@ -688,7 +798,9 @@ class EditListingWizard extends Component {
               <FormattedMessage id="StripePayoutPage.loadingData" />
             ) : returnedAbnormallyFromStripe && !stripeAccountLinkError ? (
               <p className={css.modalMessage}>
-                <RedirectToStripe redirectFn={handleGetStripeConnectAccountLink} />
+                <RedirectToStripe
+                  redirectFn={handleGetStripeConnectAccountLink}
+                />
               </p>
             ) : (
               <>
@@ -698,7 +810,9 @@ class EditListingWizard extends Component {
                   inProgress={payoutDetailsSaveInProgress}
                   ready={payoutDetailsSaved}
                   currentUser={currentUser}
-                  stripeBankAccountLastDigits={getBankAccountLast4Digits(stripeAccountData)}
+                  stripeBankAccountLastDigits={getBankAccountLast4Digits(
+                    stripeAccountData
+                  )}
                   savedCountry={savedCountry}
                   savedAccountType={savedAccountType}
                   submitButtonText={intl.formatMessage({
@@ -711,7 +825,9 @@ class EditListingWizard extends Component {
                   onSubmit={rest.onPayoutDetailsSubmit}
                   stripeConnected={stripeConnected}
                 >
-                  {stripeConnected && !returnedAbnormallyFromStripe && showVerificationNeeded ? (
+                  {stripeConnected &&
+                  !returnedAbnormallyFromStripe &&
+                  showVerificationNeeded ? (
                     <StripeConnectAccountStatusBox
                       type="verificationNeeded"
                       inProgress={getAccountLinkInProgress}
@@ -719,7 +835,9 @@ class EditListingWizard extends Component {
                         'custom_account_verification'
                       )}
                     />
-                  ) : stripeConnected && savedCountry && !returnedAbnormallyFromStripe ? (
+                  ) : stripeConnected &&
+                    savedCountry &&
+                    !returnedAbnormallyFromStripe ? (
                     <StripeConnectAccountStatusBox
                       type="verificationSuccess"
                       inProgress={getAccountLinkInProgress}
@@ -739,7 +857,7 @@ class EditListingWizard extends Component {
   }
 }
 
-const EnhancedEditListingWizard = props => {
+const EnhancedEditListingWizard = (props) => {
   const config = useConfiguration();
   const routeConfiguration = useRouteConfiguration();
   const intl = useIntl();

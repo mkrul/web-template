@@ -1,0 +1,70 @@
+@import '../../../../styles/customMediaQueries.css';
+
+.root {
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  flex-shrink: 0;
+}
+
+.error {
+  color: var(--colorFail);
+}
+
+.formGroup {
+  margin-bottom: 24px;
+}
+
+.heading {
+  composes: h3 from global;
+  margin-top: 0;
+  margin-bottom: 16px;
+}
+
+.description {
+  composes: marketplaceBodyFontStyles from global;
+  color: var(--colorGrey700);
+  margin-bottom: 24px;
+
+  @media (--viewportLarge) {
+    margin-bottom: 32px;
+  }
+}
+
+.wireDescription,
+.solidDescription {
+  composes: marketplaceSmallFontStyles from global;
+  color: var(--colorGrey500);
+  margin-left: 32px;
+  margin-bottom: 16px;
+
+  @media (--viewportLarge) {
+    margin-bottom: 24px;
+  }
+}
+
+.descriptionList {
+  margin: 0;
+  padding: 0;
+  list-style-type: disc;
+  padding-left: 16px;
+}
+
+.descriptionList li {
+  margin: 0;
+  padding: 0;
+}
+
+.submitButton {
+  flex-shrink: 0;
+  margin-top: auto;
+  margin-bottom: 24px;
+
+  @media (--viewportLarge) {
+    display: inline-block;
+    width: 241px;
+    margin-top: 100px;
+  }
+}

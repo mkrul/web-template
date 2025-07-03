@@ -10,6 +10,7 @@ import { createResourceLocatorString } from '../../../util/routes';
 
 // Import modules from this directory
 import EditListingAvailabilityPanel from './EditListingAvailabilityPanel/EditListingAvailabilityPanel';
+import EditListingCrateTypePanel from './EditListingCrateTypePanel/EditListingCrateTypePanel';
 import EditListingDetailsPanel from './EditListingDetailsPanel/EditListingDetailsPanel';
 import EditListingDeliveryPanel from './EditListingDeliveryPanel/EditListingDeliveryPanel';
 import EditListingLocationPanel from './EditListingLocationPanel/EditListingLocationPanel';
@@ -25,6 +26,7 @@ export const PRICING_AND_STOCK = 'pricing-and-stock';
 export const DELIVERY = 'delivery';
 export const LOCATION = 'location';
 export const AVAILABILITY = 'availability';
+export const CRATE_TYPE = 'crate-type';
 export const PHOTOS = 'photos';
 
 // EditListingWizardTab component supports these tabs
@@ -35,11 +37,12 @@ export const SUPPORTED_TABS = [
   DELIVERY,
   LOCATION,
   AVAILABILITY,
+  CRATE_TYPE,
   PHOTOS,
 ];
 
 const pathParamsToNextTab = (params, tab, marketplaceTabs) => {
-  const nextTabIndex = marketplaceTabs.findIndex(s => s === tab) + 1;
+  const nextTabIndex = marketplaceTabs.findIndex((s) => s === tab) + 1;
   const nextTab =
     nextTabIndex < marketplaceTabs.length
       ? marketplaceTabs[nextTabIndex]
@@ -48,7 +51,14 @@ const pathParamsToNextTab = (params, tab, marketplaceTabs) => {
 };
 
 // When user has update draft listing, he should be redirected to next EditListingWizardTab
-const redirectAfterDraftUpdate = (listingId, params, tab, marketplaceTabs, history, routes) => {
+const redirectAfterDraftUpdate = (
+  listingId,
+  params,
+  tab,
+  marketplaceTabs,
+  history,
+  routes
+) => {
   const listingUUID = listingId.uuid;
   const currentPathParams = {
     ...params,
@@ -59,13 +69,27 @@ const redirectAfterDraftUpdate = (listingId, params, tab, marketplaceTabs, histo
   // Replace current "new" path to "draft" path.
   // Browser's back button should lead to editing current draft instead of creating a new one.
   if (params.type === LISTING_PAGE_PARAM_TYPE_NEW) {
-    const draftURI = createResourceLocatorString('EditListingPage', routes, currentPathParams, {});
+    const draftURI = createResourceLocatorString(
+      'EditListingPage',
+      routes,
+      currentPathParams,
+      {}
+    );
     history.replace(draftURI);
   }
 
   // Redirect to next tab
-  const nextPathParams = pathParamsToNextTab(currentPathParams, tab, marketplaceTabs);
-  const to = createResourceLocatorString('EditListingPage', routes, nextPathParams, {});
+  const nextPathParams = pathParamsToNextTab(
+    currentPathParams,
+    tab,
+    marketplaceTabs
+  );
+  const to = createResourceLocatorString(
+    'EditListingPage',
+    routes,
+    nextPathParams,
+    {}
+  );
   history.push(to);
 };
 
@@ -76,7 +100,7 @@ const redirectAfterDraftUpdate = (listingId, params, tab, marketplaceTabs, histo
  * @param {Object} props
  * @returns {JSX.Element} EditListingWizardTab component
  */
-const EditListingWizardTab = props => {
+const EditListingWizardTab = (props) => {
   const {
     tab,
     marketplaceTabs,
@@ -147,7 +171,7 @@ const EditListingWizardTab = props => {
       : { ...updateValues, id: currentListing.id };
 
     return onUpdateListingOrCreateListingDraft(tab, updateListingValues)
-      .then(r => {
+      .then((r) => {
         // In Availability tab, the submitted data (plan) is inside a modal
         // We don't redirect provider immediately after plan is set
         if (isNewListingFlow && tab !== AVAILABILITY) {
@@ -155,12 +179,12 @@ const EditListingWizardTab = props => {
           automaticRedirectsForNewListingFlow(tab, listingId);
         }
       })
-      .catch(e => {
+      .catch((e) => {
         // No need for extra actions
       });
   };
 
-  const panelProps = tab => {
+  const panelProps = (tab) => {
     return {
       className: css.panel,
       errors,
@@ -175,7 +199,7 @@ const EditListingWizardTab = props => {
       submitButtonText: tabSubmitButtonText,
       listingTypes: config.listing.listingTypes,
       onManageDisableScrolling,
-      onSubmit: values => {
+      onSubmit: (values) => {
         return onCompleteEditListingWizardTab(tab, values);
       },
     };
@@ -212,7 +236,10 @@ const EditListingWizardTab = props => {
     }
     case DELIVERY: {
       return (
-        <EditListingDeliveryPanel {...panelProps(DELIVERY)} marketplaceCurrency={config.currency} />
+        <EditListingDeliveryPanel
+          {...panelProps(DELIVERY)}
+          marketplaceCurrency={config.currency}
+        />
       );
     }
     case LOCATION: {
@@ -241,6 +268,14 @@ const EditListingWizardTab = props => {
           history={history}
           routeConfiguration={routeConfiguration}
           {...panelProps(AVAILABILITY)}
+        />
+      );
+    }
+    case CRATE_TYPE: {
+      return (
+        <EditListingCrateTypePanel
+          {...panelProps(CRATE_TYPE)}
+          onRemoveImage={onRemoveImage}
         />
       );
     }

@@ -12,7 +12,7 @@ import { H3, ListingLink } from '../../../../components';
 import EditListingPhotosForm from './EditListingPhotosForm';
 import css from './EditListingPhotosPanel.module.css';
 
-const getInitialValues = params => {
+const getInitialValues = (params) => {
   const { images = [] } = params;
   return { images };
 };
@@ -38,7 +38,7 @@ const getInitialValues = params => {
  * @param {Object} props.listingImageConfig - The listing image config
  * @returns {JSX.Element}
  */
-const EditListingPhotosPanel = props => {
+const EditListingPhotosPanel = (props) => {
   const {
     className,
     rootClassName,
@@ -57,7 +57,8 @@ const EditListingPhotosPanel = props => {
 
   const rootClass = rootClassName || css.root;
   const classes = classNames(rootClass, className);
-  const isPublished = listing?.id && listing?.attributes?.state !== LISTING_STATE_DRAFT;
+  const isPublished =
+    listing?.id && listing?.attributes?.state !== LISTING_STATE_DRAFT;
 
   return (
     <div className={classes}>
@@ -65,7 +66,10 @@ const EditListingPhotosPanel = props => {
         {isPublished ? (
           <FormattedMessage
             id="EditListingPhotosPanel.title"
-            values={{ listingTitle: <ListingLink listing={listing} />, lineBreak: <br /> }}
+            values={{
+              listingTitle: <ListingLink listing={listing} />,
+              lineBreak: <br />,
+            }}
           />
         ) : (
           <FormattedMessage
@@ -81,7 +85,7 @@ const EditListingPhotosPanel = props => {
         fetchErrors={errors}
         initialValues={getInitialValues(props)}
         onImageUpload={onImageUpload}
-        onSubmit={values => {
+        onSubmit={(values) => {
           const { addImage, ...updateValues } = values;
           onSubmit(updateValues);
         }}
