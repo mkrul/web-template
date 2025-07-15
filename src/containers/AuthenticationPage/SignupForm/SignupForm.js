@@ -51,7 +51,8 @@ const SignupFormComponent = (props) => (
         termsAccepted,
       } = formRenderProps;
 
-      const { userType } = values || {};
+      const { userType, terms } = values || {};
+      const termsAcceptedFromForm = terms && terms.includes('tos-and-privacy');
 
       // email
       const emailRequired = validators.required(
@@ -120,7 +121,8 @@ const SignupFormComponent = (props) => (
 
       const classes = classNames(rootClassName || css.root, className);
       const submitInProgress = inProgress;
-      const submitDisabled = invalid || submitInProgress || !termsAccepted;
+      const submitDisabled =
+        invalid || submitInProgress || !termsAcceptedFromForm;
 
       return (
         <Form className={classes} onSubmit={handleSubmit}>

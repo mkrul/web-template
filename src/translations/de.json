@@ -269,7 +269,7 @@
   "EditListingDetailsForm.maxLength": "Kann höchstens {maxLength} Zeichen lang sein",
   "EditListingDetailsForm.showListingFailed": "Das Abrufen der Eintragsdaten ist fehlgeschlagen.",
   "EditListingDetailsForm.title": "Titel des Eintrags",
-  "EditListingDetailsForm.titlePlaceholder": "Um was für eine Art von Eintrag handelt es sich?",
+  "EditListingDetailsForm.titlePlaceholder": "Geben Sie den Titel Ihres Inserats ein",
   "EditListingDetailsForm.titleRequired": "Du musst einen Titel hinzufügen.",
   "EditListingDetailsForm.updateFailed": "Eintrag konnte nicht aktualisiert werden. Bitte versuche es erneut.",
   "EditListingDetailsPanel.createListingTitle": "Eintragsdetails",
@@ -1189,5 +1189,7 @@
   "UserDisplayName.deleted": "Gelöschter Benutzer",
   "UserNav.accountSettings": "Kontoeinstellungen",
   "UserNav.profileSettings": "Profileinstellungen",
-  "UserNav.yourListings": "Deine Einträge"
+  "UserNav.yourListings": "Deine Einträge",
+  "EditListingLocationForm.addressDescription": "Dies ist die Adresse, an der die Kiste abgeholt und zurückgegeben wird.",
+      "EditListingDetailsForm.carTravelEligible": "Kiste geeignet für Autoreisen"
 }

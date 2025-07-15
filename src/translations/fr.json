@@ -260,7 +260,7 @@
   "EditListingDetailsForm.createListingDraftError": "La création du brouillon de l'annonce a échoué. Veuillez réessayer.",
   "EditListingDetailsForm.defaultRequiredMessage": "Obligatoire",
   "EditListingDetailsForm.description": "Descriptif de l'annonce",
-  "EditListingDetailsForm.descriptionPlaceholder": "Décrivez votre annonce plus en détail.",
+  "EditListingDetailsForm.descriptionPlaceholder": "Décrivez cette caisse plus en détail.",
   "EditListingDetailsForm.descriptionRequired": "Vous devez ajouter une description.",
   "EditListingDetailsForm.incompatibleCurrency": "{marketplaceName} utilise {marketplaceCurrency} comme devise. Cette annonce requiert le paiement en ligne, mais le système de paiement de Sharetribe ne supporte pas {marketplaceCurrency} comme devise. Si vous souhaitez publier une annonce de ce type, la devise de la place de marché doit être changée.",
   "EditListingDetailsForm.listingTypeLabel": "Type d'annonce",
@@ -269,7 +269,7 @@
   "EditListingDetailsForm.maxLength": "La description doit contenir {maxLength} caractères ou moins",
   "EditListingDetailsForm.showListingFailed": "Échec de la récupération des données de l'annonce.",
   "EditListingDetailsForm.title": "Titre de l'annonce",
-  "EditListingDetailsForm.titlePlaceholder": "De quel type d'annonce s'agit-il?",
+  "EditListingDetailsForm.titlePlaceholder": "Saisissez le titre de votre annonce",
   "EditListingDetailsForm.titleRequired": "Vous devez ajouter un titre.",
   "EditListingDetailsForm.updateFailed": "Échec de la mise à jour de l'annonce. Veuillez réessayer.",
   "EditListingDetailsPanel.createListingTitle": "Détails de l'annonce",
@@ -1190,5 +1190,6 @@
   "UserNav.accountSettings": "Réglages",
   "UserNav.profileSettings": "Profil",
   "UserNav.yourListings": "Mes annonces",
-  "EditListingLocationForm.addressDescription": "Il s'agit de l'adresse où la caisse sera récupérée et retournée."
+  "EditListingLocationForm.addressDescription": "Il s'agit de l'adresse où la caisse sera récupérée et retournée.",
+      "EditListingDetailsForm.carTravelEligible": "Caisse éligible pour les voyages en voiture"
 }

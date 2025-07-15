@@ -260,7 +260,7 @@
   "EditListingDetailsForm.createListingDraftError": "Error al crear el borrador del anuncio. Por favor, inténtalo de nuevo.",
   "EditListingDetailsForm.defaultRequiredMessage": "Obligatorio",
   "EditListingDetailsForm.description": "Descripción del anuncio",
-  "EditListingDetailsForm.descriptionPlaceholder": "Describe tu anuncio más detalladamente.",
+  "EditListingDetailsForm.descriptionPlaceholder": "Describe esta caja con más detalle.",
   "EditListingDetailsForm.descriptionRequired": "Necesitas añadir una descripción.",
   "EditListingDetailsForm.incompatibleCurrency": "{marketplaceName} usa {marketplaceCurrency} como su moneda. Este tipo de anuncio utiliza pagos en línea, pero el sistema de pago de Sharetribe do suporta pagos con {marketplaceCurrency}. Si quieres publicar anuncios en este tipo de anuncio, necesitas cambiar la moneda de tu marketplace.",
   "EditListingDetailsForm.listingTypeLabel": "Tipo de anuncio",
@@ -269,7 +269,7 @@
   "EditListingDetailsForm.maxLength": "Puedes usuar hasta {maxLength} caracteres.",
   "EditListingDetailsForm.showListingFailed": "Error al obtener los datos del anuncio.",
   "EditListingDetailsForm.title": "Título del anuncio",
-  "EditListingDetailsForm.titlePlaceholder": "¿Cuál es el título del anuncio?",
+  "EditListingDetailsForm.titlePlaceholder": "Introduce el título de tu anuncio",
   "EditListingDetailsForm.titleRequired": "Necesitas añadir un título.",
   "EditListingDetailsForm.updateFailed": "Error al actualizar el anuncio. Por favor, inténtalo de nuevo.",
   "EditListingDetailsPanel.createListingTitle": "Detalles del anuncio",
@@ -1190,5 +1190,6 @@
   "UserNav.accountSettings": "Configuración de la cuenta",
   "UserNav.profileSettings": "Configuración de perfil",
   "UserNav.yourListings": "Tus anuncios",
-  "EditListingLocationForm.addressDescription": "Esta es la dirección donde se recogerá y devolverá la caja."
+  "EditListingLocationForm.addressDescription": "Esta es la dirección donde se recogerá y devolverá la caja.",
+      "EditListingDetailsForm.carTravelEligible": "Caja apta para viajes en automóvil"
 }

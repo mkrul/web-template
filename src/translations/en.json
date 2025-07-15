@@ -260,7 +260,7 @@
   "EditListingDetailsForm.createListingDraftError": "Failed to create a draft listing. Please try again.",
   "EditListingDetailsForm.defaultRequiredMessage": "Required",
   "EditListingDetailsForm.description": "Listing description",
-  "EditListingDetailsForm.descriptionPlaceholder": "Describe your listing in more detail.",
+  "EditListingDetailsForm.descriptionPlaceholder": "Describe this crate in more detail.",
   "EditListingDetailsForm.descriptionRequired": "You need to add a description.",
   "EditListingDetailsForm.incompatibleCurrency": "{marketplaceName} uses {marketplaceCurrency} as its currency. This listing type requires online payments, but Sharetribe's online payment system doesn't support {marketplaceCurrency} payments. If you want to publish a listing with this listing type, the currency of the marketplace needs to be changed.",
   "EditListingDetailsForm.listingTypeLabel": "Listing type",
@@ -269,7 +269,7 @@
   "EditListingDetailsForm.maxLength": "Must be {maxLength} characters or less",
   "EditListingDetailsForm.showListingFailed": "Fetching listing data failed.",
   "EditListingDetailsForm.title": "Listing title",
-  "EditListingDetailsForm.titlePlaceholder": "What kind of listing is it?",
+  "EditListingDetailsForm.titlePlaceholder": "Enter the title for your listing",
   "EditListingDetailsForm.titleRequired": "You need to add a title.",
   "EditListingDetailsForm.updateFailed": "Failed to update listing. Please try again.",
   "EditListingDetailsPanel.createListingTitle": "Listing details",
@@ -1190,5 +1190,6 @@
   "UserNav.accountSettings": "Account settings",
   "UserNav.profileSettings": "Profile settings",
   "UserNav.yourListings": "Your listings",
-  "EditListingLocationForm.addressDescription": "This is the address that the crate will be picked up and returned to."
+  "EditListingLocationForm.addressDescription": "This is the address that the crate will be picked up and returned to.",
+      "EditListingDetailsForm.carTravelEligible": "Crate eligible for car travel"
 }

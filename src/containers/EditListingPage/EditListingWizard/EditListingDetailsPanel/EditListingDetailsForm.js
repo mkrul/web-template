@@ -11,7 +11,11 @@ import {
   isFieldForListingType,
   isValidCurrencyForTransactionProcess,
 } from '../../../../util/fieldHelpers';
-import { maxLength, required, composeValidators } from '../../../../util/validators';
+import {
+  maxLength,
+  required,
+  composeValidators,
+} from '../../../../util/validators';
 
 // Import shared components
 import {
@@ -19,6 +23,7 @@ import {
   Button,
   FieldSelect,
   FieldTextInput,
+  FieldCheckbox,
   Heading,
   CustomExtendedDataField,
 } from '../../../../components';
@@ -28,9 +33,10 @@ import css from './EditListingDetailsForm.module.css';
 const TITLE_MAX_LENGTH = 60;
 
 // Show various error messages
-const ErrorMessage = props => {
+const ErrorMessage = (props) => {
   const { fetchErrors } = props;
-  const { updateListingError, createListingDraftError, showListingsError } = fetchErrors || {};
+  const { updateListingError, createListingDraftError, showListingsError } =
+    fetchErrors || {};
   const errorMessage = updateListingError ? (
     <FormattedMessage id="EditListingDetailsForm.updateFailed" />
   ) : createListingDraftError ? (
@@ -46,11 +52,11 @@ const ErrorMessage = props => {
 };
 
 // Hidden input field
-const FieldHidden = props => {
+const FieldHidden = (props) => {
   const { name } = props;
   return (
     <Field id={name} name={name} type="hidden" className={css.unitTypeHidden}>
-      {fieldRenderProps => <input {...fieldRenderProps?.input} />}
+      {(fieldRenderProps) => <input {...fieldRenderProps?.input} />}
     </Field>
   );
 };
@@ -60,7 +66,7 @@ const FieldHidden = props => {
 // - listingType              Set of predefined configurations for each listing type
 // - transactionProcessAlias  Initiate correct transaction against Marketplace API
 // - unitType                 Main use case: pricing unit
-const FieldSelectListingType = props => {
+const FieldSelectListingType = (props) => {
   const {
     name,
     listingTypes,
@@ -72,17 +78,24 @@ const FieldSelectListingType = props => {
   } = props;
   const hasMultipleListingTypes = listingTypes?.length > 1;
 
-  const handleOnChange = value => {
-    const selectedListingType = listingTypes.find(config => config.listingType === value);
-    formApi.change('transactionProcessAlias', selectedListingType.transactionProcessAlias);
+  const handleOnChange = (value) => {
+    const selectedListingType = listingTypes.find(
+      (config) => config.listingType === value
+    );
+    formApi.change(
+      'transactionProcessAlias',
+      selectedListingType.transactionProcessAlias
+    );
     formApi.change('unitType', selectedListingType.unitType);
 
     if (onListingTypeChange) {
       onListingTypeChange(selectedListingType);
     }
   };
-  const getListingTypeLabel = listingType => {
-    const listingTypeConfig = listingTypes.find(config => config.listingType === listingType);
+  const getListingTypeLabel = (listingType) => {
+    const listingTypeConfig = listingTypes.find(
+      (config) => config.listingType === listingType
+    );
     return listingTypeConfig ? listingTypeConfig.label : listingType;
   };
 
@@ -92,16 +105,22 @@ const FieldSelectListingType = props => {
         id={formId ? `${formId}.${name}` : name}
         name={name}
         className={css.listingTypeSelect}
-        label={intl.formatMessage({ id: 'EditListingDetailsForm.listingTypeLabel' })}
+        label={intl.formatMessage({
+          id: 'EditListingDetailsForm.listingTypeLabel',
+        })}
         validate={required(
-          intl.formatMessage({ id: 'EditListingDetailsForm.listingTypeRequired' })
+          intl.formatMessage({
+            id: 'EditListingDetailsForm.listingTypeRequired',
+          })
         )}
         onChange={handleOnChange}
       >
         <option disabled value="">
-          {intl.formatMessage({ id: 'EditListingDetailsForm.listingTypePlaceholder' })}
+          {intl.formatMessage({
+            id: 'EditListingDetailsForm.listingTypePlaceholder',
+          })}
         </option>
-        {listingTypes.map(config => {
+        {listingTypes.map((config) => {
           const type = config.listingType;
           return (
             <option key={type} value={type}>
@@ -118,7 +137,9 @@ const FieldSelectListingType = props => {
       <Heading as="h5" rootClassName={css.selectedLabel}>
         {intl.formatMessage({ id: 'EditListingDetailsForm.listingTypeLabel' })}
       </Heading>
-      <p className={css.selectedValue}>{getListingTypeLabel(formApi.getFieldState(name)?.value)}</p>
+      <p className={css.selectedValue}>
+        {getListingTypeLabel(formApi.getFieldState(name)?.value)}
+      </p>
       <FieldHidden name={name} />
       <FieldHidden name="transactionProcessAlias" />
       <FieldHidden name="unitType" />
@@ -134,7 +155,7 @@ const FieldSelectListingType = props => {
 
 // Finds the correct subcategory within the given categories array based on the provided categoryIdToFind.
 const findCategoryConfig = (categories, categoryIdToFind) => {
-  return categories?.find(category => category.id === categoryIdToFind);
+  return categories?.find((category) => category.id === categoryIdToFind);
 };
 
 /**
@@ -142,12 +163,22 @@ const findCategoryConfig = (categories, categoryIdToFind) => {
  * This function calls itself with updated props to render nested category fields.
  * The select field is used for choosing a category or subcategory.
  */
-const CategoryField = props => {
-  const { currentCategoryOptions, level, values, prefix, handleCategoryChange, intl } = props;
+const CategoryField = (props) => {
+  const {
+    currentCategoryOptions,
+    level,
+    values,
+    prefix,
+    handleCategoryChange,
+    intl,
+  } = props;
 
   const currentCategoryKey = `${prefix}${level}`;
 
-  const categoryConfig = findCategoryConfig(currentCategoryOptions, values[`${prefix}${level}`]);
+  const categoryConfig = findCategoryConfig(
+    currentCategoryOptions,
+    values[`${prefix}${level}`]
+  );
 
   return (
     <>
@@ -157,7 +188,9 @@ const CategoryField = props => {
           id={currentCategoryKey}
           name={currentCategoryKey}
           className={css.listingTypeSelect}
-          onChange={event => handleCategoryChange(event, level, currentCategoryOptions)}
+          onChange={(event) =>
+            handleCategoryChange(event, level, currentCategoryOptions)
+          }
           label={intl.formatMessage(
             { id: 'EditListingDetailsForm.categoryLabel' },
             { categoryLevel: currentCategoryKey }
@@ -176,7 +209,7 @@ const CategoryField = props => {
             )}
           </option>
 
-          {currentCategoryOptions.map(option => (
+          {currentCategoryOptions.map((option) => (
             <option key={option.id} value={option.id}>
               {option.name}
             </option>
@@ -198,16 +231,23 @@ const CategoryField = props => {
   );
 };
 
-const FieldSelectCategory = props => {
+const FieldSelectCategory = (props) => {
   useEffect(() => {
     checkIfInitialValuesExist();
   }, []);
 
-  const { prefix, listingCategories, formApi, intl, setAllCategoriesChosen, values } = props;
+  const {
+    prefix,
+    listingCategories,
+    formApi,
+    intl,
+    setAllCategoriesChosen,
+    values,
+  } = props;
 
   // Counts the number of selected categories in the form values based on the given prefix.
   const countSelectedCategories = () => {
-    return Object.keys(values).filter(key => key.startsWith(prefix)).length;
+    return Object.keys(values).filter((key) => key.startsWith(prefix)).length;
   };
 
   // Checks if initial values exist for categories and sets the state accordingly.
@@ -225,7 +265,10 @@ const FieldSelectCategory = props => {
         formApi.change(`${prefix}${i}`, null);
       }
     }
-    const categoryConfig = findCategoryConfig(currentCategoryOptions, category).subcategories;
+    const categoryConfig = findCategoryConfig(
+      currentCategoryOptions,
+      category
+    ).subcategories;
     setAllCategoriesChosen(!categoryConfig || categoryConfig.length === 0);
   };
 
@@ -242,8 +285,9 @@ const FieldSelectCategory = props => {
 };
 
 // Add collect data for listing fields (both publicData and privateData) based on configuration
-const AddListingFields = props => {
-  const { listingType, listingFieldsConfig, selectedCategories, formId, intl } = props;
+const AddListingFields = (props) => {
+  const { listingType, listingFieldsConfig, selectedCategories, formId, intl } =
+    props;
   const targetCategoryIds = Object.values(selectedCategories);
 
   const fields = listingFieldsConfig.reduce((pickedFields, fieldConfig) => {
@@ -255,7 +299,10 @@ const AddListingFields = props => {
     const isTargetListingType = isFieldForListingType(listingType, fieldConfig);
     const isTargetCategory = isFieldForCategory(targetCategoryIds, fieldConfig);
 
-    return isKnownSchemaType && isProviderScope && isTargetListingType && isTargetCategory
+    return isKnownSchemaType &&
+      isProviderScope &&
+      isTargetListingType &&
+      isTargetCategory
       ? [
           ...pickedFields,
           <CustomExtendedDataField
@@ -301,11 +348,11 @@ const AddListingFields = props => {
  * @param {Function} props.onSubmit - The submit function
  * @returns {JSX.Element}
  */
-const EditListingDetailsForm = props => (
+const EditListingDetailsForm = (props) => (
   <FinalForm
     {...props}
     mutators={{ ...arrayMutators }}
-    render={formRenderProps => {
+    render={(formRenderProps) => {
       const {
         autoFocus,
         className,
@@ -362,17 +409,21 @@ const EditListingDetailsForm = props => (
 
       const maxLength60Message = maxLength(maxLengthMessage, TITLE_MAX_LENGTH);
 
-      const hasCategories = selectableCategories && selectableCategories.length > 0;
+      const hasCategories =
+        selectableCategories && selectableCategories.length > 0;
       const showCategories = listingType && hasCategories;
 
       const showTitle = hasCategories ? allCategoriesChosen : listingType;
       const showDescription = hasCategories ? allCategoriesChosen : listingType;
-      const showListingFields = hasCategories ? allCategoriesChosen : listingType;
+      const showListingFields = hasCategories
+        ? allCategoriesChosen
+        : listingType;
 
       const classes = classNames(css.root, className);
       const submitReady = (updated && pristine) || ready;
       const submitInProgress = updateInProgress;
-      const hasMandatoryListingTypeData = listingType && transactionProcessAlias && unitType;
+      const hasMandatoryListingTypeData =
+        listingType && transactionProcessAlias && unitType;
       const submitDisabled =
         invalid ||
         disabled ||
@@ -417,7 +468,10 @@ const EditListingDetailsForm = props => (
                 id: 'EditListingDetailsForm.titlePlaceholder',
               })}
               maxLength={TITLE_MAX_LENGTH}
-              validate={composeValidators(required(titleRequiredMessage), maxLength60Message)}
+              validate={composeValidators(
+                required(titleRequiredMessage),
+                maxLength60Message
+              )}
               autoFocus={autoFocus}
             />
           )}
@@ -428,7 +482,9 @@ const EditListingDetailsForm = props => (
               name="description"
               className={css.description}
               type="textarea"
-              label={intl.formatMessage({ id: 'EditListingDetailsForm.description' })}
+              label={intl.formatMessage({
+                id: 'EditListingDetailsForm.description',
+              })}
               placeholder={intl.formatMessage({
                 id: 'EditListingDetailsForm.descriptionPlaceholder',
               })}
@@ -437,6 +493,18 @@ const EditListingDetailsForm = props => (
                   id: 'EditListingDetailsForm.descriptionRequired',
                 })
               )}
+            />
+          )}
+
+          {showDescription && isCompatibleCurrency && (
+            <FieldCheckbox
+              id={`${formId}.carTravelEligible`}
+              name="carTravelEligible"
+              className={css.carTravelEligible}
+              label={intl.formatMessage({
+                id: 'EditListingDetailsForm.carTravelEligible',
+              })}
+              value="carTravelEligible"
             />
           )}
 
