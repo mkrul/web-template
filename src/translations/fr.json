@@ -3,7 +3,7 @@
   "AddressLinkMaybe.viewOnMap": "Voir sur la carte",
   "AuthenticationPage.confirmSignupInfoText": "Veuillez vérifier que vos informations sont correctes.",
   "AuthenticationPage.confirmSignupWithIdpTitle": "S'inscrire avec {idp}",
-  "AuthenticationPage.fixEmail": "Y a t-il une erreur dans votre email ? {fixEmailLink}.",
+  "AuthenticationPage.fixEmail": "Y a t-il une erreur dans votre email? {fixEmailLink}.",
   "AuthenticationPage.fixEmailLinkText": "La corriger",
   "AuthenticationPage.idpAuthFailed": "Échec de l'authentification auprès d'un service d'identité tiers.",
   "AuthenticationPage.loginFailed": "L'email et le mot de passe que vous avez fournis ne correspondent pas à nos enregistrements. Veuillez vérifier et réessayer.",
@@ -11,7 +11,7 @@
   "AuthenticationPage.loginWithFacebook": "Continuer avec Facebook",
   "AuthenticationPage.loginWithGoogle": "Continuer avec Google",
   "AuthenticationPage.or": "ou",
-  "AuthenticationPage.resendEmail": "Vous n'avez pas reçu l'email ? {resendEmailLink}.",
+  "AuthenticationPage.resendEmail": "Vous n'avez pas reçu l'email? {resendEmailLink}.",
   "AuthenticationPage.resendEmailLinkText": "Renvoyer l'email",
   "AuthenticationPage.resendFailed": "L'envoi de l'email de confirmation a échoué. Veuillez réessayer.",
   "AuthenticationPage.resendFailedTooManyRequests": "La limite de 5 emails de confirmation a été atteinte. Veuillez réessayer demain.",
@@ -1189,5 +1189,6 @@
   "UserDisplayName.deleted": "Utilisateur supprimé",
   "UserNav.accountSettings": "Réglages",
   "UserNav.profileSettings": "Profil",
-  "UserNav.yourListings": "Mes annonces"
+  "UserNav.yourListings": "Mes annonces",
+  "EditListingLocationForm.addressDescription": "Il s'agit de l'adresse où la caisse sera récupérée et retournée."
 }

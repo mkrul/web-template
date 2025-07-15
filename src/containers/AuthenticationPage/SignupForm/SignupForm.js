@@ -125,9 +125,7 @@ const SignupFormComponent = (props) => (
       return (
         <Form className={classes} onSubmit={handleSubmit}>
           <div className={css.welcomeMessage}>
-            <h1 className={css.welcomeTitle}>
-              Welcome to DogCrateRental! How do you plan to use our site?
-            </h1>
+            <h2 className={css.welcomeTitle}>Welcome to DogCrateRental!</h2>
             <p className={css.welcomeText}>
               Choose "Independent Crate Provider" if you are providing your own
               crates for others to rent, or "Renter" if you will be renting

@@ -22,7 +22,7 @@ import {
 // Import modules from this directory
 import css from './EditListingLocationForm.module.css';
 
-const identity = v => v;
+const identity = (v) => v;
 
 /**
  * The EditListingLocationForm component.
@@ -45,10 +45,10 @@ const identity = v => v;
  * @param {propTypes.error} props.errors.updateListingError - The update listing error
  * @returns {JSX.Element}
  */
-export const EditListingLocationForm = props => (
+export const EditListingLocationForm = (props) => (
   <FinalForm
     {...props}
-    render={formRenderProps => {
+    render={(formRenderProps) => {
       const {
         formId = 'EditListingLocationForm',
         autoFocus,
@@ -99,6 +99,10 @@ export const EditListingLocationForm = props => (
             </p>
           ) : null}
 
+          <p className={css.addressDescription}>
+            <FormattedMessage id="EditListingLocationForm.addressDescription" />
+          </p>
+
           <FieldLocationAutocompleteInput
             rootClassName={css.locationAddress}
             inputClassName={css.locationAutocompleteInput}
@@ -107,7 +111,9 @@ export const EditListingLocationForm = props => (
             validClassName={css.validLocation}
             autoFocus={autoFocus}
             name="location"
-            label={intl.formatMessage({ id: 'EditListingLocationForm.address' })}
+            label={intl.formatMessage({
+              id: 'EditListingLocationForm.address',
+            })}
             placeholder={intl.formatMessage({
               id: 'EditListingLocationForm.addressPlaceholder',
             })}
@@ -119,13 +125,15 @@ export const EditListingLocationForm = props => (
               autocompletePlaceSelected(addressNotRecognizedMessage)
             )}
           />
-
           <FieldTextInput
             className={css.building}
             type="text"
             name="building"
             id={`${formId}building`}
-            label={intl.formatMessage({ id: 'EditListingLocationForm.building' }, { optionalText })}
+            label={intl.formatMessage(
+              { id: 'EditListingLocationForm.building' },
+              { optionalText }
+            )}
             placeholder={intl.formatMessage({
               id: 'EditListingLocationForm.buildingPlaceholder',
             })}
