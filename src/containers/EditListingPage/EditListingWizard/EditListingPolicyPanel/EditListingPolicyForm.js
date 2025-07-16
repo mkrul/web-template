@@ -125,15 +125,22 @@ const EditListingPolicyFormComponent = (props) => (
   />
 );
 
-const EditListingPolicyForm = (props) => {
+const EditListingPolicyForm = ({
+  saveActionMsg = 'Save policy',
+  updateInProgress = false,
+  fetchErrors = null,
+  ...props
+}) => {
   const intl = useIntl();
-  return <EditListingPolicyFormComponent {...props} intl={intl} />;
-};
-
-EditListingPolicyForm.defaultProps = {
-  saveActionMsg: 'Save policy',
-  updateInProgress: false,
-  fetchErrors: null,
+  return (
+    <EditListingPolicyFormComponent
+      {...props}
+      intl={intl}
+      saveActionMsg={saveActionMsg}
+      updateInProgress={updateInProgress}
+      fetchErrors={fetchErrors}
+    />
+  );
 };
 
 EditListingPolicyForm.propTypes = {
