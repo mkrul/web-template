@@ -24,6 +24,7 @@ import {
   FieldSelect,
   FieldTextInput,
   FieldCheckbox,
+  FieldToggle,
   Heading,
   CustomExtendedDataField,
 } from '../../../../components';
@@ -497,7 +498,7 @@ const EditListingDetailsForm = (props) => (
           )}
 
           {showDescription && isCompatibleCurrency && (
-            <FieldCheckbox
+            <FieldToggle
               id={`${formId}.carTravelEligible`}
               name="carTravelEligible"
               className={css.carTravelEligible}

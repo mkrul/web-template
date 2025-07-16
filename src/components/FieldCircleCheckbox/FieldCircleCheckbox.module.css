@@ -1,0 +1,57 @@
+.root {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20px;
+  cursor: pointer;
+}
+
+.inputWrapper {
+  position: relative;
+  display: flex;
+  align-items: center;
+  margin-right: 16px;
+}
+
+.input {
+  position: absolute;
+  opacity: 0;
+  width: 24px;
+  height: 24px;
+  margin: 0;
+  z-index: 2;
+  cursor: pointer;
+}
+
+.circle {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  border: 2px solid var(--colorGrey300);
+  background: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: border-color 0.2s, background 0.2s;
+  box-sizing: border-box;
+}
+
+.input:focus + .circle {
+  border-color: var(--colorBrandPrimary);
+  box-shadow: 0 0 0 2px var(--colorBrandPrimaryAlpha20);
+}
+
+.checked {
+  background: var(--colorSuccess);
+  border-color: var(--colorSuccess);
+}
+
+.checkmark {
+  display: block;
+}
+
+.labelText {
+  font-size: 1rem;
+  color: var(--colorGrey800);
+  line-height: 1.5;
+  user-select: text;
+}

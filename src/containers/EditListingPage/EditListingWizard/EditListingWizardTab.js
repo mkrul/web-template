@@ -15,6 +15,7 @@ import EditListingDetailsPanel from './EditListingDetailsPanel/EditListingDetail
 import EditListingDeliveryPanel from './EditListingDeliveryPanel/EditListingDeliveryPanel';
 import EditListingLocationPanel from './EditListingLocationPanel/EditListingLocationPanel';
 import EditListingPhotosPanel from './EditListingPhotosPanel/EditListingPhotosPanel';
+import EditListingPolicyPanel from './EditListingPolicyPanel/EditListingPolicyPanel';
 import EditListingPricingPanel from './EditListingPricingPanel/EditListingPricingPanel';
 import EditListingPricingAndStockPanel from './EditListingPricingAndStockPanel/EditListingPricingAndStockPanel';
 
@@ -28,6 +29,7 @@ export const LOCATION = 'location';
 export const AVAILABILITY = 'availability';
 export const CRATE_TYPE = 'crate-type';
 export const PHOTOS = 'photos';
+export const POLICY = 'policy';
 
 // EditListingWizardTab component supports these tabs
 export const SUPPORTED_TABS = [
@@ -39,6 +41,7 @@ export const SUPPORTED_TABS = [
   AVAILABILITY,
   CRATE_TYPE,
   PHOTOS,
+  POLICY,
 ];
 
 const pathParamsToNextTab = (params, tab, marketplaceTabs) => {
@@ -289,6 +292,9 @@ const EditListingWizardTab = (props) => {
           onRemoveImage={onRemoveImage}
         />
       );
+    }
+    case POLICY: {
+      return <EditListingPolicyPanel {...panelProps(POLICY)} />;
     }
     default:
       return null;

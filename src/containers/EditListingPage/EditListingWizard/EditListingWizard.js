@@ -58,6 +58,7 @@ import EditListingWizardTab, {
   AVAILABILITY,
   CRATE_TYPE,
   PHOTOS,
+  POLICY,
 } from './EditListingWizardTab';
 import css from './EditListingWizard.module.css';
 
@@ -76,6 +77,7 @@ const TABS_BOOKING = [
   AVAILABILITY,
   CRATE_TYPE,
   PHOTOS,
+  POLICY,
 ];
 const TABS_INQUIRY = [DETAILS, LOCATION, PRICING, PHOTOS];
 const TABS_ALL = [...TABS_PRODUCT, ...TABS_BOOKING, ...TABS_INQUIRY];
@@ -92,9 +94,18 @@ const getTabs = (processTabs, disallowedTabs) => {
     ? processTabs.filter((tab) => !disallowedTabs.includes(tab))
     : processTabs;
 };
-// Pick only allowed booking tabs (location could be omitted)
-const tabsForBookingProcess = (processTabs, listingTypeConfig) => {
+// Pick only allowed booking tabs (location could be omitted, policy only for Independent Crate Providers)
+const tabsForBookingProcess = (processTabs, listingTypeConfig, currentUser) => {
   const disallowedTabs = !displayLocation(listingTypeConfig) ? [LOCATION] : [];
+
+  // Only show Policy tab for Independent Crate Providers
+  const userType = currentUser?.attributes?.profile?.publicData?.userType;
+  const isIndependentCrateProvider = userType === 'provider-id';
+
+  if (!isIndependentCrateProvider) {
+    disallowedTabs.push(POLICY);
+  }
+
   return getTabs(processTabs, disallowedTabs);
 };
 // Pick only allowed purchase tabs (delivery could be omitted)
@@ -159,6 +170,9 @@ const tabLabelAndSubmit = (
   } else if (tab === PHOTOS) {
     labelKey = 'EditListingWizard.tabLabelPhotos';
     submitButtonKey = `EditListingWizard.${processNameString}${newOrEdit}.savePhotos`;
+  } else if (tab === POLICY) {
+    labelKey = 'EditListingWizard.tabLabelPolicyPage';
+    submitButtonKey = `EditListingWizard.${processNameString}${newOrEdit}.savePolicy`;
   }
 
   return {
@@ -314,6 +328,12 @@ const tabCompleted = (tab, listing, config) => {
       }
 
       return images.length >= minPhotos && images.length <= maxPhotos;
+    case POLICY:
+      return !!(
+        publicData?.accessibleLocation?.includes('accessibleLocation') &&
+        publicData?.scheduleCompliance?.includes('scheduleCompliance') &&
+        publicData?.visibilityCompliance?.includes('visibilityCompliance')
+      );
     default:
       return false;
   }
@@ -625,7 +645,7 @@ class EditListingWizard extends Component {
       (invalidExistingListingType || !hasListingTypeSelected)
         ? TABS_DETAILS_ONLY
         : isBookingProcess(processName)
-          ? tabsForBookingProcess(TABS_BOOKING, listingTypeConfig)
+          ? tabsForBookingProcess(TABS_BOOKING, listingTypeConfig, currentUser)
           : isPurchaseProcess(processName)
             ? tabsForPurchaseProcess(TABS_PRODUCT, listingTypeConfig)
             : tabsForInquiryProcess(TABS_INQUIRY, listingTypeConfig);

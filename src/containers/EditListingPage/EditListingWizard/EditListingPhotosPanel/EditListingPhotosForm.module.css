@@ -115,13 +115,16 @@
   composes: h5 from global;
 
   flex-shrink: 0;
-  color: var(--colorGrey300);
-  margin-top: 24px;
-  margin-bottom: 60px;
+  color: var(--colorGrey700);
+  margin-top: 0;
+  margin-bottom: 24px;
+  padding: 16px;
+  background-color: var(--colorGrey50);
+  border-radius: 8px;
+  border-left: 4px solid var(--colorGrey300);
 
   @media (--viewportLarge) {
-    margin-top: 0;
-    margin-bottom: 0;
+    margin-bottom: 32px;
   }
 }
 

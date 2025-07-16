@@ -78,4 +78,8 @@
 
 .carTravelEligible {
   composes: formMargins;
+  padding: 16px;
+  background-color: var(--colorGrey50);
+  border-radius: 8px;
+  border: 1px solid var(--colorGrey200);
 }

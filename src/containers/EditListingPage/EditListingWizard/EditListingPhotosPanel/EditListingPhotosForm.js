@@ -260,6 +260,18 @@ export const EditListingPhotosForm = (props) => {
               </p>
             ) : null}
 
+            <p className={css.tip}>
+              <FormattedMessage
+                id={
+                  crateType === 'wire'
+                    ? 'EditListingPhotosForm.wireImagesTip'
+                    : crateType === 'solid'
+                      ? 'EditListingPhotosForm.solidImagesTip'
+                      : 'EditListingPhotosForm.addImagesTip'
+                }
+              />
+            </p>
+
             <div className={css.imagesFieldArray}>
               <FieldArray
                 name="images"
@@ -326,18 +338,6 @@ export const EditListingPhotosForm = (props) => {
               uploadOverLimit={uploadOverLimit}
               uploadImageError={uploadImageError}
             />
-
-            <p className={css.tip}>
-              <FormattedMessage
-                id={
-                  crateType === 'wire'
-                    ? 'EditListingPhotosForm.wireImagesTip'
-                    : crateType === 'solid'
-                      ? 'EditListingPhotosForm.solidImagesTip'
-                      : 'EditListingPhotosForm.addImagesTip'
-                }
-              />
-            </p>
 
             <PublishListingError error={publishListingError} />
             <ShowListingsError error={showListingsError} />

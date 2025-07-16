@@ -1,0 +1,18 @@
+@import '../../../../styles/customMediaQueries.css';
+
+.root {
+  flex-grow: 1;
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  padding: 24px 24px 0 24px;
+
+  @media (--viewportLarge) {
+    padding: 32px 32px 0 32px;
+  }
+}
+
+.form {
+  flex-grow: 1;
+}

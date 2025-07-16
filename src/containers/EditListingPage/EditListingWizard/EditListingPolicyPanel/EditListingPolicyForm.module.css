@@ -1,0 +1,35 @@
+@import '../../../../styles/customMediaQueries.css';
+
+.root {
+  width: 100%;
+  height: auto;
+  display: flex;
+  flex-direction: column;
+  flex-grow: 1;
+  flex-shrink: 0;
+}
+
+.formGroup {
+  flex-shrink: 0;
+  margin: 0 0 24px 0;
+}
+
+.description {
+  composes: marketplaceBodyFontStyles from global;
+  color: var(--colorGrey700);
+  margin: 0 0 24px 0;
+}
+
+.error {
+  color: var(--colorFail);
+  margin: 24px 0;
+}
+
+.submitButton {
+  flex-shrink: 0;
+  margin: 24px 0 0 0;
+
+  @media (--viewportLarge) {
+    margin: 32px 0 0 0;
+  }
+}

@@ -1,0 +1,114 @@
+@import '../../styles/customMediaQueries.css';
+
+.root {
+  position: relative;
+}
+
+.input {
+  position: absolute;
+  opacity: 0;
+  height: 0;
+  width: 0;
+}
+
+.label {
+  display: flex;
+  align-items: center;
+  padding: 0;
+  margin-bottom: 0;
+  cursor: pointer;
+}
+
+.toggleWrapper {
+  height: 32px;
+  margin-right: 12px;
+  display: inline-flex;
+  align-items: center;
+  cursor: pointer;
+
+  @media (--viewportMedium) {
+    height: 24px;
+  }
+}
+
+.toggle {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  background-color: var(--colorGrey300);
+  border-radius: 12px;
+  transition: background-color 0.2s ease;
+  cursor: pointer;
+}
+
+.toggleTrack {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: 12px;
+  background-color: var(--colorGrey300);
+  transition: background-color 0.2s ease;
+}
+
+.toggleThumb {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 20px;
+  height: 20px;
+  background-color: white;
+  border-radius: 50%;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.text {
+  composes: marketplaceListingAttributeFontStyles from global;
+  color: var(--colorGrey700);
+  margin-top: -1px;
+  margin-bottom: 1px;
+  cursor: pointer;
+}
+
+.input:checked + .label .toggleTrack {
+  background-color: var(--marketplaceColor);
+}
+
+.input:checked + .label .toggleThumb {
+  transform: translateX(20px);
+}
+
+.input:checked + .label .toggleSuccess .toggleTrack {
+  background-color: var(--colorSuccess);
+}
+
+.input:focus + .label .toggleTrack {
+  box-shadow: 0 0 0 2px var(--marketplaceColor);
+}
+
+.input:hover + .label .toggleTrack {
+  background-color: var(--colorGrey400);
+}
+
+.input:checked + .label .toggleTrack:hover {
+  background-color: var(--marketplaceColorDark);
+}
+
+.input:checked + .label .toggleSuccess .toggleTrack:hover {
+  background-color: var(--colorSuccessDark);
+}
+
+.input:disabled + .label {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.input:disabled + .label .toggle {
+  cursor: not-allowed;
+}
+
+.input:disabled + .label .text {
+  cursor: not-allowed;
+}

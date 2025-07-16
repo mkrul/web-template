@@ -34,6 +34,7 @@ import * as FieldReviewRating from './components/FieldReviewRating/FieldReviewRa
 import * as FieldSelect from './components/FieldSelect/FieldSelect.example';
 import * as FieldSelectTree from './components/FieldSelectTree/FieldSelectTree.example';
 import * as FieldTextInput from './components/FieldTextInput/FieldTextInput.example';
+import * as FieldToggle from './components/FieldToggle/FieldToggle.example';
 import * as IconAdd from './components/IconAdd/IconAdd.example';
 import * as IconAlert from './components/IconAlert/IconAlert.example';
 import * as IconBannedUser from './components/IconBannedUser/IconBannedUser.example';
@@ -172,6 +173,7 @@ export {
   FieldSelectTree,
   FieldSingleDatePicker,
   FieldTextInput,
+  FieldToggle,
   FieldTimeZoneSelect,
   FilterForm,
   FilterPlain,
