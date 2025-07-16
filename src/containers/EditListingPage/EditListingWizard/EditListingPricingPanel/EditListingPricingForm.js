@@ -22,12 +22,19 @@ import css from './EditListingPricingForm.module.css';
 
 const { Money } = sdkTypes;
 
-const getPriceValidators = (listingMinimumPriceSubUnits, marketplaceCurrency, intl) => {
+const getPriceValidators = (
+  listingMinimumPriceSubUnits,
+  marketplaceCurrency,
+  intl
+) => {
   const priceRequiredMsgId = { id: 'EditListingPricingForm.priceRequired' };
   const priceRequiredMsg = intl.formatMessage(priceRequiredMsgId);
   const priceRequired = validators.required(priceRequiredMsg);
 
-  const minPriceRaw = new Money(listingMinimumPriceSubUnits, marketplaceCurrency);
+  const minPriceRaw = new Money(
+    listingMinimumPriceSubUnits,
+    marketplaceCurrency
+  );
   const minPrice = formatMoney(intl, minPriceRaw);
   const priceTooLowMsgId = { id: 'EditListingPricingForm.priceTooLow' };
   const priceTooLowMsg = intl.formatMessage(priceTooLowMsgId, { minPrice });
@@ -41,7 +48,7 @@ const getPriceValidators = (listingMinimumPriceSubUnits, marketplaceCurrency, in
     : priceRequired;
 };
 
-const ErrorMessages = props => {
+const ErrorMessages = (props) => {
   const { fetchErrors } = props;
   const { updateListingError, showListingsError } = fetchErrors || {};
 
@@ -89,11 +96,11 @@ const ErrorMessages = props => {
  * @param {Object} [props.fetchErrors] - The fetch errors
  * @returns {JSX.Element}
  */
-export const EditListingPricingForm = props => (
+export const EditListingPricingForm = (props) => (
   <FinalForm
     mutators={{ ...arrayMutators }}
     {...props}
-    render={formRenderProps => {
+    render={(formRenderProps) => {
       const {
         formId = 'EditListingPricingForm',
         form: formApi,
@@ -135,7 +142,8 @@ export const EditListingPricingForm = props => (
 
       const isFixedLengthBooking = isBooking && unitType === FIXED;
       const isBookingPriceVariationsInUse = isBooking && isPriceVariationsInUse;
-      const isUsingPriceVariants = isFixedLengthBooking || isBookingPriceVariationsInUse;
+      const isUsingPriceVariants =
+        isFixedLengthBooking || isBookingPriceVariationsInUse;
 
       return (
         <Form onSubmit={handleSubmit} className={classes}>
@@ -150,7 +158,9 @@ export const EditListingPricingForm = props => (
               marketplaceCurrency={marketplaceCurrency}
               unitType={unitType}
               isPriceVariationsInUse={isBookingPriceVariationsInUse}
-              initialLengthOfPriceVariants={formInitialValues?.priceVariants?.length || 0}
+              initialLengthOfPriceVariants={
+                formInitialValues?.priceVariants?.length || 0
+              }
               listingMinimumPriceSubUnits={listingMinimumPriceSubUnits}
             />
           ) : (
@@ -163,10 +173,13 @@ export const EditListingPricingForm = props => (
                 { id: 'EditListingPricingForm.pricePerProduct' },
                 { unitType }
               )}
+              labelClassName={css.priceLabel}
               placeholder={intl.formatMessage({
                 id: 'EditListingPricingForm.priceInputPlaceholder',
               })}
-              currencyConfig={appSettings.getCurrencyFormatting(marketplaceCurrency)}
+              currencyConfig={appSettings.getCurrencyFormatting(
+                marketplaceCurrency
+              )}
               validate={priceValidators}
             />
           )}

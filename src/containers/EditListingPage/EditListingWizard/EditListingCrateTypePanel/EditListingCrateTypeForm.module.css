@@ -26,10 +26,9 @@
 .description {
   composes: marketplaceBodyFontStyles from global;
   color: var(--colorGrey700);
-  margin-bottom: 24px;
-
+  margin: 0 0 24px 0;
   @media (--viewportLarge) {
-    margin-bottom: 32px;
+    margin: 0 0 32px 0;
   }
 }
 

@@ -7,7 +7,7 @@ import css from './FieldTextInput.module.css';
 
 const CONTENT_MAX_LENGTH = 5000;
 
-const FieldTextInputComponent = props => {
+const FieldTextInputComponent = (props) => {
   const {
     rootClassName,
     className,
@@ -15,6 +15,7 @@ const FieldTextInputComponent = props => {
     customErrorText,
     id,
     label,
+    labelClassName,
     input,
     meta,
     onUnmount,
@@ -65,22 +66,30 @@ const FieldTextInputComponent = props => {
         ...rest,
       }
     : isUncontrolled
-    ? {
-        className: inputClasses,
-        id,
-        type,
-        defaultValue,
-        ...refMaybe,
-        ...inputWithoutValue,
-        ...rest,
-      }
-    : { className: inputClasses, id, type, ...refMaybe, ...input, ...rest };
+      ? {
+          className: inputClasses,
+          id,
+          type,
+          defaultValue,
+          ...refMaybe,
+          ...inputWithoutValue,
+          ...rest,
+        }
+      : { className: inputClasses, id, type, ...refMaybe, ...input, ...rest };
 
   const classes = classNames(rootClassName || css.root, className);
   return (
     <div className={classes}>
-      {label ? <label htmlFor={id}>{label}</label> : null}
-      {isTextarea ? <ExpandingTextarea {...inputProps} /> : <input {...inputProps} />}
+      {label ? (
+        <label htmlFor={id} className={labelClassName}>
+          {label}
+        </label>
+      ) : null}
+      {isTextarea ? (
+        <ExpandingTextarea {...inputProps} />
+      ) : (
+        <input {...inputProps} />
+      )}
       {hideErrorMessage ? null : <ValidationError fieldMeta={fieldMeta} />}
     </div>
   );

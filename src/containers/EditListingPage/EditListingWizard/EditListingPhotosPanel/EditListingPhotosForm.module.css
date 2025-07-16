@@ -112,20 +112,9 @@
 }
 
 .tip {
-  composes: h5 from global;
-
-  flex-shrink: 0;
+  composes: marketplaceBodyFontStyles from global;
   color: var(--colorGrey700);
-  margin-top: 0;
-  margin-bottom: 24px;
-  padding: 16px;
-  background-color: var(--colorGrey50);
-  border-radius: 8px;
-  border-left: 4px solid var(--colorGrey300);
-
-  @media (--viewportLarge) {
-    margin-bottom: 32px;
-  }
+  margin: 0 0 24px 0;
 }
 
 .error {

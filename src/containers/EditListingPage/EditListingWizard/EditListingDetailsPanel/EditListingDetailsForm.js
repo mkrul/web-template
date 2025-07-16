@@ -465,6 +465,7 @@ const EditListingDetailsForm = (props) => (
               className={css.title}
               type="text"
               label={intl.formatMessage({ id: 'EditListingDetailsForm.title' })}
+              labelClassName={css.largeLabel}
               placeholder={intl.formatMessage({
                 id: 'EditListingDetailsForm.titlePlaceholder',
               })}
@@ -486,6 +487,7 @@ const EditListingDetailsForm = (props) => (
               label={intl.formatMessage({
                 id: 'EditListingDetailsForm.description',
               })}
+              labelClassName={css.largeLabel}
               placeholder={intl.formatMessage({
                 id: 'EditListingDetailsForm.descriptionPlaceholder',
               })}

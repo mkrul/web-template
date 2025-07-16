@@ -114,6 +114,7 @@ export const EditListingLocationForm = (props) => (
             label={intl.formatMessage({
               id: 'EditListingLocationForm.address',
             })}
+            labelClassName={css.largeLabel}
             placeholder={intl.formatMessage({
               id: 'EditListingLocationForm.addressPlaceholder',
             })}
@@ -134,6 +135,7 @@ export const EditListingLocationForm = (props) => (
               { id: 'EditListingLocationForm.building' },
               { optionalText }
             )}
+            labelClassName={css.largeLabel}
             placeholder={intl.formatMessage({
               id: 'EditListingLocationForm.buildingPlaceholder',
             })}

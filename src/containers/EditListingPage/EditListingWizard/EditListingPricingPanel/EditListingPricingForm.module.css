@@ -28,6 +28,11 @@
   }
 }
 
+.priceLabel {
+  font-size: 16px;
+  font-weight: 500;
+}
+
 .submitButton {
   margin-top: auto;
   margin-bottom: 24px;
