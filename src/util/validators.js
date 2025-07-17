@@ -124,7 +124,9 @@ export const requiredCratePhotos = (message, crateType) => (value) => {
     maxPhotos = 7;
   }
 
-  const hasValidLength = value.length >= minPhotos && value.length <= maxPhotos;
+  // Allow submission even when below minimum so users can save image removals
+  // Only enforce maximum limit to prevent excessive uploads
+  const hasValidLength = value.length <= maxPhotos;
   return hasValidLength ? VALID : message;
 };
 

@@ -1,6 +1,9 @@
 import omit from 'lodash/omit';
 
-import { types as sdkTypes, createImageVariantConfig } from '../../util/sdkLoader';
+import {
+  types as sdkTypes,
+  createImageVariantConfig,
+} from '../../util/sdkLoader';
 import { denormalisedResponseEntities } from '../../util/data';
 import {
   getDefaultTimeZoneOnBrowser,
@@ -28,17 +31,17 @@ import { fetchCurrentUser } from '../../ducks/user.duck';
 const { UUID } = sdkTypes;
 
 // Create array of N items where indexing starts from 1
-const getArrayOfNItems = n =>
+const getArrayOfNItems = (n) =>
   Array(n)
     .fill()
     .map((v, i) => i + 1)
     .slice(1);
 
 // Return an array of image ids
-const imageIds = images => {
+const imageIds = (images) => {
   // For newly uploaded image the UUID can be found from "img.imageId"
   // and for existing listing images the id is "img.id"
-  return images ? images.map(img => img.imageId || img.id) : null;
+  return images ? images.map((img) => img.imageId || img.id) : null;
 };
 
 // After listing creation & update, we want to make sure that uploadedImages state is cleaned
@@ -47,11 +50,11 @@ const updateUploadedImagesState = (state, payload) => {
 
   // Images attached to listing entity
   const attachedImages = payload?.data?.relationships?.images?.data || [];
-  const attachedImageUUIDStrings = attachedImages.map(img => img.id.uuid);
+  const attachedImageUUIDStrings = attachedImages.map((img) => img.id.uuid);
 
   // Uploaded images (which are propably not yet attached to listing)
   const unattachedImages = Object.values(state.uploadedImages);
-  const duplicateImageEntities = unattachedImages.filter(unattachedImg =>
+  const duplicateImageEntities = unattachedImages.filter((unattachedImg) =>
     attachedImageUUIDStrings.includes(unattachedImg.imageId?.uuid)
   );
   return duplicateImageEntities.length > 0
@@ -65,10 +68,17 @@ const updateUploadedImagesState = (state, payload) => {
       };
 };
 
-const getImageVariantInfo = listingImageConfig => {
-  const { aspectWidth = 1, aspectHeight = 1, variantPrefix = 'listing-card' } = listingImageConfig;
+const getImageVariantInfo = (listingImageConfig) => {
+  const {
+    aspectWidth = 1,
+    aspectHeight = 1,
+    variantPrefix = 'listing-card',
+  } = listingImageConfig;
   const aspectRatio = aspectHeight / aspectWidth;
-  const fieldsImage = [`variants.${variantPrefix}`, `variants.${variantPrefix}-2x`];
+  const fieldsImage = [
+    `variants.${variantPrefix}`,
+    `variants.${variantPrefix}-2x`,
+  ];
 
   return {
     fieldsImage,
@@ -85,7 +95,11 @@ const sortExceptionsByStartTime = (a, b) => {
 
 // When navigating through weekly calendar,
 // we want to merge new week-related data (inProgres, error) to weeklyExceptionQueries hashmap.
-const mergeToWeeklyExceptionQueries = (weeklyExceptionQueries, weekStartId, newDataProps) => {
+const mergeToWeeklyExceptionQueries = (
+  weeklyExceptionQueries,
+  weekStartId,
+  newDataProps
+) => {
   return weekStartId
     ? {
         weeklyExceptionQueries: {
@@ -100,7 +114,11 @@ const mergeToWeeklyExceptionQueries = (weeklyExceptionQueries, weekStartId, newD
 };
 // When navigating through monthly calendar (e.g. when adding a new AvailabilityException),
 // we want to merge new month-related data (inProgres, error) to monthlyExceptionQueries hashmap.
-const mergeToMonthlyExceptionQueries = (monthlyExceptionQueries, monthId, newDataProps) => {
+const mergeToMonthlyExceptionQueries = (
+  monthlyExceptionQueries,
+  monthId,
+  newDataProps
+) => {
   return monthId
     ? {
         monthlyExceptionQueries: {
@@ -114,11 +132,21 @@ const mergeToMonthlyExceptionQueries = (monthlyExceptionQueries, monthId, newDat
     : {};
 };
 
-const requestAction = actionType => params => ({ type: actionType, payload: { params } });
+const requestAction = (actionType) => (params) => ({
+  type: actionType,
+  payload: { params },
+});
 
-const successAction = actionType => result => ({ type: actionType, payload: result.data });
+const successAction = (actionType) => (result) => ({
+  type: actionType,
+  payload: result.data,
+});
 
-const errorAction = actionType => payload => ({ type: actionType, payload, error: true });
+const errorAction = (actionType) => (payload) => ({
+  type: actionType,
+  payload,
+  error: true,
+});
 
 // ================ Action types ================ //
 
@@ -126,35 +154,54 @@ export const MARK_TAB_UPDATED = 'app/EditListingPage/MARK_TAB_UPDATED';
 export const CLEAR_UPDATED_TAB = 'app/EditListingPage/CLEAR_UPDATED_TAB';
 export const CLEAR_PUBLISH_ERROR = 'app/EditListingPage/CLEAR_PUBLISH_ERROR';
 
-export const CREATE_LISTING_DRAFT_REQUEST = 'app/EditListingPage/CREATE_LISTING_DRAFT_REQUEST';
-export const CREATE_LISTING_DRAFT_SUCCESS = 'app/EditListingPage/CREATE_LISTING_DRAFT_SUCCESS';
-export const CREATE_LISTING_DRAFT_ERROR = 'app/EditListingPage/CREATE_LISTING_DRAFT_ERROR';
+export const CREATE_LISTING_DRAFT_REQUEST =
+  'app/EditListingPage/CREATE_LISTING_DRAFT_REQUEST';
+export const CREATE_LISTING_DRAFT_SUCCESS =
+  'app/EditListingPage/CREATE_LISTING_DRAFT_SUCCESS';
+export const CREATE_LISTING_DRAFT_ERROR =
+  'app/EditListingPage/CREATE_LISTING_DRAFT_ERROR';
 
-export const PUBLISH_LISTING_REQUEST = 'app/EditListingPage/PUBLISH_LISTING_REQUEST';
-export const PUBLISH_LISTING_SUCCESS = 'app/EditListingPage/PUBLISH_LISTING_SUCCESS';
-export const PUBLISH_LISTING_ERROR = 'app/EditListingPage/PUBLISH_LISTING_ERROR';
+export const PUBLISH_LISTING_REQUEST =
+  'app/EditListingPage/PUBLISH_LISTING_REQUEST';
+export const PUBLISH_LISTING_SUCCESS =
+  'app/EditListingPage/PUBLISH_LISTING_SUCCESS';
+export const PUBLISH_LISTING_ERROR =
+  'app/EditListingPage/PUBLISH_LISTING_ERROR';
 
-export const UPDATE_LISTING_REQUEST = 'app/EditListingPage/UPDATE_LISTING_REQUEST';
-export const UPDATE_LISTING_SUCCESS = 'app/EditListingPage/UPDATE_LISTING_SUCCESS';
+export const UPDATE_LISTING_REQUEST =
+  'app/EditListingPage/UPDATE_LISTING_REQUEST';
+export const UPDATE_LISTING_SUCCESS =
+  'app/EditListingPage/UPDATE_LISTING_SUCCESS';
 export const UPDATE_LISTING_ERROR = 'app/EditListingPage/UPDATE_LISTING_ERROR';
 
-export const SHOW_LISTINGS_REQUEST = 'app/EditListingPage/SHOW_LISTINGS_REQUEST';
-export const SHOW_LISTINGS_SUCCESS = 'app/EditListingPage/SHOW_LISTINGS_SUCCESS';
+export const SHOW_LISTINGS_REQUEST =
+  'app/EditListingPage/SHOW_LISTINGS_REQUEST';
+export const SHOW_LISTINGS_SUCCESS =
+  'app/EditListingPage/SHOW_LISTINGS_SUCCESS';
 export const SHOW_LISTINGS_ERROR = 'app/EditListingPage/SHOW_LISTINGS_ERROR';
 
-export const FETCH_EXCEPTIONS_REQUEST = 'app/EditListingPage/FETCH_AVAILABILITY_EXCEPTIONS_REQUEST';
-export const FETCH_EXCEPTIONS_SUCCESS = 'app/EditListingPage/FETCH_AVAILABILITY_EXCEPTIONS_SUCCESS';
-export const FETCH_EXCEPTIONS_ERROR = 'app/EditListingPage/FETCH_AVAILABILITY_EXCEPTIONS_ERROR';
+export const FETCH_EXCEPTIONS_REQUEST =
+  'app/EditListingPage/FETCH_AVAILABILITY_EXCEPTIONS_REQUEST';
+export const FETCH_EXCEPTIONS_SUCCESS =
+  'app/EditListingPage/FETCH_AVAILABILITY_EXCEPTIONS_SUCCESS';
+export const FETCH_EXCEPTIONS_ERROR =
+  'app/EditListingPage/FETCH_AVAILABILITY_EXCEPTIONS_ERROR';
 export const FETCH_EXTRA_EXCEPTIONS_SUCCESS =
   'app/EditListingPage/FETCH_EXTRA_AVAILABILITY_EXCEPTIONS_SUCCESS';
 
-export const ADD_EXCEPTION_REQUEST = 'app/EditListingPage/ADD_AVAILABILITY_EXCEPTION_REQUEST';
-export const ADD_EXCEPTION_SUCCESS = 'app/EditListingPage/ADD_AVAILABILITY_EXCEPTION_SUCCESS';
-export const ADD_EXCEPTION_ERROR = 'app/EditListingPage/ADD_AVAILABILITY_EXCEPTION_ERROR';
+export const ADD_EXCEPTION_REQUEST =
+  'app/EditListingPage/ADD_AVAILABILITY_EXCEPTION_REQUEST';
+export const ADD_EXCEPTION_SUCCESS =
+  'app/EditListingPage/ADD_AVAILABILITY_EXCEPTION_SUCCESS';
+export const ADD_EXCEPTION_ERROR =
+  'app/EditListingPage/ADD_AVAILABILITY_EXCEPTION_ERROR';
 
-export const DELETE_EXCEPTION_REQUEST = 'app/EditListingPage/DELETE_AVAILABILITY_EXCEPTION_REQUEST';
-export const DELETE_EXCEPTION_SUCCESS = 'app/EditListingPage/DELETE_AVAILABILITY_EXCEPTION_SUCCESS';
-export const DELETE_EXCEPTION_ERROR = 'app/EditListingPage/DELETE_AVAILABILITY_EXCEPTION_ERROR';
+export const DELETE_EXCEPTION_REQUEST =
+  'app/EditListingPage/DELETE_AVAILABILITY_EXCEPTION_REQUEST';
+export const DELETE_EXCEPTION_SUCCESS =
+  'app/EditListingPage/DELETE_AVAILABILITY_EXCEPTION_SUCCESS';
+export const DELETE_EXCEPTION_ERROR =
+  'app/EditListingPage/DELETE_AVAILABILITY_EXCEPTION_ERROR';
 
 export const SET_STOCK_REQUEST = 'app/EditListingPage/SET_STOCK_REQUEST';
 export const SET_STOCK_SUCCESS = 'app/EditListingPage/SET_STOCK_SUCCESS';
@@ -166,9 +213,12 @@ export const UPLOAD_IMAGE_ERROR = 'app/EditListingPage/UPLOAD_IMAGE_ERROR';
 
 export const REMOVE_LISTING_IMAGE = 'app/EditListingPage/REMOVE_LISTING_IMAGE';
 
-export const SAVE_PAYOUT_DETAILS_REQUEST = 'app/EditListingPage/SAVE_PAYOUT_DETAILS_REQUEST';
-export const SAVE_PAYOUT_DETAILS_SUCCESS = 'app/EditListingPage/SAVE_PAYOUT_DETAILS_SUCCESS';
-export const SAVE_PAYOUT_DETAILS_ERROR = 'app/EditListingPage/SAVE_PAYOUT_DETAILS_ERROR';
+export const SAVE_PAYOUT_DETAILS_REQUEST =
+  'app/EditListingPage/SAVE_PAYOUT_DETAILS_REQUEST';
+export const SAVE_PAYOUT_DETAILS_SUCCESS =
+  'app/EditListingPage/SAVE_PAYOUT_DETAILS_SUCCESS';
+export const SAVE_PAYOUT_DETAILS_ERROR =
+  'app/EditListingPage/SAVE_PAYOUT_DETAILS_ERROR';
 
 // ================ Reducer ================ //
 
@@ -282,6 +332,8 @@ export default function reducer(state = initialState, action = {}) {
         ...state,
         ...updateUploadedImagesState(state, payload),
         updateInProgress: false,
+        // Clear removedImageIds after successful update since server now has correct state
+        removedImageIds: [],
         // availabilityCalendar: { ...state.availabilityCalendar },
       };
     case UPDATE_LISTING_ERROR:
@@ -291,7 +343,15 @@ export default function reducer(state = initialState, action = {}) {
       return { ...state, showListingsError: null };
     case SHOW_LISTINGS_SUCCESS: {
       const listingIdFromPayload = payload.data.id;
-      const { listingId, allExceptions, weeklyExceptionQueries, monthlyExceptionQueries } = state;
+      const {
+        listingId,
+        allExceptions,
+        weeklyExceptionQueries,
+        monthlyExceptionQueries,
+        uploadedImages,
+        uploadedImagesOrder,
+        removedImageIds,
+      } = state;
       // If listing stays the same, we trust previously fetched exception data.
       return listingIdFromPayload?.uuid === state.listingId?.uuid
         ? {
@@ -300,6 +360,9 @@ export default function reducer(state = initialState, action = {}) {
             allExceptions,
             weeklyExceptionQueries,
             monthlyExceptionQueries,
+            uploadedImages,
+            uploadedImagesOrder,
+            removedImageIds,
           }
         : { ...initialState, listingId: listingIdFromPayload };
     }
@@ -310,45 +373,79 @@ export default function reducer(state = initialState, action = {}) {
 
     case FETCH_EXCEPTIONS_REQUEST: {
       const { monthId, weekStartId } = payload.params;
-      const newData = { fetchExceptionsError: null, fetchExceptionsInProgress: true };
+      const newData = {
+        fetchExceptionsError: null,
+        fetchExceptionsInProgress: true,
+      };
 
       const exceptionQueriesMaybe = monthId
-        ? mergeToMonthlyExceptionQueries(state.monthlyExceptionQueries, monthId, newData)
+        ? mergeToMonthlyExceptionQueries(
+            state.monthlyExceptionQueries,
+            monthId,
+            newData
+          )
         : weekStartId
-        ? mergeToWeeklyExceptionQueries(state.weeklyExceptionQueries, weekStartId, newData)
-        : {};
+          ? mergeToWeeklyExceptionQueries(
+              state.weeklyExceptionQueries,
+              weekStartId,
+              newData
+            )
+          : {};
       return { ...state, ...exceptionQueriesMaybe };
     }
     case FETCH_EXCEPTIONS_SUCCESS: {
       const { exceptions, monthId, weekStartId } = payload;
       const combinedExceptions = state.allExceptions.concat(exceptions);
-      const selectId = x => x.id.uuid;
-      const allExceptions = uniqueBy(combinedExceptions, selectId).sort(sortExceptionsByStartTime);
+      const selectId = (x) => x.id.uuid;
+      const allExceptions = uniqueBy(combinedExceptions, selectId).sort(
+        sortExceptionsByStartTime
+      );
       const newData = { fetchExceptionsInProgress: false };
 
       const exceptionQueriesMaybe = monthId
-        ? mergeToMonthlyExceptionQueries(state.monthlyExceptionQueries, monthId, newData)
+        ? mergeToMonthlyExceptionQueries(
+            state.monthlyExceptionQueries,
+            monthId,
+            newData
+          )
         : weekStartId
-        ? mergeToWeeklyExceptionQueries(state.weeklyExceptionQueries, weekStartId, newData)
-        : {};
+          ? mergeToWeeklyExceptionQueries(
+              state.weeklyExceptionQueries,
+              weekStartId,
+              newData
+            )
+          : {};
       return { ...state, allExceptions, ...exceptionQueriesMaybe };
     }
     case FETCH_EXCEPTIONS_ERROR: {
       const { monthId, weekStartId, error } = payload;
-      const newData = { fetchExceptionsInProgress: false, fetchExceptionsError: error };
+      const newData = {
+        fetchExceptionsInProgress: false,
+        fetchExceptionsError: error,
+      };
 
       const exceptionQueriesMaybe = monthId
-        ? mergeToMonthlyExceptionQueries(state.monthlyExceptionQueries, monthId, newData)
+        ? mergeToMonthlyExceptionQueries(
+            state.monthlyExceptionQueries,
+            monthId,
+            newData
+          )
         : weekStartId
-        ? mergeToWeeklyExceptionQueries(state.weeklyExceptionQueries, weekStartId, newData)
-        : {};
+          ? mergeToWeeklyExceptionQueries(
+              state.weeklyExceptionQueries,
+              weekStartId,
+              newData
+            )
+          : {};
 
       return { ...state, ...exceptionQueriesMaybe };
     }
     case FETCH_EXTRA_EXCEPTIONS_SUCCESS: {
       const combinedExceptions = state.allExceptions.concat(payload.exceptions);
-      const selectId = x => x.id.uuid;
-      const allExceptions = uniqueBy(combinedExceptions, selectId).sort(sortExceptionsByStartTime);
+      const selectId = (x) => x.id.uuid;
+      const allExceptions = uniqueBy(combinedExceptions, selectId).sort(
+        sortExceptionsByStartTime
+      );
       // TODO: currently we don't handle thrown errors from these paginated calls
       return { ...state, allExceptions };
     }
@@ -384,7 +481,7 @@ export default function reducer(state = initialState, action = {}) {
     case DELETE_EXCEPTION_SUCCESS: {
       const exception = payload;
       const id = exception.id.uuid;
-      const allExceptions = state.allExceptions.filter(e => e.id.uuid !== id);
+      const allExceptions = state.allExceptions.filter((e) => e.id.uuid !== id);
       return {
         ...state,
         allExceptions,
@@ -407,7 +504,9 @@ export default function reducer(state = initialState, action = {}) {
       return {
         ...state,
         uploadedImages,
-        uploadedImagesOrder: state.uploadedImagesOrder.concat([payload.params.id]),
+        uploadedImagesOrder: state.uploadedImagesOrder.concat([
+          payload.params.id,
+        ]),
         uploadImageError: null,
       };
     }
@@ -420,24 +519,55 @@ export default function reducer(state = initialState, action = {}) {
     case UPLOAD_IMAGE_ERROR: {
       // eslint-disable-next-line no-console
       const { id, error } = payload;
-      const uploadedImagesOrder = state.uploadedImagesOrder.filter(i => i !== id);
+      const uploadedImagesOrder = state.uploadedImagesOrder.filter(
+        (i) => i !== id
+      );
       const uploadedImages = omit(state.uploadedImages, id);
-      return { ...state, uploadedImagesOrder, uploadedImages, uploadImageError: error };
+      return {
+        ...state,
+        uploadedImagesOrder,
+        uploadedImages,
+        uploadImageError: error,
+      };
     }
 
     case REMOVE_LISTING_IMAGE: {
       const id = payload.imageId;
+      const idString = id && id.uuid ? id.uuid : id;
 
-      // Only mark the image removed if it hasn't been added to the
-      // listing already
-      const removedImageIds = state.uploadedImages[id]
+      // Check if this is a newly uploaded image (using temp ID as key) vs existing listing image
+      const isUploadedImage = Object.values(state.uploadedImages).some(
+        (img) => {
+          const imgId = img.imageId || img.id;
+          const imgIdString = imgId && imgId.uuid ? imgId.uuid : imgId;
+          return imgIdString === idString;
+        }
+      );
+
+      // For existing listing images, add to removedImageIds so they get filtered out
+      // For newly uploaded images, just remove from uploadedImages
+      const removedImageIds = isUploadedImage
         ? state.removedImageIds
         : state.removedImageIds.concat(id);
 
-      // Always remove from the draft since it might be a new image to
-      // an existing listing.
-      const uploadedImages = omit(state.uploadedImages, id);
-      const uploadedImagesOrder = state.uploadedImagesOrder.filter(i => i !== id);
+      // Remove from uploadedImages and uploadedImagesOrder (handles newly uploaded images)
+      const uploadedImages = Object.fromEntries(
+        Object.entries(state.uploadedImages).filter(([tempId, img]) => {
+          const imgId = img.imageId || img.id;
+          const imgIdString = imgId && imgId.uuid ? imgId.uuid : imgId;
+          return imgIdString !== idString;
+        })
+      );
+
+      const uploadedImagesOrder = state.uploadedImagesOrder.filter((tempId) => {
+        const img = state.uploadedImages[tempId];
+        if (!img) {
+          return false;
+        }
+        const imgId = img.imageId || img.id;
+        const imgIdString = imgId && imgId.uuid ? imgId.uuid : imgId;
+        return imgIdString !== idString;
+      });
 
       return { ...state, uploadedImages, uploadedImagesOrder, removedImageIds };
     }
@@ -454,7 +584,11 @@ export default function reducer(state = initialState, action = {}) {
     case SAVE_PAYOUT_DETAILS_ERROR:
       return { ...state, payoutDetailsSaveInProgress: false };
     case SAVE_PAYOUT_DETAILS_SUCCESS:
-      return { ...state, payoutDetailsSaveInProgress: false, payoutDetailsSaved: true };
+      return {
+        ...state,
+        payoutDetailsSaveInProgress: false,
+        payoutDetailsSaved: true,
+      };
 
     default:
       return state;
@@ -465,7 +599,7 @@ export default function reducer(state = initialState, action = {}) {
 
 // ================ Action creators ================ //
 
-export const markTabUpdated = tab => ({
+export const markTabUpdated = (tab) => ({
   type: MARK_TAB_UPDATED,
   payload: tab,
 });
@@ -474,7 +608,7 @@ export const clearUpdatedTab = () => ({
   type: CLEAR_UPDATED_TAB,
 });
 
-export const removeListingImage = imageId => ({
+export const removeListingImage = (imageId) => ({
   type: REMOVE_LISTING_IMAGE,
   payload: { imageId },
 });
@@ -488,8 +622,12 @@ export const clearPublishError = () => ({
 // expects.
 
 // SDK method: ownListings.create
-export const createListingDraftRequest = requestAction(CREATE_LISTING_DRAFT_REQUEST);
-export const createListingDraftSuccess = successAction(CREATE_LISTING_DRAFT_SUCCESS);
+export const createListingDraftRequest = requestAction(
+  CREATE_LISTING_DRAFT_REQUEST
+);
+export const createListingDraftSuccess = successAction(
+  CREATE_LISTING_DRAFT_SUCCESS
+);
 export const createListingDraftError = errorAction(CREATE_LISTING_DRAFT_ERROR);
 
 // SDK method: ownListings.publish
@@ -518,26 +656,46 @@ export const setStockSuccess = successAction(SET_STOCK_SUCCESS);
 export const setStockError = errorAction(SET_STOCK_ERROR);
 
 // SDK method: availabilityExceptions.query
-export const fetchAvailabilityExceptionsRequest = requestAction(FETCH_EXCEPTIONS_REQUEST);
-export const fetchAvailabilityExceptionsSuccess = successAction(FETCH_EXCEPTIONS_SUCCESS);
-export const fetchAvailabilityExceptionsError = errorAction(FETCH_EXCEPTIONS_ERROR);
+export const fetchAvailabilityExceptionsRequest = requestAction(
+  FETCH_EXCEPTIONS_REQUEST
+);
+export const fetchAvailabilityExceptionsSuccess = successAction(
+  FETCH_EXCEPTIONS_SUCCESS
+);
+export const fetchAvailabilityExceptionsError = errorAction(
+  FETCH_EXCEPTIONS_ERROR
+);
 // Add extra data from additional pages
 export const fetchExtraAvailabilityExceptionsSuccess = successAction(
   FETCH_EXTRA_EXCEPTIONS_SUCCESS
 );
 
 // SDK method: availabilityExceptions.create
-export const addAvailabilityExceptionRequest = requestAction(ADD_EXCEPTION_REQUEST);
-export const addAvailabilityExceptionSuccess = successAction(ADD_EXCEPTION_SUCCESS);
+export const addAvailabilityExceptionRequest = requestAction(
+  ADD_EXCEPTION_REQUEST
+);
+export const addAvailabilityExceptionSuccess = successAction(
+  ADD_EXCEPTION_SUCCESS
+);
 export const addAvailabilityExceptionError = errorAction(ADD_EXCEPTION_ERROR);
 
 // SDK method: availabilityExceptions.delete
-export const deleteAvailabilityExceptionRequest = requestAction(DELETE_EXCEPTION_REQUEST);
-export const deleteAvailabilityExceptionSuccess = successAction(DELETE_EXCEPTION_SUCCESS);
-export const deleteAvailabilityExceptionError = errorAction(DELETE_EXCEPTION_ERROR);
+export const deleteAvailabilityExceptionRequest = requestAction(
+  DELETE_EXCEPTION_REQUEST
+);
+export const deleteAvailabilityExceptionSuccess = successAction(
+  DELETE_EXCEPTION_SUCCESS
+);
+export const deleteAvailabilityExceptionError = errorAction(
+  DELETE_EXCEPTION_ERROR
+);
 
-export const savePayoutDetailsRequest = requestAction(SAVE_PAYOUT_DETAILS_REQUEST);
-export const savePayoutDetailsSuccess = successAction(SAVE_PAYOUT_DETAILS_SUCCESS);
+export const savePayoutDetailsRequest = requestAction(
+  SAVE_PAYOUT_DETAILS_REQUEST
+);
+export const savePayoutDetailsSuccess = successAction(
+  SAVE_PAYOUT_DETAILS_SUCCESS
+);
 export const savePayoutDetailsError = errorAction(SAVE_PAYOUT_DETAILS_ERROR);
 
 // ================ Thunk ================ //
@@ -554,14 +712,14 @@ export function requestShowListing(actionPayload, config) {
     dispatch(showListingsRequest(actionPayload));
     return sdk.ownListings
       .show({ ...actionPayload, ...queryParams })
-      .then(response => {
+      .then((response) => {
         // EditListingPage fetches new listing data, which also needs to be added to global data
         dispatch(addMarketplaceEntities(response));
         // In case of success, we'll clear state.EditListingPage (user will be redirected away)
         dispatch(showListingsSuccess(response));
         return response;
       })
-      .catch(e => dispatch(showListingsError(storableError(e))));
+      .catch((e) => dispatch(showListingsError(storableError(e))));
   };
 }
 
@@ -572,13 +730,13 @@ export function compareAndSetStock(listingId, oldTotal, newTotal) {
 
     return sdk.stock
       .compareAndSet({ listingId, oldTotal, newTotal }, { expand: true })
-      .then(response => {
+      .then((response) => {
         // NOTE: compareAndSet returns the stock resource of the listing.
         // We update client app's internal state with these updated API entities.
         dispatch(addMarketplaceEntities(response));
         dispatch(setStockSuccess(response));
       })
-      .catch(e => {
+      .catch((e) => {
         log.error(e, 'update-stock-failed', { listingId, oldTotal, newTotal });
         return dispatch(setStockError(storableError(e)));
       });
@@ -608,7 +766,8 @@ export function requestCreateListingDraft(data, config) {
 
     // If images should be saved, create array out of the image UUIDs for the API call
     // Note: in this template, image upload is not happening at the same time as listing creation.
-    const imageProperty = typeof images !== 'undefined' ? { images: imageIds(images) } : {};
+    const imageProperty =
+      typeof images !== 'undefined' ? { images: imageIds(images) } : {};
     const ownListingValues = { ...imageProperty, ...rest };
 
     const imageVariantInfo = getImageVariantInfo(config.layout.listingImage);
@@ -622,7 +781,7 @@ export function requestCreateListingDraft(data, config) {
     let createDraftResponse = null;
     return sdk.ownListings
       .createDraft(ownListingValues, queryParams)
-      .then(response => {
+      .then((response) => {
         createDraftResponse = response;
         const listingId = response.data.data.id;
         // If stockUpdate info is passed through, update stock
@@ -633,7 +792,7 @@ export function requestCreateListingDraft(data, config) {
         dispatch(createListingDraftSuccess(createDraftResponse));
         return createDraftResponse;
       })
-      .catch(e => {
+      .catch((e) => {
         log.error(e, 'create-listing-draft-failed', { listingData: data });
         return dispatch(createListingDraftError(storableError(e)));
       });
@@ -650,8 +809,10 @@ export function requestUpdateListing(tab, data, config) {
     const { id, stockUpdate, images, ...rest } = data;
 
     // If images should be saved, create array out of the image UUIDs for the API call
-    const imageProperty = typeof images !== 'undefined' ? { images: imageIds(images) } : {};
+    const imageProperty =
+      typeof images !== 'undefined' ? { images: imageIds(images) } : {};
     const ownListingUpdateValues = { id, ...imageProperty, ...rest };
+
     const imageVariantInfo = getImageVariantInfo(config.layout.listingImage);
     const queryParams = {
       expand: true,
@@ -662,14 +823,15 @@ export function requestUpdateListing(tab, data, config) {
 
     const state = getState();
     const existingTimeZone =
-      state.marketplaceData.entities.ownListing[id.uuid]?.attributes?.availabilityPlan?.timezone;
+      state.marketplaceData.entities.ownListing[id.uuid]?.attributes
+        ?.availabilityPlan?.timezone;
     const includedTimeZone = rest?.availabilityPlan?.timezone;
 
     // Note: if update values include stockUpdate, we'll do that first
     // That way we get updated currentStock info among ownListings.update
     return updateStockOfListingMaybe(id, stockUpdate, dispatch)
       .then(() => sdk.ownListings.update(ownListingUpdateValues, queryParams))
-      .then(response => {
+      .then((response) => {
         dispatch(updateListingSuccess(response));
         dispatch(addMarketplaceEntities(response));
         dispatch(markTabUpdated(tab));
@@ -680,33 +842,39 @@ export function requestUpdateListing(tab, data, config) {
           const searchString = '';
           const firstDayOfWeek = config.localization.firstDayOfWeek;
           const listing = response.data.data;
-          fetchLoadDataExceptions(dispatch, listing, searchString, firstDayOfWeek);
+          fetchLoadDataExceptions(
+            dispatch,
+            listing,
+            searchString,
+            firstDayOfWeek
+          );
         }
 
         return response;
       })
-      .catch(e => {
+      .catch((e) => {
         log.error(e, 'update-listing-failed', { listingData: data });
         return dispatch(updateListingError(storableError(e)));
       });
   };
 }
 
-export const requestPublishListingDraft = listingId => (dispatch, getState, sdk) => {
-  dispatch(publishListingRequest(listingId));
+export const requestPublishListingDraft =
+  (listingId) => (dispatch, getState, sdk) => {
+    dispatch(publishListingRequest(listingId));
 
-  return sdk.ownListings
-    .publishDraft({ id: listingId }, { expand: true })
-    .then(response => {
-      // Add the created listing to the marketplace data
-      dispatch(addMarketplaceEntities(response));
-      dispatch(publishListingSuccess(response));
-      return response;
-    })
-    .catch(e => {
-      dispatch(publishListingError(storableError(e)));
-    });
-};
+    return sdk.ownListings
+      .publishDraft({ id: listingId }, { expand: true })
+      .then((response) => {
+        // Add the created listing to the marketplace data
+        dispatch(addMarketplaceEntities(response));
+        dispatch(publishListingSuccess(response));
+        return response;
+      })
+      .catch((e) => {
+        dispatch(publishListingError(storableError(e)));
+      });
+  };
 
 // Images return imageId which we need to map with previously generated temporary id
 export function requestImageUpload(actionPayload, listingImageConfig) {
@@ -722,100 +890,125 @@ export function requestImageUpload(actionPayload, listingImageConfig) {
     dispatch(uploadImageRequest(actionPayload));
     return sdk.images
       .upload({ image: actionPayload.file }, queryParams)
-      .then(resp => {
+      .then((resp) => {
         const img = resp.data.data;
         // Uploaded image has an existing id that refers to file
         // The UUID was created as a consequence of this upload call - it's saved to imageId property
-        return dispatch(
-          uploadImageSuccess({ data: { ...img, id, imageId: img.id, file: actionPayload.file } })
+        const imageData = {
+          ...img,
+          id,
+          imageId: img.id,
+          file: actionPayload.file,
+        };
+
+        dispatch(
+          uploadImageSuccess({
+            data: imageData,
+          })
         );
+
+        // Return the image data so it can be used by the calling component
+        return imageData;
       })
-      .catch(e => dispatch(uploadImageError({ id, error: storableError(e) })));
+      .catch((e) =>
+        dispatch(uploadImageError({ id, error: storableError(e) }))
+      );
   };
 }
 
-export const requestAddAvailabilityException = params => (dispatch, getState, sdk) => {
-  dispatch(addAvailabilityExceptionRequest(params));
+export const requestAddAvailabilityException =
+  (params) => (dispatch, getState, sdk) => {
+    dispatch(addAvailabilityExceptionRequest(params));
 
-  return sdk.availabilityExceptions
-    .create(params, { expand: true })
-    .then(response => {
-      const availabilityException = response.data.data;
-      return dispatch(addAvailabilityExceptionSuccess({ data: availabilityException }));
-    })
-    .catch(e => {
-      dispatch(addAvailabilityExceptionError({ error: storableError(e) }));
-      throw e;
-    });
-};
+    return sdk.availabilityExceptions
+      .create(params, { expand: true })
+      .then((response) => {
+        const availabilityException = response.data.data;
+        return dispatch(
+          addAvailabilityExceptionSuccess({ data: availabilityException })
+        );
+      })
+      .catch((e) => {
+        dispatch(addAvailabilityExceptionError({ error: storableError(e) }));
+        throw e;
+      });
+  };
 
-export const requestDeleteAvailabilityException = params => (dispatch, getState, sdk) => {
-  dispatch(deleteAvailabilityExceptionRequest(params));
+export const requestDeleteAvailabilityException =
+  (params) => (dispatch, getState, sdk) => {
+    dispatch(deleteAvailabilityExceptionRequest(params));
 
-  return sdk.availabilityExceptions
-    .delete(params, { expand: true })
-    .then(response => {
-      const availabilityException = response.data.data;
-      return dispatch(deleteAvailabilityExceptionSuccess({ data: availabilityException }));
-    })
-    .catch(e => {
-      dispatch(deleteAvailabilityExceptionError({ error: storableError(e) }));
-      throw e;
-    });
-};
+    return sdk.availabilityExceptions
+      .delete(params, { expand: true })
+      .then((response) => {
+        const availabilityException = response.data.data;
+        return dispatch(
+          deleteAvailabilityExceptionSuccess({ data: availabilityException })
+        );
+      })
+      .catch((e) => {
+        dispatch(deleteAvailabilityExceptionError({ error: storableError(e) }));
+        throw e;
+      });
+  };
 
-export const requestFetchAvailabilityExceptions = params => (dispatch, getState, sdk) => {
-  const { listingId, start, end, timeZone, page, isWeekly } = params;
-  const fetchParams = { listingId, start, end };
-  const timeUnitIdProp = isWeekly
-    ? { weekStartId: stringifyDateToISO8601(start) }
-    : { monthId: monthIdString(start, timeZone) };
-  dispatch(fetchAvailabilityExceptionsRequest(timeUnitIdProp));
+export const requestFetchAvailabilityExceptions =
+  (params) => (dispatch, getState, sdk) => {
+    const { listingId, start, end, timeZone, page, isWeekly } = params;
+    const fetchParams = { listingId, start, end };
+    const timeUnitIdProp = isWeekly
+      ? { weekStartId: stringifyDateToISO8601(start) }
+      : { monthId: monthIdString(start, timeZone) };
+    dispatch(fetchAvailabilityExceptionsRequest(timeUnitIdProp));
 
-  return sdk.availabilityExceptions
-    .query(fetchParams)
-    .then(response => {
-      const availabilityExceptions = denormalisedResponseEntities(response);
+    return sdk.availabilityExceptions
+      .query(fetchParams)
+      .then((response) => {
+        const availabilityExceptions = denormalisedResponseEntities(response);
 
-      // Fetch potential extra exceptions pagination pages per month.
-      // In theory, there could be several pagination pages worth of exceptions,
-      // if range is month and unit is 'hour': 31 days * 24 hour = 744 slots for exceptions.
-      const totalPages = response.data.meta.totalPages;
-      if (totalPages > 1 && !page) {
-        const extraPages = getArrayOfNItems(totalPages);
+        // Fetch potential extra exceptions pagination pages per month.
+        // In theory, there could be several pagination pages worth of exceptions,
+        // if range is month and unit is 'hour': 31 days * 24 hour = 744 slots for exceptions.
+        const totalPages = response.data.meta.totalPages;
+        if (totalPages > 1 && !page) {
+          const extraPages = getArrayOfNItems(totalPages);
 
-        // It's unlikely that this code is reached with default units.
-        // Note:
-        //  - Firing multiple API calls might hit API rate limit
-        //    (This is very unlikely with this query and 'hour' unit.)
-        //  - TODO: this doesn't take care of failures of those extra calls
-        Promise.all(
-          extraPages.map(page => {
-            return sdk.availabilityExceptions.query({ ...fetchParams, page });
-          })
-        ).then(responses => {
-          const denormalizedFlatResults = (all, r) => all.concat(denormalisedResponseEntities(r));
-          const exceptions = responses.reduce(denormalizedFlatResults, []);
-          dispatch(
-            fetchExtraAvailabilityExceptionsSuccess({
-              data: { ...timeUnitIdProp, exceptions },
+          // It's unlikely that this code is reached with default units.
+          // Note:
+          //  - Firing multiple API calls might hit API rate limit
+          //    (This is very unlikely with this query and 'hour' unit.)
+          //  - TODO: this doesn't take care of failures of those extra calls
+          Promise.all(
+            extraPages.map((page) => {
+              return sdk.availabilityExceptions.query({ ...fetchParams, page });
             })
-          );
-        });
-      }
+          ).then((responses) => {
+            const denormalizedFlatResults = (all, r) =>
+              all.concat(denormalisedResponseEntities(r));
+            const exceptions = responses.reduce(denormalizedFlatResults, []);
+            dispatch(
+              fetchExtraAvailabilityExceptionsSuccess({
+                data: { ...timeUnitIdProp, exceptions },
+              })
+            );
+          });
+        }
 
-      return dispatch(
-        fetchAvailabilityExceptionsSuccess({
-          data: { ...timeUnitIdProp, exceptions: availabilityExceptions },
-        })
-      );
-    })
-    .catch(e => {
-      return dispatch(
-        fetchAvailabilityExceptionsError({ ...timeUnitIdProp, error: storableError(e) })
-      );
-    });
-};
+        return dispatch(
+          fetchAvailabilityExceptionsSuccess({
+            data: { ...timeUnitIdProp, exceptions: availabilityExceptions },
+          })
+        );
+      })
+      .catch((e) => {
+        return dispatch(
+          fetchAvailabilityExceptionsError({
+            ...timeUnitIdProp,
+            error: storableError(e),
+          })
+        );
+      });
+  };
 
 // Helper function for loadData call.
 const fetchLoadDataExceptions = (dispatch, listing, search, firstDayOfWeek) => {
@@ -829,7 +1022,9 @@ const fetchLoadDataExceptions = (dispatch, listing, search, firstDayOfWeek) => {
     const listingId = listing.id;
     // If the listing doesn't have availabilityPlan yet
     // use the defaul timezone
-    const timezone = listing.attributes.availabilityPlan?.timezone || getDefaultTimeZoneOnBrowser();
+    const timezone =
+      listing.attributes.availabilityPlan?.timezone ||
+      getDefaultTimeZoneOnBrowser();
     const todayInListingsTZ = getStartOf(new Date(), 'day', timezone);
 
     const locationSearch = parse(search);
@@ -841,8 +1036,20 @@ const fetchLoadDataExceptions = (dispatch, listing, search, firstDayOfWeek) => {
     const nextWeek = getStartOf(startOfWeek, 'day', timezone, 7, 'days');
     const nextAfterNextWeek = getStartOf(nextWeek, 'day', timezone, 7, 'days');
 
-    const nextMonth = getStartOf(todayInListingsTZ, 'month', timezone, 1, 'months');
-    const nextAfterNextMonth = getStartOf(nextMonth, 'month', timezone, 1, 'months');
+    const nextMonth = getStartOf(
+      todayInListingsTZ,
+      'month',
+      timezone,
+      1,
+      'months'
+    );
+    const nextAfterNextMonth = getStartOf(
+      nextMonth,
+      'month',
+      timezone,
+      1,
+      'months'
+    );
 
     const sharedData = { listingId, timeZone: timezone };
 
@@ -899,70 +1106,80 @@ const fetchLoadDataExceptions = (dispatch, listing, search, firstDayOfWeek) => {
   return Promise.all([]);
 };
 
-export const savePayoutDetails = (values, isUpdateCall) => (dispatch, getState, sdk) => {
-  const upsertThunk = isUpdateCall ? updateStripeAccount : createStripeAccount;
-  dispatch(savePayoutDetailsRequest());
+export const savePayoutDetails =
+  (values, isUpdateCall) => (dispatch, getState, sdk) => {
+    const upsertThunk = isUpdateCall
+      ? updateStripeAccount
+      : createStripeAccount;
+    dispatch(savePayoutDetailsRequest());
 
-  return dispatch(upsertThunk(values, { expand: true }))
-    .then(response => {
-      dispatch(savePayoutDetailsSuccess());
-      return response;
-    })
-    .catch(() => dispatch(savePayoutDetailsError()));
-};
+    return dispatch(upsertThunk(values, { expand: true }))
+      .then((response) => {
+        dispatch(savePayoutDetailsSuccess());
+        return response;
+      })
+      .catch(() => dispatch(savePayoutDetailsError()));
+  };
 
 // loadData is run for each tab of the wizard. When editing an
 // existing listing, the listing must be fetched first.
-export const loadData = (params, search, config) => (dispatch, getState, sdk) => {
-  dispatch(clearUpdatedTab());
-  dispatch(clearPublishError());
-  const { id, type } = params;
-  const fetchCurrentUserOptions = {
-    updateNotifications: false,
-  };
+export const loadData =
+  (params, search, config) => (dispatch, getState, sdk) => {
+    dispatch(clearUpdatedTab());
+    dispatch(clearPublishError());
+    const { id, type } = params;
+    const fetchCurrentUserOptions = {
+      updateNotifications: false,
+    };
 
-  if (type === 'new') {
-    // No need to listing data when creating a new listing
-    return Promise.all([dispatch(fetchCurrentUser(fetchCurrentUserOptions))])
-      .then(response => {
+    if (type === 'new') {
+      // No need to listing data when creating a new listing
+      return Promise.all([dispatch(fetchCurrentUser(fetchCurrentUserOptions))])
+        .then((response) => {
+          const currentUser = getState().user.currentUser;
+          if (currentUser && currentUser.stripeAccount) {
+            dispatch(fetchStripeAccount());
+          }
+          return response;
+        })
+        .catch((e) => {
+          throw e;
+        });
+    }
+
+    const payload = { id: new UUID(id) };
+    return Promise.all([
+      dispatch(requestShowListing(payload, config)),
+      dispatch(fetchCurrentUser(fetchCurrentUserOptions)),
+    ])
+      .then((response) => {
         const currentUser = getState().user.currentUser;
-        if (currentUser && currentUser.stripeAccount) {
-          dispatch(fetchStripeAccount());
+
+        // Do not fetch extra information if user is in pending-approval state.
+        if (isUserAuthorized(currentUser)) {
+          if (currentUser && currentUser.stripeAccount) {
+            dispatch(fetchStripeAccount());
+          }
+
+          // Because of two dispatch functions, response is an array.
+          // We are only interested in the response from requestShowListing here,
+          // so we need to pick the first one
+          const listing = response[0]?.data?.data;
+          const transactionProcessAlias =
+            listing?.attributes?.publicData?.transactionProcessAlias;
+          if (listing && isBookingProcessAlias(transactionProcessAlias)) {
+            fetchLoadDataExceptions(
+              dispatch,
+              listing,
+              search,
+              config.localization.firstDayOfWeek
+            );
+          }
         }
+
         return response;
       })
-      .catch(e => {
+      .catch((e) => {
         throw e;
       });
-  }
-
-  const payload = { id: new UUID(id) };
-  return Promise.all([
-    dispatch(requestShowListing(payload, config)),
-    dispatch(fetchCurrentUser(fetchCurrentUserOptions)),
-  ])
-    .then(response => {
-      const currentUser = getState().user.currentUser;
-
-      // Do not fetch extra information if user is in pending-approval state.
-      if (isUserAuthorized(currentUser)) {
-        if (currentUser && currentUser.stripeAccount) {
-          dispatch(fetchStripeAccount());
-        }
-
-        // Because of two dispatch functions, response is an array.
-        // We are only interested in the response from requestShowListing here,
-        // so we need to pick the first one
-        const listing = response[0]?.data?.data;
-        const transactionProcessAlias = listing?.attributes?.publicData?.transactionProcessAlias;
-        if (listing && isBookingProcessAlias(transactionProcessAlias)) {
-          fetchLoadDataExceptions(dispatch, listing, search, config.localization.firstDayOfWeek);
-        }
-      }
-
-      return response;
-    })
-    .catch(e => {
-      throw e;
-    });
-};
+  };

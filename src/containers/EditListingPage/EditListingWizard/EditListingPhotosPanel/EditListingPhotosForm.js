@@ -181,6 +181,7 @@ export const EditListingPhotosForm = (props) => {
   return (
     <FinalForm
       {...props}
+      enableReinitialize={true}
       mutators={{ ...arrayMutators }}
       render={(formRenderProps) => {
         const {
@@ -233,6 +234,31 @@ export const EditListingPhotosForm = (props) => {
         const pristineSinceLastSubmit =
           submittedOnce && imageArrayHasSameImages;
 
+        // Check if photos meet minimum requirements for crate type
+        const hasMinimumPhotos = () => {
+          if (!images || images.length === 0) {
+            return false;
+          }
+
+          if (!crateType) {
+            // If no crate type set, require at least 1 photo
+            return images.length >= 1;
+          }
+
+          // Apply same validation logic as photo form
+          let minPhotos;
+          if (crateType === 'wire') {
+            minPhotos = 3;
+          } else if (crateType === 'solid') {
+            minPhotos = 6;
+          } else {
+            // Default fallback
+            minPhotos = 3;
+          }
+
+          return images.length >= minPhotos;
+        };
+
         const submitReady = (updated && pristineSinceLastSubmit) || ready;
         const submitInProgress = updateInProgress;
         const submitDisabled =
@@ -240,7 +266,7 @@ export const EditListingPhotosForm = (props) => {
           disabled ||
           submitInProgress ||
           state.imageUploadRequested ||
-          ready;
+          !hasMinimumPhotos();
         const imagesError =
           touched.images && errors?.images && errors.images[ARRAY_ERROR];
 

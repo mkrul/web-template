@@ -53,7 +53,67 @@ const EditListingPhotosPanel = (props) => {
     onSubmit,
     onRemoveImage,
     listingImageConfig,
+    uploadedImages,
+    uploadedImagesOrder,
   } = props;
+
+  // Create a wrapper that immediately saves image removal to server
+  const handleRemoveImage = (imageId) => {
+    // Update Redux state first
+    onRemoveImage(imageId);
+
+    // Get current images from initial values and filter out the removed one
+    const currentImages = getInitialValues(props).images || [];
+    const filteredImages = currentImages.filter((img) => {
+      const imgId = img.imageId || img.id;
+      const imgIdString = imgId && imgId.uuid ? imgId.uuid : imgId;
+      const removeIdString = imageId && imageId.uuid ? imageId.uuid : imageId;
+      return imgIdString !== removeIdString;
+    });
+
+    // Immediately submit the updated images list to server (automatic save, no redirect)
+    onSubmit({ images: filteredImages }, true);
+  };
+
+  // Create a wrapper that automatically saves new uploads to server
+  const handleImageUpload = (uploadData, listingImageConfig) => {
+    console.log('🔧 [handleImageUpload] Starting upload:', uploadData);
+
+    // First, upload the image (this adds it to Redux state)
+    return onImageUpload(uploadData, listingImageConfig).then(
+      (uploadedImageData) => {
+        console.log(
+          '🔧 [handleImageUpload] Upload completed:',
+          uploadedImageData
+        );
+
+        // After successful upload, immediately submit to attach it to the listing
+        // Get current listing images
+        const currentImages = getInitialValues(props).images || [];
+
+        // The uploadedImageData is the direct result from the thunk
+        const newlyUploadedImage = uploadedImageData;
+        console.log(
+          '🔧 [handleImageUpload] Newly uploaded image:',
+          newlyUploadedImage
+        );
+
+        // Include the newly uploaded image with current listing images
+        const allImages = currentImages.concat([newlyUploadedImage]);
+
+        console.log('🔧 [handleImageUpload] Submitting to server:', {
+          allImagesCount: allImages.length,
+          allImages: allImages.map((img) => ({
+            id: img.id,
+            imageId: img.imageId,
+          })),
+        });
+
+        // Submit to server to persist the association (automatic save, no redirect)
+        return onSubmit({ images: allImages }, true);
+      }
+    );
+  };
 
   const rootClass = rootClassName || css.root;
   const classes = classNames(rootClass, className);
@@ -84,12 +144,12 @@ const EditListingPhotosPanel = (props) => {
         ready={ready}
         fetchErrors={errors}
         initialValues={getInitialValues(props)}
-        onImageUpload={onImageUpload}
+        onImageUpload={handleImageUpload}
         onSubmit={(values) => {
           const { addImage, ...updateValues } = values;
-          onSubmit(updateValues);
+          onSubmit(updateValues, false);
         }}
-        onRemoveImage={onRemoveImage}
+        onRemoveImage={handleRemoveImage}
         saveActionMsg={submitButtonText}
         updated={panelUpdated}
         updateInProgress={updateInProgress}

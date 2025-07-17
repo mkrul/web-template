@@ -164,7 +164,11 @@ const EditListingWizardTab = (props) => {
     }
   };
 
-  const onCompleteEditListingWizardTab = (tab, updateValues) => {
+  const onCompleteEditListingWizardTab = (
+    tab,
+    updateValues,
+    isAutomaticSave = false
+  ) => {
     const onUpdateListingOrCreateListingDraft = isNewURI
       ? (tab, values) => onCreateListingDraft(values, config)
       : (tab, values) => onUpdateListing(tab, values, config);
@@ -175,9 +179,10 @@ const EditListingWizardTab = (props) => {
 
     return onUpdateListingOrCreateListingDraft(tab, updateListingValues)
       .then((r) => {
+        // Only redirect automatically if this is NOT an automatic save
         // In Availability tab, the submitted data (plan) is inside a modal
         // We don't redirect provider immediately after plan is set
-        if (isNewListingFlow && tab !== AVAILABILITY) {
+        if (isNewListingFlow && tab !== AVAILABILITY && !isAutomaticSave) {
           const listingId = r.data.data.id;
           automaticRedirectsForNewListingFlow(tab, listingId);
         }
@@ -202,8 +207,8 @@ const EditListingWizardTab = (props) => {
       submitButtonText: tabSubmitButtonText,
       listingTypes: config.listing.listingTypes,
       onManageDisableScrolling,
-      onSubmit: (values) => {
-        return onCompleteEditListingWizardTab(tab, values);
+      onSubmit: (values, isAutomaticSave = false) => {
+        return onCompleteEditListingWizardTab(tab, values, isAutomaticSave);
       },
     };
   };
@@ -290,6 +295,8 @@ const EditListingWizardTab = (props) => {
           images={images}
           onImageUpload={onImageUpload}
           onRemoveImage={onRemoveImage}
+          uploadedImages={props.uploadedImages}
+          uploadedImagesOrder={props.uploadedImagesOrder}
         />
       );
     }
