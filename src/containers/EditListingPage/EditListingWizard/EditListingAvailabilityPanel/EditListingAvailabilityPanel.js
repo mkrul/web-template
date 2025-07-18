@@ -346,14 +346,13 @@ const EditListingAvailabilityPanel = (props) => {
           />
 
           <section className={css.section}>
-            <InlineTextButton
+            <SecondaryButtonInline
               className={css.addExceptionButton}
               onClick={() => setIsEditExceptionsModalOpen(true)}
               disabled={disabled || !hasAvailabilityPlan}
-              ready={ready}
             >
               <FormattedMessage id="EditListingAvailabilityPanel.addException" />
-            </InlineTextButton>
+            </SecondaryButtonInline>
           </section>
         </>
       ) : null}

@@ -87,13 +87,35 @@
 }
 
 .addExceptionButton {
-  composes: h4 from global;
-  padding: 1px 0 5px 0;
+  display: inline-block;
+  width: auto;
+  min-width: 160px;
   margin: 0 0 24px 0;
+  height: 40px;
+  font-size: 14px;
+  padding: 6px 12px;
+  background-color: var(--colorWhite);
+  border: 1px solid var(--colorGrey200);
+  color: var(--colorGrey600);
+  border-radius: var(--borderRadius);
+  transition: all var(--transitionStyleButton);
+
+  &:hover {
+    background-color: var(--colorGrey50);
+    border-color: var(--colorGrey300);
+    color: var(--colorGrey700);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: var(--boxShadowButton);
+  }
 
   @media (--viewportMedium) {
-    display: block;
-    padding: 1px 0 7px 0;
+    min-width: 180px;
+    height: 42px;
+    font-size: 15px;
+    padding: 8px 14px;
     margin: 0 0 72px 0;
   }
 }
