@@ -1205,5 +1205,6 @@
     "EditListingPolicyForm.visibilityComplianceRequired": "Vous devez comprendre les conséquences de ne pas placer les caisses dans des endroits clairement visibles.",
     "EditListingPolicyForm.updateFailed": "La mise à jour des conditions de politique a échoué. Veuillez réessayer.",
     "EditListingPolicyForm.showListingFailed": "Impossible d'afficher l'annonce. Veuillez réessayer.",
-    "EditListingWizard.tabLabelPolicyPage": "Politique"
+    "EditListingWizard.tabLabelPolicyPage": "Politique",
+  "EditListingPricingPanel.description": "Ceci est le montant journalier que vous percevrez. Les locataires seront facturés pour les frais de service et de gestion."
 }

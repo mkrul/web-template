@@ -14,3 +14,9 @@
 .priceCurrencyInvalid {
   color: var(--colorFail);
 }
+
+.infoText {
+  margin-top: 0;
+  margin-bottom: 24px;
+  color: var(--colorGrey700);
+}

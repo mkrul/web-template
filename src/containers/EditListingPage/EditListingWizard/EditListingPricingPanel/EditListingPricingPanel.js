@@ -28,19 +28,22 @@ const { Money } = sdkTypes;
 
 const getListingTypeConfig = (publicData, listingTypes) => {
   const selectedListingType = publicData.listingType;
-  return listingTypes.find(conf => conf.listingType === selectedListingType);
+  return listingTypes.find((conf) => conf.listingType === selectedListingType);
 };
 
 // NOTE: components that handle price variants and start time interval are currently
 // exporting helper functions that handle the initial values and the submission values.
 // This is a tentative approach to contain logic in one place.
-const getInitialValues = props => {
+const getInitialValues = (props) => {
   const { listing, listingTypes } = props;
   const { publicData } = listing?.attributes || {};
   const { unitType } = publicData || {};
   const listingTypeConfig = getListingTypeConfig(publicData, listingTypes);
   // Note: publicData contains priceVariationsEnabled if listing is created with priceVariations enabled.
-  const isPriceVariationsInUse = isPriceVariationsEnabled(publicData, listingTypeConfig);
+  const isPriceVariationsInUse = isPriceVariationsEnabled(
+    publicData,
+    listingTypeConfig
+  );
 
   return unitType === FIXED || isPriceVariationsInUse
     ? {
@@ -88,8 +91,10 @@ const getOptimisticListing = (listing, updateValues) => {
  * @param {Object} props.errors - The errors
  * @returns {JSX.Element}
  */
-const EditListingPricingPanel = props => {
-  const [state, setState] = useState({ initialValues: getInitialValues(props) });
+const EditListingPricingPanel = (props) => {
+  const [state, setState] = useState({
+    initialValues: getInitialValues(props),
+  });
 
   const {
     className,
@@ -109,7 +114,8 @@ const EditListingPricingPanel = props => {
 
   const classes = classNames(rootClassName || css.root, className);
   const initialValues = state.initialValues;
-  const isPublished = listing?.id && listing?.attributes?.state !== LISTING_STATE_DRAFT;
+  const isPublished =
+    listing?.id && listing?.attributes?.state !== LISTING_STATE_DRAFT;
 
   const publicData = listing?.attributes?.publicData;
   const listingTypeConfig = getListingTypeConfig(publicData, listingTypes);
@@ -118,7 +124,10 @@ const EditListingPricingPanel = props => {
   const isBooking = isBookingProcess(process);
 
   // Note: publicData contains priceVariationsEnabled if listing is created with priceVariations enabled.
-  const isPriceVariationsInUse = isPriceVariationsEnabled(publicData, listingTypeConfig);
+  const isPriceVariationsInUse = isPriceVariationsEnabled(
+    publicData,
+    listingTypeConfig
+  );
 
   const isCompatibleCurrency = isValidCurrencyForTransactionProcess(
     transactionProcessAlias,
@@ -128,8 +137,8 @@ const EditListingPricingPanel = props => {
   const priceCurrencyValid = !isCompatibleCurrency
     ? false
     : marketplaceCurrency && initialValues.price instanceof Money
-    ? initialValues.price.currency === marketplaceCurrency
-    : !!marketplaceCurrency;
+      ? initialValues.price.currency === marketplaceCurrency
+      : !!marketplaceCurrency;
   const unitType = listing?.attributes?.publicData?.unitType;
 
   return (
@@ -138,7 +147,10 @@ const EditListingPricingPanel = props => {
         {isPublished ? (
           <FormattedMessage
             id="EditListingPricingPanel.title"
-            values={{ listingTitle: <ListingLink listing={listing} />, lineBreak: <br /> }}
+            values={{
+              listingTitle: <ListingLink listing={listing} />,
+              lineBreak: <br />,
+            }}
           />
         ) : (
           <FormattedMessage
@@ -147,28 +159,34 @@ const EditListingPricingPanel = props => {
           />
         )}
       </H3>
+      <p className={css.infoText}>
+        <FormattedMessage id="EditListingPricingPanel.description" />
+      </p>
       {priceCurrencyValid ? (
         <EditListingPricingForm
           className={css.form}
           initialValues={initialValues}
-          onSubmit={values => {
+          onSubmit={(values) => {
             const { price } = values;
 
             // New values for listing attributes
             let updateValues = {};
 
             if (unitType === FIXED || isPriceVariationsInUse) {
-              let publicDataUpdates = { priceVariationsEnabled: isPriceVariationsInUse };
+              let publicDataUpdates = {
+                priceVariationsEnabled: isPriceVariationsInUse,
+              };
               // NOTE: components that handle price variants and start time interval are currently
               // exporting helper functions that handle the initial values and the submission values.
               // This is a tentative approach to contain logic in one place.
               // We might remove or improve this setup in the future.
 
               // This adds startTimeInterval to publicData
-              const startTimeIntervalChanges = handleSubmitValuesForStartTimeInterval(
-                values,
-                publicDataUpdates
-              );
+              const startTimeIntervalChanges =
+                handleSubmitValuesForStartTimeInterval(
+                  values,
+                  publicDataUpdates
+                );
               // This adds lowest price variant to the listing.attributes.price and priceVariants to listing.attributes.publicData
               const priceVariantChanges = handleSubmitValuesForPriceVariants(
                 values,

@@ -1206,5 +1206,6 @@
     "EditListingPolicyForm.updateFailed": "Updating policy terms failed. Please try again.",
     "EditListingPolicyForm.showListingFailed": "Failed to show the listing. Please try again.",
     "EditListingWizard.tabLabelPolicyPage": "Policy",
-  "EditListingPolicyForm.allRequired": "All policy terms must be accepted."
+  "EditListingPolicyForm.allRequired": "All policy terms must be accepted.",
+  "EditListingPricingPanel.description": "This is the total amount that will be collected by you per day. Service and shipping fees will be paid by the renter."
 }

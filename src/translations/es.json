@@ -1205,5 +1205,6 @@
     "EditListingPolicyForm.visibilityComplianceRequired": "Debe entender las consecuencias de no colocar las cajas en lugares claramente visibles.",
     "EditListingPolicyForm.updateFailed": "La actualización de los términos de política falló. Por favor, intente de nuevo.",
     "EditListingPolicyForm.showListingFailed": "No se pudo mostrar el anuncio. Por favor, intente de nuevo.",
-    "EditListingWizard.tabLabelPolicyPage": "Política"
+    "EditListingWizard.tabLabelPolicyPage": "Política",
+  "EditListingPricingPanel.description": "Esta es la cantidad diaria que recibirás. Los inquilinos pagarán las tarifas de servicio y gestión."
 }

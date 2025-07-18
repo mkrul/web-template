@@ -1205,5 +1205,6 @@
     "EditListingPolicyForm.visibilityComplianceRequired": "Sie müssen die Konsequenzen verstehen, wenn Sie Kisten nicht an deutlich sichtbaren Orten platzieren.",
     "EditListingPolicyForm.updateFailed": "Aktualisierung der Richtlinienbedingungen fehlgeschlagen. Bitte versuchen Sie es erneut.",
     "EditListingPolicyForm.showListingFailed": "Anzeige des Inserats fehlgeschlagen. Bitte versuchen Sie es erneut.",
-    "EditListingWizard.tabLabelPolicyPage": "Richtlinie"
+    "EditListingWizard.tabLabelPolicyPage": "Richtlinie",
+  "EditListingPricingPanel.description": "Dies ist der tägliche Betrag, den Sie erhalten. Mieter zahlen die Service- und Bearbeitungsgebühren."
 }
