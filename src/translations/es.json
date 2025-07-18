@@ -228,7 +228,7 @@
   "EditListingCrateTypeForm.crateTypeRequired": "Debes seleccionar un tipo de jaula.",
   "EditListingCrateTypeForm.description": "¿Qué tipo de jaula estás ofreciendo? Esto ayudará a los inquilinos potenciales a entender qué esperar y determina qué fotos son requeridas.",
   "EditListingCrateTypeForm.showListingFailed": "Error al obtener los datos del anuncio.",
-  "EditListingCrateTypeForm.solidDescription": "Las jaulas sólidas proporcionan privacidad completa y protección contra los elementos.",
+  "EditListingCrateTypeForm.solidDescription": "Las jaulas sólidas son más duraderas y brindan privacidad.",
   "EditListingCrateTypeForm.solidLabel": "Jaula sólida",
   "EditListingCrateTypeForm.updateFailed": "Error al actualizar el anuncio. Por favor, inténtalo de nuevo.",
   "EditListingCrateTypeForm.wireDescription": "Las jaulas de alambre permiten visibilidad y ventilación mientras proporcionan contención segura.",

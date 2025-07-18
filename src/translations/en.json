@@ -228,7 +228,7 @@
   "EditListingCrateTypeForm.crateTypeRequired": "You must select a crate type.",
   "EditListingCrateTypeForm.description": "What type of crate are you listing? This will help potential renters understand what to expect and determines which photos are required.",
   "EditListingCrateTypeForm.showListingFailed": "Fetching listing data failed.",
-  "EditListingCrateTypeForm.solidDescription": "Solid crates provide complete privacy and protection from the elements.",
+  "EditListingCrateTypeForm.solidDescription": "Solid crates are more durable and offer complete privacy.",
   "EditListingCrateTypeForm.solidLabel": "Solid crate",
   "EditListingCrateTypeForm.updateFailed": "Failed to update listing. Please try again.",
   "EditListingCrateTypeForm.wireDescription": "Wire crates allow visibility and ventilation while providing secure containment.",
@@ -1194,8 +1194,8 @@
   "UserNav.yourListings": "Your listings",
   "EditListingLocationForm.addressDescription": "This is the address that the crate will be picked up and returned to.",
       "EditListingDetailsForm.carTravelEligible": "Crate eligible for car travel",
-    "EditListingPolicyPanel.title": "Update policy terms for {listingTitle}{lineBreak}",
-    "EditListingPolicyPanel.createListingTitle": "Policy terms{lineBreak}",
+    "EditListingPolicyPanel.title": "Update policy Terms for {listingTitle}{lineBreak}",
+    "EditListingPolicyPanel.createListingTitle": "Policy Terms{lineBreak}",
     "EditListingPolicyForm.description": "Please confirm that you agree to the following terms and conditions for listing your crate:",
     "EditListingPolicyForm.accessibleLocationLabel": "I agree to have the crate available in an accessible location easily seen by the pick-up agent.",
     "EditListingPolicyForm.accessibleLocationRequired": "You must agree to make the crate available in an accessible location.",
@@ -1207,5 +1207,5 @@
     "EditListingPolicyForm.showListingFailed": "Failed to show the listing. Please try again.",
     "EditListingWizard.tabLabelPolicyPage": "Policy",
   "EditListingPolicyForm.allRequired": "All policy terms must be accepted.",
-  "EditListingPricingPanel.description": "This is the total amount that will be collected by you per day. Service and shipping fees will be paid by the renter."
+  "EditListingPricingPanel.description": "This is the total amount that will be collected by you per day. Service and shipping fees will be covered by the renter."
 }

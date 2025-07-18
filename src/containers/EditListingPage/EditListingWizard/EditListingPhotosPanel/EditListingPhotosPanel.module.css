@@ -12,6 +12,19 @@
   flex-grow: 1;
 }
 
+.heading {
+  padding: 0;
+  margin-bottom: 24px;
+  font-size: 22px;
+  line-height: 28px;
+
+  @media (--viewportMedium) {
+    margin-bottom: 16px;
+    font-size: 30px;
+    line-height: 40px;
+  }
+}
+
 /* ================ Modal ================ */
 
 .modalHeaderWrapper {

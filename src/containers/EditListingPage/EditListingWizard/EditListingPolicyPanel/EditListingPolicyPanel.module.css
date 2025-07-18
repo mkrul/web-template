@@ -6,13 +6,21 @@
   height: auto;
   display: flex;
   flex-direction: column;
-  padding: 24px 24px 0 24px;
-
-  @media (--viewportLarge) {
-    padding: 32px 32px 0 32px;
-  }
 }
 
 .form {
   flex-grow: 1;
+}
+
+.heading {
+  padding: 0;
+  margin-bottom: 24px;
+  font-size: 22px;
+  line-height: 28px;
+
+  @media (--viewportMedium) {
+    margin-bottom: 16px;
+    font-size: 30px;
+    line-height: 40px;
+  }
 }

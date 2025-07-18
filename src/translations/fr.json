@@ -228,7 +228,7 @@
   "EditListingCrateTypeForm.crateTypeRequired": "Vous devez sélectionner un type de cage.",
   "EditListingCrateTypeForm.description": "Quel type de cage proposez-vous à la location ? Cela aidera les locataires potentiels à comprendre à quoi s'attendre et détermine quelles photos sont requises.",
   "EditListingCrateTypeForm.showListingFailed": "Échec de la récupération des données de l'annonce.",
-  "EditListingCrateTypeForm.solidDescription": "Les cages solides offrent une intimité complète et une protection contre les intempéries.",
+  "EditListingCrateTypeForm.solidDescription": "Les caisses solides sont plus durables et offrent de l'intimité.",
   "EditListingCrateTypeForm.solidLabel": "Cage solide",
   "EditListingCrateTypeForm.updateFailed": "Échec de la mise à jour de l'annonce. Veuillez réessayer.",
   "EditListingCrateTypeForm.wireDescription": "Les cages grillagées permettent la visibilité et la ventilation tout en offrant un confinement sécurisé.",

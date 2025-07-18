@@ -67,3 +67,20 @@
     margin-top: 100px;
   }
 }
+
+/* Make radio button labels larger on mobile only */
+.formGroup :global(.FieldRadioButton_text),
+.formGroup :global(span[class*="FieldRadioButton_text"]) {
+  font-size: 16px !important;
+  line-height: 22px !important;
+  font-weight: 500 !important;
+}
+
+@media (--viewportMedium) {
+  .formGroup :global(.FieldRadioButton_text),
+  .formGroup :global(span[class*="FieldRadioButton_text"]) {
+    font-size: 16px !important;
+    line-height: 20px !important;
+    font-weight: 500 !important;
+  }
+}

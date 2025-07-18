@@ -11,8 +11,13 @@
 .heading {
   padding: 0;
   margin-bottom: 24px;
+  font-size: 22px;
+  line-height: 28px;
+
   @media (--viewportMedium) {
     margin-bottom: 16px;
+    font-size: 30px;
+    line-height: 40px;
   }
 }
 
@@ -36,7 +41,6 @@
   margin-bottom: 24px;
 
   @media (--viewportMedium) {
-    padding: 6px 0 2px 0;
     margin-bottom: 8px;
   }
 }
@@ -50,12 +54,35 @@
 }
 
 .editPlanButton {
-  display: block;
-  padding: 4px 0 2px 0;
+  display: inline-block;
+  width: auto;
+  min-width: 160px;
   margin: 0;
+  height: 40px;
+  font-size: 14px;
+  padding: 6px 12px;
+  background-color: var(--colorWhite);
+  border: 1px solid var(--colorGrey200);
+  color: var(--colorGrey600);
+  border-radius: var(--borderRadius);
+  transition: all var(--transitionStyleButton);
+
+  &:hover {
+    background-color: var(--colorGrey50);
+    border-color: var(--colorGrey300);
+    color: var(--colorGrey700);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: var(--boxShadowButton);
+  }
 
   @media (--viewportMedium) {
-    padding: 5px 0 3px 0;
+    min-width: 180px;
+    height: 42px;
+    font-size: 15px;
+    padding: 8px 14px;
   }
 }
 

@@ -122,7 +122,7 @@ const EditListingPhotosPanel = (props) => {
 
   return (
     <div className={classes}>
-      <H3 as="h1">
+      <H3 as="h1" className={css.heading}>
         {isPublished ? (
           <FormattedMessage
             id="EditListingPhotosPanel.title"

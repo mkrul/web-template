@@ -20,6 +20,8 @@ import {
   InlineTextButton,
   ListingLink,
   Modal,
+  SecondaryButton,
+  SecondaryButtonInline,
 } from '../../../../components';
 
 // Import modules from this directory
@@ -310,7 +312,7 @@ const EditListingAvailabilityPanel = (props) => {
           </p>
         ) : null}
 
-        <InlineTextButton
+        <SecondaryButtonInline
           className={css.editPlanButton}
           onClick={() => setIsEditPlanModalOpen(true)}
         >
@@ -319,7 +321,7 @@ const EditListingAvailabilityPanel = (props) => {
           ) : (
             <FormattedMessage id="EditListingAvailabilityPanel.setAvailabilityPlan" />
           )}
-        </InlineTextButton>
+        </SecondaryButtonInline>
       </div>
 
       {hasAvailabilityPlan ? (
