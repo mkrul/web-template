@@ -109,6 +109,55 @@
   }
 }
 
+.goToNextTabButton :global(button),
+.goToNextTabButton :global(.Button_root),
+.goToNextTabButton :global(button[class*="Button"]) {
+  font-size: 18px !important;
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+}
+
+/* More aggressive button text targeting for mobile */
+.goToNextTabButton button,
+.goToNextTabButton :global(button),
+.goToNextTabButton :global(*[class*="button"]),
+.goToNextTabButton :global(*[class*="Button"]) {
+  font-size: 18px !important;
+  line-height: 1.2 !important;
+}
+
+.goToNextTabButton button *,
+.goToNextTabButton :global(button) *,
+.goToNextTabButton :global(*[class*="button"]) *,
+.goToNextTabButton :global(*[class*="Button"]) * {
+  font-size: 18px !important;
+}
+
+@media (--viewportMedium) {
+  .goToNextTabButton :global(button),
+  .goToNextTabButton :global(.Button_root),
+  .goToNextTabButton :global(button[class*="Button"]) {
+    font-size: 16px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+  }
+
+  .goToNextTabButton button,
+  .goToNextTabButton :global(button),
+  .goToNextTabButton :global(*[class*="button"]),
+  .goToNextTabButton :global(*[class*="Button"]) {
+    font-size: 16px !important;
+    line-height: 1.2 !important;
+  }
+
+  .goToNextTabButton button *,
+  .goToNextTabButton :global(button) *,
+  .goToNextTabButton :global(*[class*="button"]) *,
+  .goToNextTabButton :global(*[class*="Button"]) * {
+    font-size: 16px !important;
+  }
+}
+
 .modalContainer {
   composes: marketplaceModalBaseStyles from global;
   min-height: 100vh;

@@ -1195,7 +1195,7 @@
   "EditListingLocationForm.addressDescription": "This is the address that the crate will be picked up and returned to.",
       "EditListingDetailsForm.carTravelEligible": "Crate eligible for car travel",
     "EditListingPolicyPanel.title": "Update policy Terms for {listingTitle}{lineBreak}",
-    "EditListingPolicyPanel.createListingTitle": "Policy Terms{lineBreak}",
+    "EditListingPolicyPanel.createListingTitle": "Terms & Conditions{lineBreak}",
     "EditListingPolicyForm.description": "Please confirm that you agree to the following terms and conditions for listing your crate:",
     "EditListingPolicyForm.accessibleLocationLabel": "I agree to have the crate available in an accessible location easily seen by the pick-up agent.",
     "EditListingPolicyForm.accessibleLocationRequired": "You must agree to make the crate available in an accessible location.",
@@ -1205,7 +1205,7 @@
     "EditListingPolicyForm.visibilityComplianceRequired": "You must understand the consequences of not placing crates in clearly visible locations.",
     "EditListingPolicyForm.updateFailed": "Updating policy terms failed. Please try again.",
     "EditListingPolicyForm.showListingFailed": "Failed to show the listing. Please try again.",
-    "EditListingWizard.tabLabelPolicyPage": "Policy",
+    "EditListingWizard.tabLabelPolicyPage": "Terms",
   "EditListingPolicyForm.allRequired": "All policy terms must be accepted.",
   "EditListingPricingPanel.description": "This is the total amount that will be collected by you per day. Service and shipping fees will be covered by the renter."
 }

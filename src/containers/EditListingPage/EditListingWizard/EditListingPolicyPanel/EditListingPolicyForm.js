@@ -7,11 +7,7 @@ import { bool, func, object, string } from 'prop-types';
 import { FormattedMessage, useIntl } from '../../../../util/reactIntl';
 import { propTypes } from '../../../../util/types';
 
-import {
-  Form,
-  PrimaryButton,
-  FieldCircleCheckbox,
-} from '../../../../components';
+import { Form, Button, FieldCircleCheckbox } from '../../../../components';
 
 import css from './EditListingPolicyForm.module.css';
 
@@ -110,7 +106,7 @@ const EditListingPolicyFormComponent = (props) => (
             ) : null}
           </div>
 
-          <PrimaryButton
+          <Button
             className={css.submitButton}
             type="submit"
             inProgress={submitInProgress}
@@ -118,7 +114,7 @@ const EditListingPolicyFormComponent = (props) => (
             ready={submitReady}
           >
             {saveActionMsg}
-          </PrimaryButton>
+          </Button>
         </Form>
       );
     }}

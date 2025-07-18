@@ -84,8 +84,51 @@
 
   @media (--viewportLarge) {
     display: inline-block;
-    width: 241px;
+    width: 180px;
     margin-top: 100px;
+  }
+}
+
+/* Ultra-aggressive button text styling for mobile */
+.submitButton,
+.submitButton button,
+.submitButton :global(button),
+.submitButton :global(*),
+button[class*="submitButton"],
+[class*="submitButton"] button,
+[class*="submitButton"] :global(button) {
+  font-size: 18px !important;
+}
+
+.submitButton *,
+.submitButton button *,
+.submitButton :global(button) *,
+.submitButton :global(*) *,
+button[class*="submitButton"] *,
+[class*="submitButton"] button *,
+[class*="submitButton"] :global(button) * {
+  font-size: 18px !important;
+}
+
+@media (--viewportMedium) {
+  .submitButton,
+  .submitButton button,
+  .submitButton :global(button),
+  .submitButton :global(*),
+  button[class*="submitButton"],
+  [class*="submitButton"] button,
+  [class*="submitButton"] :global(button) {
+    font-size: 16px !important;
+  }
+
+  .submitButton *,
+  .submitButton button *,
+  .submitButton :global(button) *,
+  .submitButton :global(*) *,
+  button[class*="submitButton"] *,
+  [class*="submitButton"] button *,
+  [class*="submitButton"] :global(button) * {
+    font-size: 16px !important;
   }
 }
 

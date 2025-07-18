@@ -60,11 +60,20 @@
   flex-shrink: 0;
   margin-top: auto;
   margin-bottom: 24px;
+  font-size: 18px;
+  padding: 12px 0;
 
   @media (--viewportLarge) {
     display: inline-block;
     width: 241px;
     margin-top: 100px;
+  }
+}
+
+@media (--viewportMedium) {
+  .submitButton {
+    font-size: 16px;
+    padding: 10px 0;
   }
 }
 
@@ -82,5 +91,54 @@
     font-size: 16px !important;
     line-height: 20px !important;
     font-weight: 500 !important;
+  }
+}
+
+.submitButton :global(button),
+.submitButton :global(.Button_root),
+.submitButton :global(button[class*="Button"]) {
+  font-size: 18px !important;
+  padding-top: 12px !important;
+  padding-bottom: 12px !important;
+}
+
+/* More aggressive button text targeting for mobile */
+.submitButton button,
+.submitButton :global(button),
+.submitButton :global(*[class*="button"]),
+.submitButton :global(*[class*="Button"]) {
+  font-size: 18px !important;
+  line-height: 1.2 !important;
+}
+
+.submitButton button *,
+.submitButton :global(button) *,
+.submitButton :global(*[class*="button"]) *,
+.submitButton :global(*[class*="Button"]) * {
+  font-size: 18px !important;
+}
+
+@media (--viewportMedium) {
+  .submitButton :global(button),
+  .submitButton :global(.Button_root),
+  .submitButton :global(button[class*="Button"]) {
+    font-size: 16px !important;
+    padding-top: 10px !important;
+    padding-bottom: 10px !important;
+  }
+
+  .submitButton button,
+  .submitButton :global(button),
+  .submitButton :global(*[class*="button"]),
+  .submitButton :global(*[class*="Button"]) {
+    font-size: 16px !important;
+    line-height: 1.2 !important;
+  }
+
+  .submitButton button *,
+  .submitButton :global(button) *,
+  .submitButton :global(*[class*="button"]) *,
+  .submitButton :global(*[class*="Button"]) * {
+    font-size: 16px !important;
   }
 }

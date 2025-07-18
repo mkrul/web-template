@@ -102,3 +102,34 @@
     margin-bottom: 40px;
   }
 }
+
+/* Global submit button text size override for mobile */
+.tabsContainer button[type="submit"],
+.tabsContainer :global(button[type="submit"]),
+.tabsContainer [class*="submitButton"],
+.tabsContainer [class*="goToNextTabButton"] {
+  font-size: 18px !important;
+}
+
+.tabsContainer button[type="submit"] *,
+.tabsContainer :global(button[type="submit"]) *,
+.tabsContainer [class*="submitButton"] *,
+.tabsContainer [class*="goToNextTabButton"] * {
+  font-size: 18px !important;
+}
+
+@media (--viewportMedium) {
+  .tabsContainer button[type="submit"],
+  .tabsContainer :global(button[type="submit"]),
+  .tabsContainer [class*="submitButton"],
+  .tabsContainer [class*="goToNextTabButton"] {
+    font-size: 16px !important;
+  }
+
+  .tabsContainer button[type="submit"] *,
+  .tabsContainer :global(button[type="submit"]) *,
+  .tabsContainer [class*="submitButton"] *,
+  .tabsContainer [class*="goToNextTabButton"] * {
+    font-size: 16px !important;
+  }
+}
