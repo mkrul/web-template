@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { Form as FinalForm } from 'react-final-form';
 import arrayMutators from 'final-form-arrays';
 import classNames from 'classnames';
@@ -28,7 +28,7 @@ const sortEntries = () => (a, b) => {
  * @param {Redux Thunk} onSubmit promise fn.
  * @param {Array<string>} weekdays ['mon', 'tue', etc.]
  */
-const submit = (onSubmit, weekdays) => values => {
+const submit = (onSubmit, weekdays) => (values) => {
   const sortedValues = weekdays.reduce(
     (submitValues, day) => {
       return submitValues[day]
@@ -70,7 +70,7 @@ const submit = (onSubmit, weekdays) => values => {
  * @param {Object} props.values form's values
  * @returns {JSX.Element} containing form that allows adding availability exceptions
  */
-const EditListingAvailabilityPlanForm = props => {
+const EditListingAvailabilityPlanForm = (props) => {
   const intl = useIntl();
   const { onSubmit, ...restOfprops } = props;
   return (
@@ -80,7 +80,7 @@ const EditListingAvailabilityPlanForm = props => {
       mutators={{
         ...arrayMutators,
       }}
-      render={fieldRenderProps => {
+      render={(fieldRenderProps) => {
         const {
           rootClassName,
           className,
@@ -97,6 +97,31 @@ const EditListingAvailabilityPlanForm = props => {
           values,
         } = fieldRenderProps;
 
+        // --- ADDED: Sync schedule arrays with activePlanDays ---
+        useEffect(() => {
+          if (!values || !formApi) return;
+          weekdays.forEach((day) => {
+            const isActive = values.activePlanDays?.includes(day);
+            const hasEntries = values[day] && values[day].length > 0;
+            if (isActive && !hasEntries) {
+              formApi.change(day, [
+                { startTime: '00:00', endTime: '24:00', seats: 1 },
+              ]);
+            } else if (!isActive && hasEntries) {
+              formApi.change(day, []);
+            }
+          });
+        }, [
+          values.activePlanDays,
+          formApi,
+          weekdays,
+          values,
+          useMultipleSeats,
+          useFullDays,
+          unitType,
+        ]);
+        // --- END ADDED ---
+
         const classes = classNames(rootClassName || css.root, className);
         const submitInProgress = inProgress;
 
@@ -104,7 +129,7 @@ const EditListingAvailabilityPlanForm = props => {
           values[day] ? entries.concat(values[day]) : entries;
         const hasUnfinishedEntries = !!weekdays
           .reduce(concatDayEntriesReducer, [])
-          .find(e => !e.startTime || !e.endTime);
+          .find((e) => !e.startTime || !e.endTime);
 
         const { updateListingError } = fetchErrors || {};
 
@@ -133,7 +158,7 @@ const EditListingAvailabilityPlanForm = props => {
               <FormattedMessage id="EditListingAvailabilityPlanForm.hoursOfOperationTitle" />
             </Heading>
             <div className={css.week}>
-              {weekdays.map(w => {
+              {weekdays.map((w) => {
                 return (
                   <AvailabilityPlanEntries
                     dayOfWeek={w}
@@ -155,7 +180,11 @@ const EditListingAvailabilityPlanForm = props => {
                   <FormattedMessage id="EditListingAvailabilityPlanForm.updateFailed" />
                 </p>
               ) : null}
-              <PrimaryButton type="submit" inProgress={submitInProgress} disabled={submitDisabled}>
+              <PrimaryButton
+                type="submit"
+                inProgress={submitInProgress}
+                disabled={submitDisabled}
+              >
                 <FormattedMessage id="EditListingAvailabilityPlanForm.saveSchedule" />
               </PrimaryButton>
             </div>

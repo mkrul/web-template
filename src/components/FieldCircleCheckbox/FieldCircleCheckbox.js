@@ -4,11 +4,11 @@ import { Field } from 'react-final-form';
 import css from './FieldCircleCheckbox.module.css';
 
 const FieldCircleCheckbox = (props) => {
-  const { id, name, label, className, rootClassName, ...rest } = props;
+  const { id, name, label, className, rootClassName, value, ...rest } = props;
   const classes = classNames(rootClassName || css.root, className);
 
   return (
-    <Field name={name} type="checkbox">
+    <Field name={name} type="checkbox" value={value}>
       {({ input }) => (
         <label className={classes} htmlFor={id}>
           <span className={css.inputWrapper}>
