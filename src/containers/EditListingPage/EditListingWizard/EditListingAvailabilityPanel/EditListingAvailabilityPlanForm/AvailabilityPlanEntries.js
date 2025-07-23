@@ -8,7 +8,7 @@ import { FormattedMessage } from '../../../../../util/reactIntl';
 import {
   InlineTextButton,
   FieldSelect,
-  FieldCheckbox,
+  FieldCircleCheckbox,
   IconDelete,
 } from '../../../../../components';
 
@@ -19,7 +19,7 @@ import css from './AvailabilityPlanEntries.module.css';
 const HOURS = Array(24).fill();
 
 // Internally, we use 00:00 ... 24:00 mapping for hour strings
-const printHourStrings = h => (h > 9 ? `${h}:00` : `0${h}:00`);
+const printHourStrings = (h) => (h > 9 ? `${h}:00` : `0${h}:00`);
 
 // Start hours and end hours for each day on weekly schedule
 // Note: if you need to use something else than sharp hours,
@@ -54,17 +54,20 @@ const localizedHourStrings = (hour24, intl) => {
  * @param {Integer} defaultCompareReturn if startTime is null, negative value pushes the entry to the beginning
  * @returns
  */
-const sortEntries = (defaultCompareReturn = 0) => (a, b) => {
-  if (a.startTime && b.startTime) {
-    const aStart = Number.parseInt(a.startTime.split(':')[0]);
-    const bStart = Number.parseInt(b.startTime.split(':')[0]);
-    return aStart - bStart;
-  }
-  return defaultCompareReturn;
-};
+const sortEntries =
+  (defaultCompareReturn = 0) =>
+  (a, b) => {
+    if (a.startTime && b.startTime) {
+      const aStart = Number.parseInt(a.startTime.split(':')[0]);
+      const bStart = Number.parseInt(b.startTime.split(':')[0]);
+      return aStart - bStart;
+    }
+    return defaultCompareReturn;
+  };
 
 // Curried: find entry by comparing start time and end time
-const findEntryFn = entry => e => e.startTime === entry.startTime && e.endTime === entry.endTime;
+const findEntryFn = (entry) => (e) =>
+  e.startTime === entry.startTime && e.endTime === entry.endTime;
 
 /**
  * AvailabilityPlan entry.
@@ -106,12 +109,14 @@ const filterStartHours = (availableStartHours, entries, index) => {
   // return all the available times before current selected end time.
   // Otherwise return all the available start times that are after the previous entry or entries.
   const prevEntry = sortedEntries[currentIndex - 1];
-  const pickBefore = time => h => h < time;
-  const pickBetween = (start, end) => h => h >= start && h < end;
+  const pickBefore = (time) => (h) => h < time;
+  const pickBetween = (start, end) => (h) => h >= start && h < end;
 
   return !prevEntry || !prevEntry.endTime
     ? availableStartHours.filter(pickBefore(currentEntry.endTime))
-    : availableStartHours.filter(pickBetween(prevEntry.endTime, currentEntry.endTime));
+    : availableStartHours.filter(
+        pickBetween(prevEntry.endTime, currentEntry.endTime)
+      );
 };
 
 /**
@@ -145,12 +150,14 @@ const filterEndHours = (availableEndHours, entries, index) => {
   // return all the available end times that are after the start of current entry.
   // Otherwise return all the available end hours between current start time and next entry.
   const nextEntry = sortedEntries[currentIndex + 1];
-  const pickAfter = time => h => h > time;
-  const pickBetween = (start, end) => h => h > start && h <= end;
+  const pickAfter = (time) => (h) => h > time;
+  const pickBetween = (start, end) => (h) => h > start && h <= end;
 
   return !nextEntry || !nextEntry.startTime
     ? availableEndHours.filter(pickAfter(currentEntry.startTime))
-    : availableEndHours.filter(pickBetween(currentEntry.startTime, nextEntry.startTime));
+    : availableEndHours.filter(
+        pickBetween(currentEntry.startTime, nextEntry.startTime)
+      );
 };
 
 /**
@@ -160,7 +167,7 @@ const filterEndHours = (availableEndHours, entries, index) => {
  * @param {Boolean} findStartHours find start hours (00:00 ... 23:00) or else (01:00 ... 24:00)
  * @returns array of reserved sharp hours. E.g. ['13:00', '14:00', '15:00', '16:00']
  */
-const getEntryBoundaries = (entries, findStartHours) => index => {
+const getEntryBoundaries = (entries, findStartHours) => (index) => {
   const boundaryDiff = findStartHours ? 0 : 1;
 
   return entries.reduce((allHours, entry, i) => {
@@ -198,7 +205,7 @@ const getEntryBoundaries = (entries, findStartHours) => index => {
  * @param {ReactIntl} props.intl - React Intl instance
  * @returns {JSX.Element} The component that allows selecting plan entries
  */
-const TimeRangeSelects = props => {
+const TimeRangeSelects = (props) => {
   const {
     name,
     index,
@@ -232,14 +239,19 @@ const TimeRangeSelects = props => {
                 id: 'EditListingAvailabilityPlanForm.startTimePlaceholder',
               })}
             </option>
-            {filterStartHours(availableStartHours, entries, index).map(s => (
+            {filterStartHours(availableStartHours, entries, index).map((s) => (
               <option value={s} key={s}>
                 {localizedHourStrings(s, intl)}
               </option>
             ))}
           </FieldSelect>
           <span className={css.dashBetweenTimes}>
-            <svg xmlns="http://www.w3.org/2000/svg" width="17" height="16" fill="none">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="17"
+              height="16"
+              fill="none"
+            >
               <path d="M3.5 8h10" strokeWidth="1.333" strokeLinecap="round" />
             </svg>
           </span>
@@ -256,13 +268,17 @@ const TimeRangeSelects = props => {
                 id: 'EditListingAvailabilityPlanForm.endTimePlaceholder',
               })}
             </option>
-            {filterEndHours(availableEndHours, entries, index).map(s => (
+            {filterEndHours(availableEndHours, entries, index).map((s) => (
               <option value={s} key={s}>
                 {localizedHourStrings(s, intl)}
               </option>
             ))}
           </FieldSelect>
-          <div className={classNames(css.plus1Day, { [css.showPlus1Day]: isNextDay })}>
+          <div
+            className={classNames(css.plus1Day, {
+              [css.showPlus1Day]: isNextDay,
+            })}
+          >
             <FormattedMessage id="EditListingAvailabilityPlanForm.plus1Day" />
           </div>
         </div>
@@ -281,7 +297,11 @@ const TimeRangeSelects = props => {
       ) : (
         <FieldHidden name={`${name}.seats`} value={1} />
       )}
-      <div className={css.fieldArrayDelete} onClick={onRemove} style={{ cursor: 'pointer' }}>
+      <div
+        className={css.fieldArrayDelete}
+        onClick={onRemove}
+        style={{ cursor: 'pointer' }}
+      >
         <IconDelete rootClassName={css.deleteIcon} />
         <FormattedMessage id="EditListingAvailabilityPlanForm.delete" />
       </div>
@@ -297,11 +317,11 @@ const TimeRangeSelects = props => {
  * @param {string} props.name - the name of the form field/input
  * @returns {JSX.Element} component rendering a hidden form field.
  */
-const FieldHidden = props => {
+const FieldHidden = (props) => {
   const { name } = props;
   return (
     <Field id={name} name={name} type="hidden">
-      {fieldRenderProps => <input {...fieldRenderProps?.input} />}
+      {(fieldRenderProps) => <input {...fieldRenderProps?.input} />}
     </Field>
   );
 };
@@ -314,7 +334,7 @@ const FieldHidden = props => {
  * @param {string} props.name - the name of the form field/input. E.g. 'Mon[0]'
  * @returns {JSX.Element} component rendering a hidden form fields for 'startTime' and 'endTime'.
  */
-const TimeRangeHidden = props => {
+const TimeRangeHidden = (props) => {
   const { name } = props;
   return (
     <div className={css.timeRangeHidden}>
@@ -334,7 +354,7 @@ const TimeRangeHidden = props => {
  * @param {ReactIntl} props.intl - React Intl instance
  * @returns {JSX.Element} component rendering an input field for seats count and hidden form fields for 'startTime' and 'endTime'.
  */
-const SeatsWithTimeRangeHidden = props => {
+const SeatsWithTimeRangeHidden = (props) => {
   const { name, unitType, intl } = props;
   return (
     <>
@@ -366,8 +386,16 @@ const SeatsWithTimeRangeHidden = props => {
  * @param {ReactIntl} props.intl - React Intl instance.
  * @returns {JSX.Element} The field elements for the form.
  */
-const AvailabilityPlanEntries = props => {
-  const { dayOfWeek, useFullDays, useMultipleSeats, unitType, values, formApi, intl } = props;
+const AvailabilityPlanEntries = (props) => {
+  const {
+    dayOfWeek,
+    useFullDays,
+    useMultipleSeats,
+    unitType,
+    values,
+    formApi,
+    intl,
+  } = props;
   const entries = values[dayOfWeek];
   const hasEntries = entries && entries[0];
   const getEntryStartTimes = getEntryBoundaries(entries, true);
@@ -375,19 +403,20 @@ const AvailabilityPlanEntries = props => {
 
   const checkboxName = `checkbox_${dayOfWeek}`;
   return (
-    <div className={classNames(css.weekDay, hasEntries ? css.hasEntries : null)}>
+    <div
+      className={classNames(css.weekDay, hasEntries ? css.hasEntries : null)}
+    >
       <div className={css.dayOfWeek}>
-        <FieldCheckbox
+        <FieldCircleCheckbox
           key={checkboxName}
           id={checkboxName}
           className={css.dayOfWeekContent}
           name="activePlanDays"
-          useSuccessColor
           label={intl.formatMessage({
             id: `EditListingAvailabilityPlanForm.dayOfWeek.${dayOfWeek}`,
           })}
           value={dayOfWeek}
-          onChange={e => {
+          onChange={(e) => {
             const isChecked = e.target.checked;
 
             // 'day' and 'night' units use full days
@@ -408,7 +437,11 @@ const AvailabilityPlanEntries = props => {
                 const seats = useMultipleSeats ? { seats: 1 } : { seats: 1 };
                 // The 'hour' unit is not initialized with any value,
                 // because user need to pick them themselves.
-                formApi.mutators.push(dayOfWeek, { startTime: null, endTime: null, ...seats });
+                formApi.mutators.push(dayOfWeek, {
+                  startTime: null,
+                  endTime: null,
+                  ...seats,
+                });
               } else if (!isChecked) {
                 // If day of week checkbox is unchecked,
                 // we'll remove all the entries for that day.
@@ -422,16 +455,24 @@ const AvailabilityPlanEntries = props => {
       <FieldArray name={dayOfWeek}>
         {({ fields }) => {
           return (
-            <div className={classNames(css.planEntriesForDay, css.planEntryFields)}>
+            <div
+              className={classNames(css.planEntriesForDay, css.planEntryFields)}
+            >
               {fields.map((name, index) => {
                 // Pick available start hours
-                const pickUnreservedStartHours = h => !getEntryStartTimes(index).includes(h);
-                const availableStartHours = ALL_START_HOURS.filter(pickUnreservedStartHours);
+                const pickUnreservedStartHours = (h) =>
+                  !getEntryStartTimes(index).includes(h);
+                const availableStartHours = ALL_START_HOURS.filter(
+                  pickUnreservedStartHours
+                );
 
                 // Pick available end hours
-                const pickUnreservedEndHours = h => !getEntryEndTimes(index).includes(h);
-                const availableEndHours = ALL_END_HOURS.filter(pickUnreservedEndHours);
-                const isTimeSetFn = time => fields.value?.[index]?.[time];
+                const pickUnreservedEndHours = (h) =>
+                  !getEntryEndTimes(index).includes(h);
+                const availableEndHours = ALL_END_HOURS.filter(
+                  pickUnreservedEndHours
+                );
+                const isTimeSetFn = (time) => fields.value?.[index]?.[time];
                 const isNextDay = entries[index]?.endTime === '24:00';
 
                 // If full days (00:00 - 24:00) are used we'll hide the start time and end time fields.
@@ -461,7 +502,9 @@ const AvailabilityPlanEntries = props => {
                       const hasOnlyOneEntry = fields.value?.length === 1;
                       if (hasOnlyOneEntry) {
                         const activeDays = values['activePlanDays'];
-                        const cleanedDays = activeDays.filter(d => d !== dayOfWeek);
+                        const cleanedDays = activeDays.filter(
+                          (d) => d !== dayOfWeek
+                        );
                         // The day should not be active anymore
                         formApi.change('activePlanDays', cleanedDays);
                       }
@@ -476,7 +519,9 @@ const AvailabilityPlanEntries = props => {
                 <InlineTextButton
                   type="button"
                   className={css.buttonAddNew}
-                  onClick={() => fields.push({ startTime: null, endTime: null })}
+                  onClick={() =>
+                    fields.push({ startTime: null, endTime: null })
+                  }
                 >
                   <FormattedMessage id="EditListingAvailabilityPlanForm.addAnother" />
                 </InlineTextButton>

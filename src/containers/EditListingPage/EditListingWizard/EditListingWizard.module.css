@@ -35,7 +35,9 @@
   background-color: var(--colorWhite);
   box-shadow: var(--boxShadowLight);
   border-top: 1px solid var(--colorGrey100);
-  overflow-x: scroll;
+  overflow-x: auto;
+  scroll-snap-type: x mandatory;
+  position: relative;
 
   @media (--viewportLarge) {
     padding: 72px 0 82px 36px;
@@ -49,6 +51,15 @@
   @media (--viewportLargeWithPaddings) {
     padding: 72px 0 82px calc((100% - 1056px) / 2);
   }
+}
+
+.nav::-webkit-scrollbar {
+  display: none;
+}
+
+.nav {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }
 
 .tab {
@@ -67,6 +78,8 @@
     padding-right: 24px;
   }
 
+  scroll-snap-align: start;
+
   @media (--viewportLarge) {
     margin-left: 0;
 
@@ -77,6 +90,41 @@
     &:last-child {
       padding-right: 0;
     }
+  }
+}
+
+/* Gradient overlays for left/right edges */
+.nav::before,
+.nav::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  width: 24px;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.nav::before {
+  left: 0;
+  background: linear-gradient(to right, var(--colorWhite) 60%, transparent 100%);
+}
+
+.nav::after {
+  right: 0;
+  background: linear-gradient(to left, var(--colorWhite) 60%, transparent 100%);
+}
+
+@media (--viewportLarge) {
+  .nav {
+    scroll-snap-type: none;
+  }
+  .tab {
+    scroll-snap-align: none;
+  }
+  .nav::before,
+  .nav::after {
+    display: none;
   }
 }
 
