@@ -9,6 +9,15 @@
   justify-content: space-between;
 }
 
+.startDateLabel,
+.endDateLabel {
+  font-size: 16px;
+
+  @media (--viewportMedium) {
+    font-size: inherit;
+  }
+}
+
 .labelDisabled {
   color: var(--colorGrey500);
 }
