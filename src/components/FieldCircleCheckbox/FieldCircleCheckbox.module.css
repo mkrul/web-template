@@ -50,8 +50,12 @@
 }
 
 .labelText {
-  font-size: 1rem;
+  font-size: 16px;
   color: var(--colorGrey800);
   line-height: 1.5;
   user-select: text;
+
+  @media (--viewportMedium) {
+    font-size: 1rem;
+  }
 }

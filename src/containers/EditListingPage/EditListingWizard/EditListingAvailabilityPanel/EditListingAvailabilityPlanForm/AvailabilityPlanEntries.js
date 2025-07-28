@@ -421,7 +421,7 @@ const AvailabilityPlanEntries = (props) => {
 
       <FieldArray name={dayOfWeek}>
         {({ fields }) => {
-          return (
+          return hasEntries && !useFullDays ? (
             <div
               className={classNames(css.planEntriesForDay, css.planEntryFields)}
             >
@@ -494,7 +494,7 @@ const AvailabilityPlanEntries = (props) => {
                 </InlineTextButton>
               ) : null}
             </div>
-          );
+          ) : null;
         }}
       </FieldArray>
     </div>
