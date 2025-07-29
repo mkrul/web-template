@@ -76,8 +76,8 @@
 @media (--viewportMedium) {
   .radioButtons :global(.FieldRadioButton_text),
   .radioButtons :global(span[class*="FieldRadioButton_text"]) {
-    font-size: inherit !important;
-    line-height: inherit !important;
-    font-weight: inherit !important;
+    font-size: 16px !important;
+    line-height: 22px !important;
+    font-weight: 500 !important;
   }
 }

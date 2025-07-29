@@ -13,16 +13,21 @@ import css from './FieldRadioButton.module.css';
  * @param {boolean?} props.showAsRequired adds attention color for the icon if not selected
  * @returns {JSX.Element} checkbox svg that places the native radio button
  */
-const IconRadioButton = props => {
+const IconRadioButton = (props) => {
   const { className, checkedClassName, showAsRequired } = props;
   return (
     <div>
-      <svg className={className} width="14" height="14" xmlns="http://www.w3.org/2000/svg">
+      <svg
+        className={className}
+        width="18"
+        height="18"
+        xmlns="http://www.w3.org/2000/svg"
+      >
         <circle
           className={showAsRequired ? css.required : css.notChecked}
-          cx="5"
-          cy="19"
-          r="6"
+          cx="6"
+          cy="20"
+          r="7"
           transform="translate(2 -12)"
           strokeWidth="2"
           fill="none"
@@ -30,13 +35,16 @@ const IconRadioButton = props => {
         />
 
         <g
-          className={classNames(css.checked, checkedClassName || css.checkedStyle)}
+          className={classNames(
+            css.checked,
+            checkedClassName || css.checkedStyle
+          )}
           transform="translate(2 -12)"
           fill="none"
           fillRule="evenodd"
         >
-          <circle strokeWidth="2" cx="5" cy="19" r="6" />
-          <circle fill="#FFF" fillRule="nonzero" cx="5" cy="19" r="3" />
+          <circle strokeWidth="2" cx="6" cy="20" r="7" />
+          <circle fill="#FFF" fillRule="nonzero" cx="6" cy="20" r="4" />
         </g>
       </svg>
     </div>
@@ -59,7 +67,7 @@ const IconRadioButton = props => {
  * @param {boolean?} props.showAsRequired adds attention color for the icon if not selected
  * @returns {JSX.Element} Final Form Field containing radio button input
  */
-const FieldRadioButton = props => {
+const FieldRadioButton = (props) => {
   const {
     rootClassName,
     className,

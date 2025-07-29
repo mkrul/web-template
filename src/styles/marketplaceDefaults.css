@@ -762,7 +762,7 @@ textarea {
   padding: 0;
 
   @media (--viewportMedium) {
-    font-size: 16px;
+    font-size: 14px;
     line-height: 24px;
     padding: 5px 0 3px 0;
   }
