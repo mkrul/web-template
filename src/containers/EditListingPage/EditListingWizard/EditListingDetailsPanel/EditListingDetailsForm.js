@@ -499,18 +499,6 @@ const EditListingDetailsForm = (props) => (
             />
           )}
 
-          {showDescription && isCompatibleCurrency && (
-            <FieldToggle
-              id={`${formId}.carTravelEligible`}
-              name="carTravelEligible"
-              className={css.carTravelEligible}
-              label={intl.formatMessage({
-                id: 'EditListingDetailsForm.carTravelEligible',
-              })}
-              value="carTravelEligible"
-            />
-          )}
-
           {showListingFields && isCompatibleCurrency && (
             <AddListingFields
               listingType={listingType}
