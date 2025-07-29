@@ -15,9 +15,17 @@
 }
 
 .description {
-  composes: marketplaceBodyFontStyles from global;
+  font-family: var(--fontFamily);
+  font-weight: var(--fontWeightMedium);
+  font-size: 14px;
+  line-height: 24px;
   color: var(--colorGrey700);
   margin: 0 0 24px 0;
+
+  @media (--viewportMedium) {
+    font-size: 16px;
+    line-height: 24px;
+  }
 }
 
 .error {

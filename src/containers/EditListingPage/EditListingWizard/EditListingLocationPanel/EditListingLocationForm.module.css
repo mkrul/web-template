@@ -116,10 +116,18 @@
 }
 
 .addressDescription {
-  composes: marketplaceBodyFontStyles from global;
+  font-family: var(--fontFamily);
+  font-weight: var(--fontWeightMedium);
+  font-size: 14px;
+  line-height: 24px;
   color: var(--colorGrey700);
   margin-top: 0;
   margin-bottom: 24px;
+
+  @media (--viewportMedium) {
+    font-size: 16px;
+    line-height: 24px;
+  }
 }
 
 .largeLabel {
