@@ -5,7 +5,7 @@ import { ValidationError } from '../../components';
 
 import css from './FieldSelect.module.css';
 
-const FieldSelectComponent = props => {
+const FieldSelectComponent = (props) => {
   const {
     rootClassName,
     className,
@@ -17,6 +17,7 @@ const FieldSelectComponent = props => {
     children,
     onChange,
     showLabelAsDisabled,
+    labelClassName,
     ...rest
   } = props;
 
@@ -34,20 +35,31 @@ const FieldSelectComponent = props => {
     [selectClassName]: selectClassName,
     [css.selectError]: hasError,
   });
-  const handleChange = e => {
+  const handleChange = (e) => {
     input.onChange(e);
     if (onChange) {
       onChange(e.currentTarget.value);
     }
   };
 
-  const selectProps = { className: selectClasses, id, ...input, onChange: handleChange, ...rest };
+  const selectProps = {
+    className: selectClasses,
+    id,
+    ...input,
+    onChange: handleChange,
+    ...rest,
+  };
 
   const classes = classNames(rootClassName || css.root, className);
   return (
     <div className={classes}>
       {label ? (
-        <label htmlFor={id} className={classNames({ [css.labelDisabled]: showLabelAsDisabled })}>
+        <label
+          htmlFor={id}
+          className={classNames(labelClassName, {
+            [css.labelDisabled]: showLabelAsDisabled,
+          })}
+        >
           {label}
         </label>
       ) : null}
@@ -73,7 +85,7 @@ const FieldSelectComponent = props => {
  * @param {boolean} props.showLabelAsDisabled Whether the label is disabled
  * @returns {JSX.Element} Final Form Field containing <select> input
  */
-const FieldSelect = props => {
+const FieldSelect = (props) => {
   return <Field component={FieldSelectComponent} {...props} />;
 };
 

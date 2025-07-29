@@ -10,7 +10,6 @@ import { createResourceLocatorString } from '../../../util/routes';
 
 // Import modules from this directory
 import EditListingAvailabilityPanel from './EditListingAvailabilityPanel/EditListingAvailabilityPanel';
-import EditListingCrateTypePanel from './EditListingCrateTypePanel/EditListingCrateTypePanel';
 import EditListingDetailsPanel from './EditListingDetailsPanel/EditListingDetailsPanel';
 import EditListingDeliveryPanel from './EditListingDeliveryPanel/EditListingDeliveryPanel';
 import EditListingLocationPanel from './EditListingLocationPanel/EditListingLocationPanel';
@@ -27,7 +26,6 @@ export const PRICING_AND_STOCK = 'pricing-and-stock';
 export const DELIVERY = 'delivery';
 export const LOCATION = 'location';
 export const AVAILABILITY = 'availability';
-export const CRATE_TYPE = 'crate-type';
 export const PHOTOS = 'photos';
 export const POLICY = 'policy';
 
@@ -39,7 +37,6 @@ export const SUPPORTED_TABS = [
   DELIVERY,
   LOCATION,
   AVAILABILITY,
-  CRATE_TYPE,
   PHOTOS,
   POLICY,
 ];
@@ -276,14 +273,6 @@ const EditListingWizardTab = (props) => {
           history={history}
           routeConfiguration={routeConfiguration}
           {...panelProps(AVAILABILITY)}
-        />
-      );
-    }
-    case CRATE_TYPE: {
-      return (
-        <EditListingCrateTypePanel
-          {...panelProps(CRATE_TYPE)}
-          onRemoveImage={onRemoveImage}
         />
       );
     }

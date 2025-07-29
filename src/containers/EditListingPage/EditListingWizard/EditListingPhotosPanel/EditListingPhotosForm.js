@@ -12,7 +12,7 @@ import { propTypes } from '../../../../util/types';
 import {
   nonEmptyArray,
   composeValidators,
-  requiredCratePhotos,
+  requiredPhotos,
 } from '../../../../util/validators';
 import { isUploadImageOverLimitError } from '../../../../util/errors';
 
@@ -204,14 +204,7 @@ export const EditListingPhotosForm = (props) => {
         } = formRenderProps;
 
         const images = values.images || [];
-        const {
-          aspectWidth = 1,
-          aspectHeight = 1,
-          variantPrefix,
-        } = listingImageConfig;
-
-        // Get crate type from listing data
-        const crateType = listing?.attributes?.publicData?.crateType;
+        const { aspectWidth, aspectHeight, variantPrefix } = listingImageConfig;
 
         const {
           publishListingError,
@@ -234,26 +227,26 @@ export const EditListingPhotosForm = (props) => {
         const pristineSinceLastSubmit =
           submittedOnce && imageArrayHasSameImages;
 
-        // Check if photos meet minimum requirements for crate type
+        // Get the listing's category to determine photo requirements
+        const listingCategory =
+          values.categoryLevel1 ||
+          listing?.attributes?.publicData?.categoryLevel1;
+
+        // Check if photos meet minimum requirements based on crate category
         const hasMinimumPhotos = () => {
           if (!images || images.length === 0) {
             return false;
           }
 
-          if (!crateType) {
-            // If no crate type set, require at least 1 photo
-            return images.length >= 1;
-          }
-
-          // Apply same validation logic as photo form
+          // Different photo requirements based on crate category
           let minPhotos;
-          if (crateType === 'wire') {
+          if (listingCategory === 'wire-crate-id') {
             minPhotos = 3;
-          } else if (crateType === 'solid') {
+          } else if (listingCategory === 'solid-crate-id') {
             minPhotos = 6;
           } else {
-            // Default fallback
-            minPhotos = 3;
+            // Default fallback for other categories
+            minPhotos = 1;
           }
 
           return images.length >= minPhotos;
@@ -289,9 +282,9 @@ export const EditListingPhotosForm = (props) => {
             <p className={css.tip}>
               <FormattedMessage
                 id={
-                  crateType === 'wire'
+                  listingCategory === 'wire-crate-id'
                     ? 'EditListingPhotosForm.wireImagesTip'
-                    : crateType === 'solid'
+                    : listingCategory === 'solid-crate-id'
                       ? 'EditListingPhotosForm.solidImagesTip'
                       : 'EditListingPhotosForm.addImagesTip'
                 }
@@ -302,16 +295,16 @@ export const EditListingPhotosForm = (props) => {
               <FieldArray
                 name="images"
                 validate={composeValidators(
-                  requiredCratePhotos(
+                  requiredPhotos(
                     intl.formatMessage({
                       id:
-                        crateType === 'wire'
+                        listingCategory === 'wire-crate-id'
                           ? 'EditListingPhotosForm.wirePhotosRequired'
-                          : crateType === 'solid'
+                          : listingCategory === 'solid-crate-id'
                             ? 'EditListingPhotosForm.solidPhotosRequired'
-                            : 'EditListingPhotosForm.cratePhotosRequired',
+                            : 'EditListingPhotosForm.photosRequired',
                     }),
-                    crateType
+                    listingCategory
                   )
                 )}
               >

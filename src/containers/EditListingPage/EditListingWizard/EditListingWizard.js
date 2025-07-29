@@ -56,7 +56,6 @@ import EditListingWizardTab, {
   DELIVERY,
   LOCATION,
   AVAILABILITY,
-  CRATE_TYPE,
   PHOTOS,
   POLICY,
 } from './EditListingWizardTab';
@@ -70,15 +69,7 @@ import css from './EditListingWizard.module.css';
 //         Details tab asks for "title" and is therefore the first tab in the wizard flow.
 const TABS_DETAILS_ONLY = [DETAILS];
 const TABS_PRODUCT = [DETAILS, PRICING_AND_STOCK, DELIVERY, PHOTOS];
-const TABS_BOOKING = [
-  DETAILS,
-  LOCATION,
-  PRICING,
-  AVAILABILITY,
-  CRATE_TYPE,
-  PHOTOS,
-  POLICY,
-];
+const TABS_BOOKING = [DETAILS, LOCATION, PRICING, AVAILABILITY, PHOTOS, POLICY];
 const TABS_INQUIRY = [DETAILS, LOCATION, PRICING, PHOTOS];
 const TABS_ALL = [...TABS_PRODUCT, ...TABS_BOOKING, ...TABS_INQUIRY];
 
@@ -164,9 +155,6 @@ const tabLabelAndSubmit = (
   } else if (tab === AVAILABILITY) {
     labelKey = 'EditListingWizard.tabLabelAvailability';
     submitButtonKey = `EditListingWizard.${processNameString}${newOrEdit}.saveAvailability`;
-  } else if (tab === CRATE_TYPE) {
-    labelKey = 'EditListingWizard.tabLabelCrateType';
-    submitButtonKey = `EditListingWizard.${processNameString}${newOrEdit}.saveCrateType`;
   } else if (tab === PHOTOS) {
     labelKey = 'EditListingWizard.tabLabelPhotos';
     submitButtonKey = `EditListingWizard.${processNameString}${newOrEdit}.savePhotos`;
@@ -299,35 +287,27 @@ const tabCompleted = (tab, listing, config) => {
       return !!(geolocation && publicData?.location?.address);
     case AVAILABILITY:
       return !!availabilityPlan;
-    case CRATE_TYPE:
-      return !!publicData?.crateType;
     case PHOTOS:
-      // Check if photos meet crate type requirements
+      // Check if photos meet minimum requirements based on crate category
       if (!images || images.length === 0) {
         return false;
       }
 
-      const crateType = publicData?.crateType;
-      if (!crateType) {
-        // If no crate type set, use basic check
-        return images.length > 0;
-      }
+      // Get the listing's category to determine photo requirements
+      const listingCategory = publicData?.categoryLevel1;
 
-      // Apply same validation logic as photo form
-      let minPhotos, maxPhotos;
-      if (crateType === 'wire') {
+      // Different photo requirements based on crate category
+      let minPhotos;
+      if (listingCategory === 'wire-crate-id') {
         minPhotos = 3;
-        maxPhotos = 4;
-      } else if (crateType === 'solid') {
+      } else if (listingCategory === 'solid-crate-id') {
         minPhotos = 6;
-        maxPhotos = 7;
       } else {
-        // Default fallback
-        minPhotos = 3;
-        maxPhotos = 7;
+        // Default fallback for other categories
+        minPhotos = 1;
       }
 
-      return images.length >= minPhotos && images.length <= maxPhotos;
+      return images.length >= minPhotos;
     case POLICY:
       return !!(
         publicData?.accessibleLocation?.includes('accessibleLocation') &&

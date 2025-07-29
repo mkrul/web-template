@@ -103,25 +103,25 @@ export const nonEmptyArray = (message) => (value) => {
   return value && Array.isArray(value) && value.length > 0 ? VALID : message;
 };
 
-export const requiredCratePhotos = (message, crateType) => (value) => {
+export const requiredPhotos = (message, category) => (value) => {
   const isValidArray = value && Array.isArray(value);
 
   if (!isValidArray) {
     return message;
   }
 
-  // Different photo requirements based on crate type
+  // Different photo requirements based on crate category
   let minPhotos, maxPhotos;
-  if (crateType === 'wire') {
+  if (category === 'wire-crate-id') {
     minPhotos = 3;
     maxPhotos = 4;
-  } else if (crateType === 'solid') {
+  } else if (category === 'solid-crate-id') {
     minPhotos = 6;
     maxPhotos = 7;
   } else {
-    // Default fallback (if no crate type selected yet)
-    minPhotos = 3;
-    maxPhotos = 7;
+    // Default fallback for other categories
+    minPhotos = 1;
+    maxPhotos = 10;
   }
 
   // Allow submission even when below minimum so users can save image removals

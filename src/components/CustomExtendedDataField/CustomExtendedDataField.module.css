@@ -1,5 +1,10 @@
 @import '../../styles/customMediaQueries.css';
 
+.largeLabel {
+  font-size: 16px;
+  font-weight: 500;
+}
+
 .customField {
   margin-bottom: 24px;
 
