@@ -116,7 +116,7 @@ export const requiredPhotos = (message, category) => (value) => {
     minPhotos = 3;
     maxPhotos = 4;
   } else if (category === 'solid-crate-id') {
-    minPhotos = 6;
+    minPhotos = 5;
     maxPhotos = 7;
   } else {
     // Default fallback for other categories
