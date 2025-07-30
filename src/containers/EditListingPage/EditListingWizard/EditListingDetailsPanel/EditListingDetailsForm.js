@@ -189,6 +189,7 @@ const CategoryField = (props) => {
           id={currentCategoryKey}
           name={currentCategoryKey}
           className={css.listingTypeSelect}
+          labelClassName={css.largeLabel}
           onChange={(event) =>
             handleCategoryChange(event, level, currentCategoryOptions)
           }

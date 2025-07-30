@@ -243,7 +243,7 @@ export const EditListingPhotosForm = (props) => {
           if (listingCategory === 'wire-crate-id') {
             minPhotos = 3;
           } else if (listingCategory === 'solid-crate-id') {
-            minPhotos = 6;
+            minPhotos = 5;
           } else {
             // Default fallback for other categories
             minPhotos = 1;
