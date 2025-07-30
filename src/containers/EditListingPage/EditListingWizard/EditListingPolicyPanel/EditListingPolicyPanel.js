@@ -12,9 +12,9 @@ import css from './EditListingPolicyPanel.module.css';
 const getInitialValues = (params) => {
   const { publicData } = params;
   const {
-    accessibleLocation = [],
-    scheduleCompliance = [],
-    visibilityCompliance = [],
+    accessibleLocation = false,
+    scheduleCompliance = false,
+    visibilityCompliance = false,
   } = publicData || {};
 
   return {
