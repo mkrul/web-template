@@ -37,6 +37,11 @@ export const transitions = {
   MARK_DELIVERED: 'transition/mark-delivered',
   OPERATOR_MARK_DELIVERED: 'transition/operator-mark-delivered',
 
+  // Senpex shipping transitions
+  ASSIGN_SENPEX_DELIVERY: 'transition/assign-senpex-delivery',
+  SENPEX_DELIVERY_IN_TRANSIT: 'transition/senpex-delivery-in-transit',
+  SENPEX_DELIVERY_COMPLETED: 'transition/senpex-delivery-completed',
+
   // Customer can mark the product received (e.g. picked up from provider)
   MARK_RECEIVED_FROM_PURCHASED: 'transition/mark-received-from-purchased',
 
@@ -210,7 +215,7 @@ export const graph = {
 // Check if a transition is the kind that should be rendered
 // when showing transition history (e.g. ActivityFeed)
 // The first transition and most of the expiration transitions made by system are not relevant
-export const isRelevantPastTransition = transition => {
+export const isRelevantPastTransition = (transition) => {
   return [
     transitions.CONFIRM_PAYMENT,
     transitions.AUTO_CANCEL,
@@ -228,12 +233,18 @@ export const isRelevantPastTransition = transition => {
     transitions.REVIEW_2_BY_PROVIDER,
   ].includes(transition);
 };
-export const isCustomerReview = transition => {
-  return [transitions.REVIEW_1_BY_CUSTOMER, transitions.REVIEW_2_BY_CUSTOMER].includes(transition);
+export const isCustomerReview = (transition) => {
+  return [
+    transitions.REVIEW_1_BY_CUSTOMER,
+    transitions.REVIEW_2_BY_CUSTOMER,
+  ].includes(transition);
 };
 
-export const isProviderReview = transition => {
-  return [transitions.REVIEW_1_BY_PROVIDER, transitions.REVIEW_2_BY_PROVIDER].includes(transition);
+export const isProviderReview = (transition) => {
+  return [
+    transitions.REVIEW_1_BY_PROVIDER,
+    transitions.REVIEW_2_BY_PROVIDER,
+  ].includes(transition);
 };
 
 // Check if the given transition is privileged.
@@ -242,14 +253,15 @@ export const isProviderReview = transition => {
 // i.e. the backend. This helper is used to check if the transition
 // should go through the local API endpoints, or if using JS SDK is
 // enough.
-export const isPrivileged = transition => {
-  return [transitions.REQUEST_PAYMENT, transitions.REQUEST_PAYMENT_AFTER_INQUIRY].includes(
-    transition
-  );
+export const isPrivileged = (transition) => {
+  return [
+    transitions.REQUEST_PAYMENT,
+    transitions.REQUEST_PAYMENT_AFTER_INQUIRY,
+  ].includes(transition);
 };
 
 // Check when transaction is completed (item is received and review notifications sent)
-export const isCompleted = transition => {
+export const isCompleted = (transition) => {
   const txCompletedTransitions = [
     transitions.AUTO_COMPLETE,
     transitions.REVIEW_1_BY_CUSTOMER,
@@ -265,7 +277,7 @@ export const isCompleted = transition => {
 
 // Check when transaction is refunded (order did not happen)
 // In these transitions action/stripe-refund-payment is called
-export const isRefunded = transition => {
+export const isRefunded = (transition) => {
   const txRefundedTransitions = [
     transitions.EXPIRE_PAYMENT,
     transitions.CANCEL,

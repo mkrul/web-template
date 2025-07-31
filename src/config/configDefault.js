@@ -6,6 +6,7 @@ import * as branding from './configBranding';
 import * as layout from './configLayout';
 import * as analytics from './configAnalytics';
 import * as user from './configUser';
+import * as senpex from './configSenpex';
 
 // NOTE: only expose configuration that should be visible in the
 // client side, don't add any server secrets to this file.
@@ -33,7 +34,8 @@ const defaultConfig = {
   listingMinimumPriceSubUnits: 500,
 
   // Marketplace name is needed for microcopy (aka marketplace texts) and in meta tags (bots and social media sharing reads those)
-  marketplaceName: process.env.REACT_APP_MARKETPLACE_NAME || '[Marketplace Name]',
+  marketplaceName:
+    process.env.REACT_APP_MARKETPLACE_NAME || '[Marketplace Name]',
 
   // Modify Stripe configuration in configStripe.js
   // - picks REACT_APP_STRIPE_PUBLISHABLE_KEY from environment variables
@@ -118,6 +120,9 @@ const defaultConfig = {
   siteInstagramPage: null, // e.g. 'https://www.instagram.com/sharetribe/',
   // Twitter handle is needed in meta tags (twitter:site). Start it with '@' character
   siteTwitterHandle: null, // e.g. '@sharetribe',
+
+  // Senpex shipping configuration
+  senpex,
 
   // Optional
   // This creates meta tag for Google Search Console verification

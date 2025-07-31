@@ -20,9 +20,13 @@ const getItemQuantityAndLineItems = (orderData, publicData, currency) => {
   const quantity = orderData ? orderData.stockReservationQuantity : null;
   const deliveryMethod = orderData && orderData.deliveryMethod;
   const isShipping = deliveryMethod === 'shipping';
+  const isSenpexShipping = deliveryMethod === 'senpex-shipping';
   const isPickup = deliveryMethod === 'pickup';
-  const { shippingPriceInSubunitsOneItem, shippingPriceInSubunitsAdditionalItems } =
-    publicData || {};
+  const {
+    shippingPriceInSubunitsOneItem,
+    shippingPriceInSubunitsAdditionalItems,
+    senpexShippingPrice,
+  } = publicData || {};
 
   // Calculate shipping fee if applicable
   const shippingFee = isShipping
@@ -33,6 +37,12 @@ const getItemQuantityAndLineItems = (orderData, publicData, currency) => {
         quantity
       )
     : null;
+
+  // Calculate Senpex shipping fee if applicable
+  const senpexFee =
+    isSenpexShipping && senpexShippingPrice
+      ? new Money(senpexShippingPrice, currency)
+      : null;
 
   // Add line-item for given delivery method.
   // Note: by default, pickup considered as free.
@@ -45,16 +55,25 @@ const getItemQuantityAndLineItems = (orderData, publicData, currency) => {
           includeFor: ['customer', 'provider'],
         },
       ]
-    : isPickup
-    ? [
-        {
-          code: 'line-item/pickup-fee',
-          unitPrice: new Money(0, currency),
-          quantity: 1,
-          includeFor: ['customer', 'provider'],
-        },
-      ]
-    : [];
+    : !!senpexFee
+      ? [
+          {
+            code: 'line-item/senpex-shipping-fee',
+            unitPrice: senpexFee,
+            quantity: 1,
+            includeFor: ['customer', 'provider'],
+          },
+        ]
+      : isPickup
+        ? [
+            {
+              code: 'line-item/pickup-fee',
+              unitPrice: new Money(0, currency),
+              quantity: 1,
+              includeFor: ['customer', 'provider'],
+            },
+          ]
+        : [];
 
   return { quantity, extraLineItems: deliveryLineItem };
 };
@@ -64,12 +83,14 @@ const getItemQuantityAndLineItems = (orderData, publicData, currency) => {
  * @param {Object} orderData
  * @param {number} [orderData.seats]
  */
-const getFixedQuantityAndLineItems = orderData => {
+const getFixedQuantityAndLineItems = (orderData) => {
   const { seats } = orderData || {};
   const hasSeats = !!seats;
   // If there are seats, the quantity is split to factors: units and seats.
   // E.g. 1 session x 2 seats (aka unit price is multiplied by 2)
-  return hasSeats ? { units: 1, seats, extraLineItems: [] } : { quantity: 1, extraLineItems: [] };
+  return hasSeats
+    ? { units: 1, seats, extraLineItems: [] }
+    : { quantity: 1, extraLineItems: [] };
 };
 
 /**
@@ -80,15 +101,19 @@ const getFixedQuantityAndLineItems = orderData => {
  * @param {string} orderData.bookingEnd
  * @param {number} [orderData.seats]
  */
-const getHourQuantityAndLineItems = orderData => {
+const getHourQuantityAndLineItems = (orderData) => {
   const { bookingStart, bookingEnd, seats } = orderData || {};
   const hasSeats = !!seats;
   const units =
-    bookingStart && bookingEnd ? calculateQuantityFromHours(bookingStart, bookingEnd) : null;
+    bookingStart && bookingEnd
+      ? calculateQuantityFromHours(bookingStart, bookingEnd)
+      : null;
 
   // If there are seats, the quantity is split to factors: units and seats.
   // E.g. 3 hours x 2 seats (aka unit price is multiplied by 6)
-  return hasSeats ? { units, seats, extraLineItems: [] } : { quantity: units, extraLineItems: [] };
+  return hasSeats
+    ? { units, seats, extraLineItems: [] }
+    : { quantity: units, extraLineItems: [] };
 };
 
 /**
@@ -104,11 +129,15 @@ const getDateRangeQuantityAndLineItems = (orderData, code) => {
   const { bookingStart, bookingEnd, seats } = orderData;
   const hasSeats = !!seats;
   const units =
-    bookingStart && bookingEnd ? calculateQuantityFromDates(bookingStart, bookingEnd, code) : null;
+    bookingStart && bookingEnd
+      ? calculateQuantityFromDates(bookingStart, bookingEnd, code)
+      : null;
 
   // If there are seats, the quantity is split to factors: units and seats.
   // E.g. 3 nights x 4 seats (aka unit price is multiplied by 12)
-  return hasSeats ? { units, seats, extraLineItems: [] } : { quantity: units, extraLineItems: [] };
+  return hasSeats
+    ? { units, seats, extraLineItems: [] }
+    : { quantity: units, extraLineItems: [] };
 };
 
 /**
@@ -138,7 +167,12 @@ const getDateRangeQuantityAndLineItems = (orderData, code) => {
  * @param {Object} customerCommission
  * @returns {Array} lineItems
  */
-exports.transactionLineItems = (listing, orderData, providerCommission, customerCommission) => {
+exports.transactionLineItems = (
+  listing,
+  orderData,
+  providerCommission,
+  customerCommission
+) => {
   const publicData = listing.attributes.publicData;
   // Note: the unitType needs to be one of the following:
   // day, night, hour, fixed, or item (these are related to payment processes)
@@ -150,10 +184,11 @@ exports.transactionLineItems = (listing, orderData, providerCommission, customer
 
   const { priceVariantName } = orderData || {};
   const priceVariantConfig = priceVariants
-    ? priceVariants.find(pv => pv.name === priceVariantName)
+    ? priceVariants.find((pv) => pv.name === priceVariantName)
     : null;
   const { priceInSubunits } = priceVariantConfig || {};
-  const isPriceInSubunitsValid = Number.isInteger(priceInSubunits) && priceInSubunits >= 0;
+  const isPriceInSubunitsValid =
+    Number.isInteger(priceInSubunits) && priceInSubunits >= 0;
 
   const unitPrice =
     isBookable && priceVariationsEnabled && isPriceInSubunitsValid
@@ -179,12 +214,12 @@ exports.transactionLineItems = (listing, orderData, providerCommission, customer
     unitType === 'item'
       ? getItemQuantityAndLineItems(orderData, publicData, currency)
       : unitType === 'fixed'
-      ? getFixedQuantityAndLineItems(orderData)
-      : unitType === 'hour'
-      ? getHourQuantityAndLineItems(orderData)
-      : ['day', 'night'].includes(unitType)
-      ? getDateRangeQuantityAndLineItems(orderData, code)
-      : {};
+        ? getFixedQuantityAndLineItems(orderData)
+        : unitType === 'hour'
+          ? getHourQuantityAndLineItems(orderData)
+          : ['day', 'night'].includes(unitType)
+            ? getDateRangeQuantityAndLineItems(orderData, code)
+            : {};
 
   const { quantity, units, seats, extraLineItems } = quantityAndExtraLineItems;
 
@@ -227,7 +262,7 @@ exports.transactionLineItems = (listing, orderData, providerCommission, customer
 
   // Provider commission reduces the amount of money that is paid out to provider.
   // Therefore, the provider commission line-item should have negative effect to the payout total.
-  const getNegation = percentage => {
+  const getNegation = (percentage) => {
     return -1 * percentage;
   };
 
