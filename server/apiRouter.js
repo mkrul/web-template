@@ -18,10 +18,25 @@ const transitionPrivileged = require('./api/transition-privileged');
 
 const createUserWithIdp = require('./api/auth/createUserWithIdp');
 
-const { authenticateFacebook, authenticateFacebookCallback } = require('./api/auth/facebook');
-const { authenticateGoogle, authenticateGoogleCallback } = require('./api/auth/google');
+const {
+  authenticateFacebook,
+  authenticateFacebookCallback,
+} = require('./api/auth/facebook');
+const {
+  authenticateGoogle,
+  authenticateGoogleCallback,
+} = require('./api/auth/google');
 
 const router = express.Router();
+
+// Mount Senpex shipping API routes with JSON body parsing
+const senpexRouter = express.Router();
+senpexRouter.use(
+  bodyParser.json({
+    type: ['json', 'application/json'],
+  })
+);
+require('./api/senpex-shipping')(senpexRouter);
 
 // ================ API router middleware: ================ //
 
@@ -34,7 +49,10 @@ router.use(
 
 // Deserialize Transit body string to JS data
 router.use((req, res, next) => {
-  if (req.get('Content-Type') === 'application/transit+json' && typeof req.body === 'string') {
+  if (
+    req.get('Content-Type') === 'application/transit+json' &&
+    typeof req.body === 'string'
+  ) {
     try {
       req.body = deserialize(req.body);
     } catch (e) {
@@ -48,6 +66,9 @@ router.use((req, res, next) => {
 });
 
 // ================ API router endpoints: ================ //
+
+// Third-party integrations
+router.use(senpexRouter);
 
 router.get('/initiate-login-as', initiateLoginAs);
 router.get('/login-as', loginAs);

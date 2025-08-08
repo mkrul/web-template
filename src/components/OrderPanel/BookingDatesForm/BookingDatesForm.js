@@ -4,7 +4,11 @@ import classNames from 'classnames';
 
 import appSettings from '../../../config/settings';
 import { FormattedMessage, useIntl } from '../../../util/reactIntl';
-import { required, bookingDatesRequired, composeValidators } from '../../../util/validators';
+import {
+  required,
+  bookingDatesRequired,
+  composeValidators,
+} from '../../../util/validators';
 import {
   getStartOf,
   addTime,
@@ -21,9 +25,17 @@ import { LINE_ITEM_DAY, propTypes } from '../../../util/types';
 import { timeSlotsPerDate } from '../../../util/generators';
 import { BOOKING_PROCESS_NAME } from '../../../transactions/transaction';
 
-import { Form, PrimaryButton, FieldDateRangePicker, FieldSelect, H6 } from '../../../components';
+import {
+  Form,
+  PrimaryButton,
+  FieldDateRangePicker,
+  FieldSelect,
+  H6,
+} from '../../../components';
 
 import EstimatedCustomerBreakdownMaybe from '../EstimatedCustomerBreakdownMaybe';
+import SenpexShippingForm from '../../../containers/CheckoutPage/SenpexShippingForm';
+import { senpexDropoffQuote } from '../../../util/api';
 
 import css from './BookingDatesForm.module.css';
 
@@ -57,11 +69,17 @@ const getInclusiveEndDate = (date, timeZone) => {
  * @returns {Array<Date>} a tuple containing dates: the start and exclusive end month
  */
 const getMonthlyFetchRange = (monthlyTimeSlots, timeZone) => {
-  const monthStrings = Object.entries(monthlyTimeSlots).reduce((picked, entry) => {
-    return Array.isArray(entry[1].timeSlots) ? [...picked, entry[0]] : picked;
-  }, []);
+  const monthStrings = Object.entries(monthlyTimeSlots).reduce(
+    (picked, entry) => {
+      return Array.isArray(entry[1].timeSlots) ? [...picked, entry[0]] : picked;
+    },
+    []
+  );
   const firstMonth = getMonthStartInTimeZone(monthStrings[0], timeZone);
-  const lastMonth = getMonthStartInTimeZone(monthStrings[monthStrings.length - 1], timeZone);
+  const lastMonth = getMonthStartInTimeZone(
+    monthStrings[monthStrings.length - 1],
+    timeZone
+  );
   const exclusiveEndMonth = nextMonthFn(lastMonth, timeZone);
   return [firstMonth, exclusiveEndMonth];
 };
@@ -72,15 +90,17 @@ const getMonthlyFetchRange = (monthlyTimeSlots, timeZone) => {
  * @param {Array<TimeSlot>} timeSlots
  * @returns {Array<TimeSlot>} array of time slots where unnecessary boundaries have been removed.
  */
-const removeUnnecessaryBoundaries = timeSlots => {
+const removeUnnecessaryBoundaries = (timeSlots) => {
   return timeSlots.reduce((picked, ts) => {
     const hasPicked = picked.length > 0;
     if (hasPicked) {
       const rest = picked.slice(0, -1);
       const lastPicked = picked.slice(-1)[0];
 
-      const isBackToBack = lastPicked.attributes.end.getTime() === ts.attributes.start.getTime();
-      const hasSameSeatsCount = lastPicked.attributes.seats === ts.attributes.seats;
+      const isBackToBack =
+        lastPicked.attributes.end.getTime() === ts.attributes.start.getTime();
+      const hasSameSeatsCount =
+        lastPicked.attributes.seats === ts.attributes.seats;
       const createJoinedTimeSlot = (ts1, ts2) => ({
         ...ts1,
         attributes: { ...ts1.attributes, end: ts2.attributes.end },
@@ -98,7 +118,7 @@ const removeUnnecessaryBoundaries = timeSlots => {
  * @param {Object} monthlyTimeSlots { '2024-07': { timeSlots: [] }, }
  * @returns {Array<TimeSlot>}
  */
-const getAllTimeSlots = monthlyTimeSlots => {
+const getAllTimeSlots = (monthlyTimeSlots) => {
   const timeSlotsRaw = Object.values(monthlyTimeSlots).reduce((picked, mts) => {
     return [...picked, ...(mts.timeSlots || [])];
   }, []);
@@ -113,27 +133,41 @@ const getAllTimeSlots = monthlyTimeSlots => {
  * @param {Moment} startDate start date (Moment)
  * @param {Moment} endDate end date (Moment)
  */
-const isBlockedBetween = (allTimeSlots, timeZone) => ([startDate, endDate]) => {
-  const localizedStartDay = timeOfDayFromLocalToTimeZone(startDate, timeZone);
-  const localizedEndDay = timeOfDayFromLocalToTimeZone(endDate, timeZone);
-  const foundTS = allTimeSlots.find(ts => {
-    const timeSlotRange = [ts.attributes.start, ts.attributes.end];
-    return isInRange(localizedStartDay, ...timeSlotRange, undefined, timeZone);
-  });
+const isBlockedBetween =
+  (allTimeSlots, timeZone) =>
+  ([startDate, endDate]) => {
+    const localizedStartDay = timeOfDayFromLocalToTimeZone(startDate, timeZone);
+    const localizedEndDay = timeOfDayFromLocalToTimeZone(endDate, timeZone);
+    const foundTS = allTimeSlots.find((ts) => {
+      const timeSlotRange = [ts.attributes.start, ts.attributes.end];
+      return isInRange(
+        localizedStartDay,
+        ...timeSlotRange,
+        undefined,
+        timeZone
+      );
+    });
 
-  if (!foundTS) {
-    return true;
-  }
+    if (!foundTS) {
+      return true;
+    }
 
-  const timeSlotRange = [foundTS.attributes.start, foundTS.attributes.end];
-  // endDate should be included in the slot mapped with startDate
-  const isExcludedEnd = isSameDay(localizedEndDay, timeSlotRange[1], timeZone);
-  const isBlockedBetween = !(isInRange(localizedEndDay, ...timeSlotRange) || isExcludedEnd);
-  return isBlockedBetween;
-};
+    const timeSlotRange = [foundTS.attributes.start, foundTS.attributes.end];
+    // endDate should be included in the slot mapped with startDate
+    const isExcludedEnd = isSameDay(
+      localizedEndDay,
+      timeSlotRange[1],
+      timeZone
+    );
+    const isBlockedBetween = !(
+      isInRange(localizedEndDay, ...timeSlotRange) || isExcludedEnd
+    );
+    return isBlockedBetween;
+  };
 
 const isOneBoundaryeSelected = (hasTimeSlots, startDate, endDate) => {
-  const oneBoundarySelected = (startDate || endDate) && (!startDate || !endDate);
+  const oneBoundarySelected =
+    (startDate || endDate) && (!startDate || !endDate);
   return hasTimeSlots && oneBoundarySelected;
 };
 
@@ -160,7 +194,11 @@ const endDateToPickerDate = (unitType, endDate, timeZone) => {
  * @param {Date} endOfAvailableRange
  * @returns {Date} start of time slot or the start of available range
  */
-const getBookableRange = (timeSlotData, startOfAvailableRange, endOfAvailableRange) => {
+const getBookableRange = (
+  timeSlotData,
+  startOfAvailableRange,
+  endOfAvailableRange
+) => {
   if (!timeSlotData) {
     return [];
   }
@@ -190,16 +228,36 @@ const isOutsideRangeFn = (
   timeZone
 ) => {
   const endOfAvailableRange = dayCountAvailableForBooking;
-  const endOfAvailableRangeDate = getStartOf(TODAY, 'day', timeZone, endOfAvailableRange, 'days');
+  const endOfAvailableRangeDate = getStartOf(
+    TODAY,
+    'day',
+    timeZone,
+    endOfAvailableRange,
+    'days'
+  );
   const startOfAvailableRangeDate = getStartOf(TODAY, 'day', timeZone);
 
   // Currently available monthly data
-  const [startMonth, endMonth] = getMonthlyFetchRange(monthlyTimeSlots, timeZone);
-  const timeSlotsData = timeSlotsPerDate(startMonth, endMonth, allTimeSlots, timeZone);
+  const [startMonth, endMonth] = getMonthlyFetchRange(
+    monthlyTimeSlots,
+    timeZone
+  );
+  const timeSlotsData = timeSlotsPerDate(
+    startMonth,
+    endMonth,
+    allTimeSlots,
+    timeZone
+  );
 
   // One boundary is selected
-  const oneBoundarySelected = isOneBoundaryeSelected(!!monthlyTimeSlots, startDate, endDate);
-  const inclusiveEndDateMaybe = endDate ? getInclusiveEndDate(endDate, timeZone) : endDate;
+  const oneBoundarySelected = isOneBoundaryeSelected(
+    !!monthlyTimeSlots,
+    startDate,
+    endDate
+  );
+  const inclusiveEndDateMaybe = endDate
+    ? getInclusiveEndDate(endDate, timeZone)
+    : endDate;
   const boundary = startDate || inclusiveEndDateMaybe;
   const timeSlotData = oneBoundarySelected
     ? timeSlotsData[stringifyDateToISO8601(boundary, timeZone)]
@@ -216,14 +274,18 @@ const isOutsideRangeFn = (
       : [startOfAvailableRangeDate, endOfAvailableRangeDate];
 
   // standard isOutsideRange function
-  return day => {
+  return (day) => {
     const timeOfDay = timeOfDayFromLocalToTimeZone(day, timeZone);
     const dayInListingTZ = getStartOf(timeOfDay, 'day', timeZone);
 
     // end the range so that the booking can end at latest on
     // - nightly booking: the day the next booking starts
     // - daily booking: the day before the next booking starts
-    const lastDayToEndBooking = endDateToPickerDate(lineItemUnitType, rangeEnd, timeZone);
+    const lastDayToEndBooking = endDateToPickerDate(
+      lineItemUnitType,
+      rangeEnd,
+      timeZone
+    );
 
     return (
       !isDateSameOrAfter(dayInListingTZ, rangeStart) ||
@@ -236,18 +298,34 @@ const isOutsideRangeFn = (
  * Returns an isDayBlocked function that can be passed to
  * a DateRangePicker component.
  */
-const isDayBlockedFn = params => {
-  const { allTimeSlots, monthlyTimeSlots, isDaily, startDate, endDate, timeZone } = params || {};
+const isDayBlockedFn = (params) => {
+  const {
+    allTimeSlots,
+    monthlyTimeSlots,
+    isDaily,
+    startDate,
+    endDate,
+    timeZone,
+  } = params || {};
 
-  const [startMonth, endMonth] = getMonthlyFetchRange(monthlyTimeSlots, timeZone);
-  const timeSlotsData = timeSlotsPerDate(startMonth, endMonth, allTimeSlots, timeZone);
+  const [startMonth, endMonth] = getMonthlyFetchRange(
+    monthlyTimeSlots,
+    timeZone
+  );
+  const timeSlotsData = timeSlotsPerDate(
+    startMonth,
+    endMonth,
+    allTimeSlots,
+    timeZone
+  );
 
-  return day => {
+  return (day) => {
     const localizedDay = timeOfDayFromLocalToTimeZone(day, timeZone);
     const dayInListingTZ = getStartOf(localizedDay, 'day', timeZone);
 
     const dayIdString = stringifyDateToISO8601(dayInListingTZ, timeZone);
-    const hasAvailabilityOnDay = timeSlotsData[dayIdString]?.hasAvailability === true;
+    const hasAvailabilityOnDay =
+      timeSlotsData[dayIdString]?.hasAvailability === true;
 
     if (!isDaily && startDate) {
       // Nightly
@@ -256,14 +334,17 @@ const isDayBlockedFn = params => {
       const startDateIdString = stringifyDateToISO8601(startDate, timeZone);
       const startDateTimeSlotsData = timeSlotsData[startDateIdString];
       const startDateTimeSlot =
-        startDateTimeSlotsData == null ? true : startDateTimeSlotsData?.timeSlots?.[0];
+        startDateTimeSlotsData == null
+          ? true
+          : startDateTimeSlotsData?.timeSlots?.[0];
       const { start, end } = startDateTimeSlot?.attributes || {};
       // If both startDate and endDate have been selected, we allow selecting other ranges
       const hasAvailability =
         startDate && endDate
           ? hasAvailabilityOnDay
           : isInRange(dayInListingTZ, start, end, 'day', timeZone);
-      const timeSlotEndsOnThisDay = end && isSameDay(dayInListingTZ, end, timeZone);
+      const timeSlotEndsOnThisDay =
+        end && isSameDay(dayInListingTZ, end, timeZone);
 
       return !(hasAvailability || timeSlotEndsOnThisDay);
     }
@@ -280,7 +361,11 @@ const fetchMonthData = (
   timeZone,
   onFetchTimeSlots
 ) => {
-  const endOfRangeDate = endOfRange(TODAY, dayCountAvailableForBooking, timeZone);
+  const endOfRangeDate = endOfRange(
+    TODAY,
+    dayCountAvailableForBooking,
+    timeZone
+  );
 
   // Don't fetch timeSlots for past months or too far in the future
   if (isInRange(date, TODAY, endOfRangeDate)) {
@@ -298,73 +383,92 @@ const fetchMonthData = (
   }
 };
 
-const handleMonthClick = (
-  currentMonth,
-  monthlyTimeSlots,
-  dayCountAvailableForBooking,
-  timeZone,
-  listingId,
-  onFetchTimeSlots
-) => monthFn => {
-  // Callback function after month has been updated.
-  // DatePicker component has next and previous months ready (but inivisible).
-  // we try to populate those invisible months before user advances there.
-  fetchMonthData(
-    monthFn(currentMonth, timeZone, 2),
-    listingId,
+const handleMonthClick =
+  (
+    currentMonth,
+    monthlyTimeSlots,
     dayCountAvailableForBooking,
     timeZone,
+    listingId,
     onFetchTimeSlots
-  );
-
-  // If previous fetch for month data failed, try again.
-  const monthId = monthIdString(currentMonth, timeZone);
-  const currentMonthData = monthlyTimeSlots[monthId];
-  if (currentMonthData && currentMonthData.fetchTimeSlotsError) {
+  ) =>
+  (monthFn) => {
+    // Callback function after month has been updated.
+    // DatePicker component has next and previous months ready (but inivisible).
+    // we try to populate those invisible months before user advances there.
     fetchMonthData(
-      currentMonth,
+      monthFn(currentMonth, timeZone, 2),
       listingId,
       dayCountAvailableForBooking,
       timeZone,
       onFetchTimeSlots
     );
-  }
-};
+
+    // If previous fetch for month data failed, try again.
+    const monthId = monthIdString(currentMonth, timeZone);
+    const currentMonthData = monthlyTimeSlots[monthId];
+    if (currentMonthData && currentMonthData.fetchTimeSlotsError) {
+      fetchMonthData(
+        currentMonth,
+        listingId,
+        dayCountAvailableForBooking,
+        timeZone,
+        onFetchTimeSlots
+      );
+    }
+  };
 
 // When the values of the form are updated we need to fetch
 // lineItems from this Template's backend for the EstimatedTransactionMaybe
 // In case you add more fields to the form, make sure you add
 // the values here to the orderData object.
 
-const calculateLineItems = (
-  listingId,
-  isOwnListing,
-  fetchLineItemsInProgress,
-  onFetchTransactionLineItems,
-  seatsEnabled
-) => formValues => {
-  const { startDate, endDate, priceVariantName, seats } = formValues?.values || {};
+const calculateLineItems =
+  (
+    listingId,
+    isOwnListing,
+    fetchLineItemsInProgress,
+    onFetchTransactionLineItems,
+    seatsEnabled
+  ) =>
+  (formValues) => {
+    const {
+      startDate,
+      endDate,
+      priceVariantName,
+      seats,
+      deliveryMethod,
+      senpexShippingPriceInSubunits,
+    } = formValues?.values || {};
 
-  const priceVariantMaybe = priceVariantName ? { priceVariantName } : {};
-  const seatCount = seats ? parseInt(seats, 10) : 1;
+    const priceVariantMaybe = priceVariantName ? { priceVariantName } : {};
+    const seatCount = seats ? parseInt(seats, 10) : 1;
 
-  const orderData = {
-    bookingStart: startDate,
-    bookingEnd: endDate,
-    ...priceVariantMaybe,
-    ...(seatsEnabled && { seats: seatCount }),
+    const orderData = {
+      bookingStart: startDate,
+      bookingEnd: endDate,
+      ...priceVariantMaybe,
+      ...(seatsEnabled && { seats: seatCount }),
+      ...(deliveryMethod ? { deliveryMethod } : {}),
+      ...(Number.isInteger(senpexShippingPriceInSubunits)
+        ? { senpexShippingPriceInSubunits }
+        : {}),
+    };
+
+    if (startDate && endDate && !fetchLineItemsInProgress) {
+      onFetchTransactionLineItems({
+        orderData,
+        listingId,
+        isOwnListing,
+      });
+    }
   };
 
-  if (startDate && endDate && !fetchLineItemsInProgress) {
-    onFetchTransactionLineItems({
-      orderData,
-      listingId,
-      isOwnListing,
-    });
-  }
-};
-
-const showNextMonthStepper = (currentMonth, dayCountAvailableForBooking, timeZone) => {
+const showNextMonthStepper = (
+  currentMonth,
+  dayCountAvailableForBooking,
+  timeZone
+) => {
   const nextMonthDate = nextMonthFn(currentMonth, timeZone);
 
   return !isDateSameOrAfter(
@@ -382,15 +486,24 @@ const showPreviousMonthStepper = (currentMonth, timeZone) => {
 const getStartAndEndOnTimeZone = (startDate, endDate, isDaily, timeZone) => {
   // Parse the startDate and endDate into the target time zone
   const parsedStart = startDate
-    ? getStartOf(timeOfDayFromLocalToTimeZone(startDate, timeZone), 'day', timeZone)
+    ? getStartOf(
+        timeOfDayFromLocalToTimeZone(startDate, timeZone),
+        'day',
+        timeZone
+      )
     : startDate;
 
   const parsedEnd = endDate
-    ? getStartOf(timeOfDayFromLocalToTimeZone(endDate, timeZone), 'day', timeZone)
+    ? getStartOf(
+        timeOfDayFromLocalToTimeZone(endDate, timeZone),
+        'day',
+        timeZone
+      )
     : endDate;
 
   // Adjust endDate for API if isDaily is true
-  const endDateForAPI = parsedEnd && isDaily ? getExclusiveEndDate(parsedEnd, timeZone) : parsedEnd;
+  const endDateForAPI =
+    parsedEnd && isDaily ? getExclusiveEndDate(parsedEnd, timeZone) : parsedEnd;
 
   // Return the processed dates
   return { startDate: parsedStart, endDate: endDateForAPI };
@@ -408,10 +521,12 @@ const filterTimeSlotsByDate = (allTimeSlots, startDate, endDate) => {
 };
 
 // Finds the timeslot with the smallest number of seats
-const findMinSeatsTimeSlot = timeSlots => {
+const findMinSeatsTimeSlot = (timeSlots) => {
   return timeSlots.reduce((minSeatsSlot, timeSlot) => {
     const { seats } = timeSlot.attributes;
-    return !minSeatsSlot || seats < minSeatsSlot.seats ? timeSlot.attributes : minSeatsSlot;
+    return !minSeatsSlot || seats < minSeatsSlot.seats
+      ? timeSlot.attributes
+      : minSeatsSlot;
   }, null);
 };
 
@@ -420,19 +535,27 @@ const getMinSeatsOptions = (allTimeSlots, startDate, endDate) => {
   if (!startDate || !endDate) {
     return [];
   }
-  const filteredTimeSlots = filterTimeSlotsByDate(allTimeSlots, startDate, endDate);
+  const filteredTimeSlots = filterTimeSlotsByDate(
+    allTimeSlots,
+    startDate,
+    endDate
+  );
   const minSeatsSlot = findMinSeatsTimeSlot(filteredTimeSlots);
 
   // Return the array of seat options from 1 to the minimum seats available, capped at 100
   const maxOptions = 100;
   return minSeatsSlot
-    ? Array.from({ length: Math.min(minSeatsSlot.seats, maxOptions) }, (_, i) => i + 1)
+    ? Array.from(
+        { length: Math.min(minSeatsSlot.seats, maxOptions) },
+        (_, i) => i + 1
+      )
     : [];
 };
 
 // Checks if two timeslots are consequtive
 const areConsecutiveTimeSlots = (timeSlotA, timeSlotB) =>
-  new Date(timeSlotA.attributes.end).getTime() === new Date(timeSlotB.attributes.start).getTime();
+  new Date(timeSlotA.attributes.end).getTime() ===
+  new Date(timeSlotB.attributes.start).getTime();
 
 // Find the index of a the first consecutive timeslot in a list of timeslots
 const findIndexOfFirstConsecutiveTimeSlot = (timeSlots, index) =>
@@ -442,7 +565,8 @@ const findIndexOfFirstConsecutiveTimeSlot = (timeSlots, index) =>
 
 // find the index of the last consecutive timeslot in a list of timeslots
 const findIndexOfLastConsecutiveTimeSlot = (timeSlots, index) =>
-  index < timeSlots.length - 1 && areConsecutiveTimeSlots(timeSlots[index], timeSlots[index + 1])
+  index < timeSlots.length - 1 &&
+  areConsecutiveTimeSlots(timeSlots[index], timeSlots[index + 1])
     ? findIndexOfLastConsecutiveTimeSlot(timeSlots, index + 1)
     : index;
 
@@ -460,8 +584,14 @@ const combineConsecutiveTimeSlots = (slots, startDate) => {
   if (startIndex === -1) return [];
 
   // Determine the full range of consecutive timeslots
-  const indexOfFirstTimeSlot = findIndexOfFirstConsecutiveTimeSlot(slots, startIndex);
-  const indexOfLastTimeSlot = findIndexOfLastConsecutiveTimeSlot(slots, startIndex);
+  const indexOfFirstTimeSlot = findIndexOfFirstConsecutiveTimeSlot(
+    slots,
+    startIndex
+  );
+  const indexOfLastTimeSlot = findIndexOfLastConsecutiveTimeSlot(
+    slots,
+    startIndex
+  );
 
   // Combine the consecutive timeslots into a single slot
   const combinedSlot = {
@@ -476,7 +606,7 @@ const combineConsecutiveTimeSlots = (slots, startDate) => {
   return [combinedSlot];
 };
 
-const onPriceVariantChange = props => value => {
+const onPriceVariantChange = (props) => (value) => {
   const { form: formApi, seatsEnabled } = props;
 
   formApi.batch(() => {
@@ -514,7 +644,7 @@ const onPriceVariantChange = props => value => {
  * @param {boolean} props.isPublishedListing - Whether the listing is published
  * @returns {JSX.Element}
  */
-export const BookingDatesForm = props => {
+export const BookingDatesForm = (props) => {
   const {
     rootClassName,
     className,
@@ -538,19 +668,24 @@ export const BookingDatesForm = props => {
     ...rest
   } = props;
   const intl = useIntl();
-  const [currentMonth, setCurrentMonth] = useState(getStartOf(TODAY, 'month', timeZone));
+  const [currentMonth, setCurrentMonth] = useState(
+    getStartOf(TODAY, 'month', timeZone)
+  );
+  const [senpexQuote, setSenpexQuote] = useState(null);
   const initialValuesMaybe =
     priceVariants.length > 1 && preselectedPriceVariant
       ? { initialValues: { priceVariantName: preselectedPriceVariant?.name } }
       : priceVariants.length === 1
-      ? { initialValues: { priceVariantName: priceVariants?.[0]?.name } }
-      : {};
+        ? { initialValues: { priceVariantName: priceVariants?.[0]?.name } }
+        : {};
 
   const allTimeSlots = getAllTimeSlots(monthlyTimeSlots);
   const monthId = monthIdString(currentMonth);
-  const currentMonthInProgress = monthlyTimeSlots[monthId]?.fetchTimeSlotsInProgress;
+  const currentMonthInProgress =
+    monthlyTimeSlots[monthId]?.fetchTimeSlotsInProgress;
   const nextMonthId = monthIdString(nextMonthFn(currentMonth, timeZone));
-  const nextMonthInProgress = monthlyTimeSlots[nextMonthId]?.fetchTimeSlotsInProgress;
+  const nextMonthInProgress =
+    monthlyTimeSlots[nextMonthId]?.fetchTimeSlotsInProgress;
 
   useEffect(() => {
     // Call onMonthChanged function if it has been passed in among props.
@@ -573,7 +708,12 @@ export const BookingDatesForm = props => {
       // Note: endMonth is exclusive end time of the range.
       const tz = timeZone;
       const nextMonth = nextMonthFn(currentMonth, tz);
-      const timeSlotsData = timeSlotsPerDate(currentMonth, nextMonth, allTimeSlots, tz);
+      const timeSlotsData = timeSlotsPerDate(
+        currentMonth,
+        nextMonth,
+        allTimeSlots,
+        tz
+      );
       const [startMonth, endMonth] = getMonthlyFetchRange(monthlyTimeSlots, tz);
       const lastFetchedMonth = new Date(endMonth.getTime() - 1);
       console.log(monthIdString(lastFetchedMonth, tz));
@@ -587,7 +727,13 @@ export const BookingDatesForm = props => {
         timeSlotsData
       );
     }
-  }, [currentMonth, currentMonthInProgress, nextMonthInProgress, timeZone, monthlyTimeSlots]);
+  }, [
+    currentMonth,
+    currentMonthInProgress,
+    nextMonthInProgress,
+    timeZone,
+    monthlyTimeSlots,
+  ]);
 
   const classes = classNames(rootClassName || css.root, className);
 
@@ -604,7 +750,7 @@ export const BookingDatesForm = props => {
       {...initialValuesMaybe}
       {...rest}
       unitPrice={unitPrice}
-      render={formRenderProps => {
+      render={(formRenderProps) => {
         const {
           endDatePlaceholder,
           startDatePlaceholder,
@@ -617,7 +763,9 @@ export const BookingDatesForm = props => {
           onFetchTimeSlots,
           form: formApi,
         } = formRenderProps;
-        const { startDate, endDate } = values?.bookingDates ? values.bookingDates : {};
+        const { startDate, endDate } = values?.bookingDates
+          ? values.bookingDates
+          : {};
         const priceVariantName = values?.priceVariantName || null;
 
         const startDateErrorMessage = intl.formatMessage({
@@ -640,7 +788,10 @@ export const BookingDatesForm = props => {
               }
             : null;
         const showEstimatedBreakdown =
-          breakdownData && lineItems && !fetchLineItemsInProgress && !fetchLineItemsError;
+          breakdownData &&
+          lineItems &&
+          !fetchLineItemsInProgress &&
+          !fetchLineItemsError;
 
         const dateFormatOptions = {
           weekday: 'short',
@@ -651,7 +802,8 @@ export const BookingDatesForm = props => {
         const startOfToday = getStartOf(TODAY, 'day', timeZone);
         const tomorrow = addTime(startOfToday, 1, 'days');
         const startDatePlaceholderText =
-          startDatePlaceholder || intl.formatDate(startOfToday, dateFormatOptions);
+          startDatePlaceholder ||
+          intl.formatDate(startOfToday, dateFormatOptions);
         const endDatePlaceholderText =
           endDatePlaceholder || intl.formatDate(tomorrow, dateFormatOptions);
 
@@ -697,7 +849,11 @@ export const BookingDatesForm = props => {
         const submitDisabled = isPriceVariationsInUse && !isPublishedListing;
 
         return (
-          <Form onSubmit={handleSubmit} className={classes} enforcePagePreloadFor="CheckoutPage">
+          <Form
+            onSubmit={handleSubmit}
+            className={classes}
+            enforcePagePreloadFor="CheckoutPage"
+          >
             {PriceVariantFieldComponent ? (
               <PriceVariantFieldComponent
                 priceVariants={priceVariants}
@@ -721,7 +877,7 @@ export const BookingDatesForm = props => {
                 id: 'BookingDatesForm.bookingEndTitle',
               })}
               endDatePlaceholderText={endDatePlaceholderText}
-              format={v => {
+              format={(v) => {
                 const { startDate, endDate } = v || {};
                 // Format the Final Form field's value for the DateRangePicker
                 // DateRangePicker operates on local time zone, but the form uses listing's time zone
@@ -729,15 +885,26 @@ export const BookingDatesForm = props => {
                   ? timeOfDayFromTimeZoneToLocal(startDate, timeZone)
                   : startDate;
                 const endDateForPicker =
-                  isDaily && endDate ? getInclusiveEndDate(endDate, timeZone) : endDate;
+                  isDaily && endDate
+                    ? getInclusiveEndDate(endDate, timeZone)
+                    : endDate;
                 const formattedEnd = endDateForPicker
                   ? timeOfDayFromTimeZoneToLocal(endDateForPicker, timeZone)
                   : endDateForPicker;
-                return v ? { startDate: formattedStart, endDate: formattedEnd } : v;
+                return v
+                  ? { startDate: formattedStart, endDate: formattedEnd }
+                  : v;
               }}
-              parse={v => {
+              parse={(v) => {
                 const { startDate, endDate } = v || {};
-                return v ? getStartAndEndOnTimeZone(startDate, endDate, isDaily, timeZone) : v;
+                return v
+                  ? getStartAndEndOnTimeZone(
+                      startDate,
+                      endDate,
+                      isDaily,
+                      timeZone
+                    )
+                  : v;
               }}
               useMobileMargins
               validate={composeValidators(
@@ -751,24 +918,40 @@ export const BookingDatesForm = props => {
               isDayBlocked={isDayBlocked}
               isOutsideRange={isOutsideRange}
               isBlockedBetween={isBlockedBetween(relevantTimeSlots, timeZone)}
-              disabled={fetchLineItemsInProgress || (priceVariants.length > 0 && !priceVariantName)}
-              showLabelAsDisabled={priceVariants.length > 0 && !priceVariantName}
-              showPreviousMonthStepper={showPreviousMonthStepper(currentMonth, timeZone)}
+              disabled={
+                fetchLineItemsInProgress ||
+                (priceVariants.length > 0 && !priceVariantName)
+              }
+              showLabelAsDisabled={
+                priceVariants.length > 0 && !priceVariantName
+              }
+              showPreviousMonthStepper={showPreviousMonthStepper(
+                currentMonth,
+                timeZone
+              )}
               showNextMonthStepper={showNextMonthStepper(
                 currentMonth,
                 dayCountAvailableForBooking,
                 timeZone
               )}
-              onMonthChange={date => {
-                const localizedDate = timeOfDayFromLocalToTimeZone(date, timeZone);
-                onMonthClick(localizedDate < currentMonth ? prevMonthFn : nextMonthFn);
+              onMonthChange={(date) => {
+                const localizedDate = timeOfDayFromLocalToTimeZone(
+                  date,
+                  timeZone
+                );
+                onMonthClick(
+                  localizedDate < currentMonth ? prevMonthFn : nextMonthFn
+                );
                 setCurrentMonth(localizedDate);
               }}
               onClose={() => {
                 setCurrentMonth(startDate || endDate || startOfToday);
               }}
-              onChange={values => {
-                const { startDate: startDateFromValues, endDate: endDateFromValues } = values || {};
+              onChange={(values) => {
+                const {
+                  startDate: startDateFromValues,
+                  endDate: endDateFromValues,
+                } = values || {};
                 const { startDate, endDate } = values
                   ? getStartAndEndOnTimeZone(
                       startDateFromValues,
@@ -780,12 +963,24 @@ export const BookingDatesForm = props => {
                 if (seatsEnabled) {
                   formApi.change('seats', 1);
                 }
+                const deliveryMethodMaybe = senpexQuote
+                  ? { deliveryMethod: 'senpex-shipping' }
+                  : {};
+                const senpexPriceMaybe = senpexQuote?.price
+                  ? {
+                      senpexShippingPriceInSubunits: Math.round(
+                        senpexQuote.price * 100
+                      ),
+                    }
+                  : {};
                 onHandleFetchLineItems({
                   values: {
                     priceVariantName,
                     startDate,
                     endDate,
                     seats: seatsEnabled ? 1 : undefined,
+                    ...deliveryMethodMaybe,
+                    ...senpexPriceMaybe,
                   },
                 });
               }}
@@ -795,11 +990,13 @@ export const BookingDatesForm = props => {
               <FieldSelect
                 name="seats"
                 id="seats"
-                label={intl.formatMessage({ id: 'BookingDatesForm.seatsTitle' })}
+                label={intl.formatMessage({
+                  id: 'BookingDatesForm.seatsTitle',
+                })}
                 disabled={!(startDate && endDate)}
                 showLabelAsDisabled={!(startDate && endDate)}
                 className={css.fieldSeats}
-                onChange={values => {
+                onChange={(values) => {
                   onHandleFetchLineItems({
                     values: {
                       priceVariantName,
@@ -811,9 +1008,11 @@ export const BookingDatesForm = props => {
                 }}
               >
                 <option disabled value="">
-                  {intl.formatMessage({ id: 'BookingDatesForm.seatsPlaceholder' })}
+                  {intl.formatMessage({
+                    id: 'BookingDatesForm.seatsPlaceholder',
+                  })}
                 </option>
-                {seatsOptions.map(s => (
+                {seatsOptions.map((s) => (
                   <option value={s} key={s}>
                     {s}
                   </option>
@@ -827,6 +1026,7 @@ export const BookingDatesForm = props => {
                   <FormattedMessage id="BookingDatesForm.priceBreakdownTitle" />
                 </H6>
                 <hr className={css.totalDivider} />
+
                 <EstimatedCustomerBreakdownMaybe
                   breakdownData={breakdownData}
                   lineItems={lineItems}

@@ -7,6 +7,8 @@ const {
 } = require('./lineItemHelpers');
 const { types } = require('sharetribe-flex-sdk');
 const { Money } = types;
+const Decimal = require('decimal.js');
+const { unitDivisor, convertDecimalJSToNumber } = require('./currency');
 
 /**
  * Get quantity and add extra line-items that are related to delivery method
@@ -28,6 +30,29 @@ const getItemQuantityAndLineItems = (orderData, publicData, currency) => {
     senpexShippingPrice,
   } = publicData || {};
 
+  // Resolve Senpex shipping price: prefer orderData override, then listing publicData
+  const resolveSenpexPriceSubunits = () => {
+    const fromOrderSubunits = orderData?.senpexShippingPriceInSubunits;
+    if (Number.isInteger(fromOrderSubunits) && fromOrderSubunits >= 0) {
+      return fromOrderSubunits;
+    }
+    const fromOrderMajor = orderData?.senpexShippingPrice;
+    if (typeof fromOrderMajor === 'number' && fromOrderMajor >= 0) {
+      try {
+        const divisor = unitDivisor(currency);
+        const sub = new Decimal(fromOrderMajor)
+          .times(divisor)
+          .toNearest(1, Decimal.ROUND_HALF_UP);
+        return convertDecimalJSToNumber(sub);
+      } catch (_) {
+        return null;
+      }
+    }
+    return Number.isInteger(senpexShippingPrice) && senpexShippingPrice >= 0
+      ? senpexShippingPrice
+      : null;
+  };
+
   // Calculate shipping fee if applicable
   const shippingFee = isShipping
     ? calculateShippingFee(
@@ -39,9 +64,10 @@ const getItemQuantityAndLineItems = (orderData, publicData, currency) => {
     : null;
 
   // Calculate Senpex shipping fee if applicable
+  const senpexPriceSubunits = resolveSenpexPriceSubunits();
   const senpexFee =
-    isSenpexShipping && senpexShippingPrice
-      ? new Money(senpexShippingPrice, currency)
+    isSenpexShipping && Number.isInteger(senpexPriceSubunits)
+      ? new Money(senpexPriceSubunits, currency)
       : null;
 
   // Add line-item for given delivery method.
@@ -221,7 +247,47 @@ exports.transactionLineItems = (
             ? getDateRangeQuantityAndLineItems(orderData, code)
             : {};
 
-  const { quantity, units, seats, extraLineItems } = quantityAndExtraLineItems;
+  let { quantity, units, seats, extraLineItems } = quantityAndExtraLineItems;
+
+  // For bookings (non-item unit types), add Senpex shipping fee if provided via orderData
+  if (unitType !== 'item' && orderData?.deliveryMethod === 'senpex-shipping') {
+    const resolveBookingSenpexPriceSubunits = () => {
+      const fromOrderSubunits = orderData?.senpexShippingPriceInSubunits;
+      if (Number.isInteger(fromOrderSubunits) && fromOrderSubunits >= 0) {
+        return fromOrderSubunits;
+      }
+      const fromOrderMajor = orderData?.senpexShippingPrice;
+      if (typeof fromOrderMajor === 'number' && fromOrderMajor >= 0) {
+        try {
+          const divisor = unitDivisor(currency);
+          const sub = new Decimal(fromOrderMajor)
+            .times(divisor)
+            .toNearest(1, Decimal.ROUND_HALF_UP);
+          return convertDecimalJSToNumber(sub);
+        } catch (_) {
+          return null;
+        }
+      }
+      const fromListing = listing?.attributes?.publicData?.senpexShippingPrice;
+      return Number.isInteger(fromListing) && fromListing >= 0
+        ? fromListing
+        : null;
+    };
+
+    const bookingSenpexPriceSubunits = resolveBookingSenpexPriceSubunits();
+    if (Number.isInteger(bookingSenpexPriceSubunits)) {
+      const fee = new Money(bookingSenpexPriceSubunits, currency);
+      extraLineItems = [
+        ...extraLineItems,
+        {
+          code: 'line-item/senpex-shipping-fee',
+          unitPrice: fee,
+          quantity: 1,
+          includeFor: ['customer', 'provider'],
+        },
+      ];
+    }
+  }
 
   // Throw error if there is no quantity information given
   if (!quantity && !(units && seats)) {

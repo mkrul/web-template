@@ -1,16 +1,14 @@
+const { handleError } = require('../api-util/sdk');
 const {
-  getSdk,
-  getTrustedSdk,
-  handleError,
-  fetchUtils,
-} = require('../../server-util');
+  buildSenpexQuoteRequest,
+  parseSenpexQuoteResponse,
+} = require('../api-util/senpexHelpers');
 
-const senpexRequest = (method, path, options = {}) => {
+const senpexRequest = async (method, path, options = {}) => {
   const { headers = {}, body, ...otherOptions } = options;
-
-  return fetchUtils.fetchRequest({
+  const url = `${process.env.SENPEX_API_BASE_URL}${path}`;
+  const res = await globalThis.fetch(url, {
     method,
-    url: `${process.env.SENPEX_API_BASE_URL}${path}`,
     headers: {
       clientid: process.env.SENPEX_CLIENT_ID,
       secretid: process.env.SENPEX_SECRET_ID,
@@ -20,6 +18,15 @@ const senpexRequest = (method, path, options = {}) => {
     body: body ? JSON.stringify(body) : undefined,
     ...otherOptions,
   });
+  if (!res.ok) {
+    const text = await res.text();
+    const err = new Error(`Senpex request failed: ${res.status}`);
+    err.status = res.status;
+    err.statusText = res.statusText;
+    err.data = { body: text };
+    throw err;
+  }
+  return res.json();
 };
 
 module.exports = (router) => {
@@ -27,10 +34,12 @@ module.exports = (router) => {
     const { body } = req;
 
     try {
+      const apiBody = buildSenpexQuoteRequest(body);
       const response = await senpexRequest('POST', '/orders/pickup/quote', {
-        body,
+        body: apiBody,
       });
-      res.status(200).json(response);
+      const normalized = parseSenpexQuoteResponse(response);
+      res.status(200).json(normalized);
     } catch (error) {
       console.error('Senpex quote error:', error);
       handleError(res, error);
@@ -53,10 +62,12 @@ module.exports = (router) => {
     const { body } = req;
 
     try {
+      const apiBody = buildSenpexQuoteRequest(body);
       const response = await senpexRequest('POST', '/orders/dropoff/quote', {
-        body,
+        body: apiBody,
       });
-      res.status(200).json(response);
+      const normalized = parseSenpexQuoteResponse(response);
+      res.status(200).json(normalized);
     } catch (error) {
       console.error('Senpex dropoff quote error:', error);
       handleError(res, error);

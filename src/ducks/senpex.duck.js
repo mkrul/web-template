@@ -1,5 +1,5 @@
-import { denormalisedResponseEntities } from '../util/data';
 import { storableError } from '../util/errors';
+import * as api from '../util/api';
 
 // ================ Action types ================ //
 
@@ -106,13 +106,15 @@ export const senpexClearQuote = () => ({ type: SENPEX_CLEAR_QUOTE });
 
 // ================ Thunks ================ //
 
-export const getSenpexQuote = (quoteData) => (dispatch, getState, sdk) => {
+export const getSenpexQuote = (quoteData) => (dispatch) => {
   dispatch(senpexQuoteRequest());
 
-  return sdk.senpex
-    .quote(quoteData)
+  const { type = 'pickup', ...rest } = quoteData || {};
+  const requester =
+    type === 'dropoff' ? api.senpexDropoffQuote : api.senpexPickupQuote;
+  return requester(rest)
     .then((response) => {
-      dispatch(senpexQuoteSuccess(response.data));
+      dispatch(senpexQuoteSuccess(response));
       return response;
     })
     .catch((error) => {
@@ -121,11 +123,19 @@ export const getSenpexQuote = (quoteData) => (dispatch, getState, sdk) => {
     });
 };
 
-export const confirmSenpexOrder = (orderData) => (dispatch, getState, sdk) => {
+export const confirmSenpexOrder = (orderData) => (dispatch) => {
   dispatch(senpexConfirmRequest());
-
-  return sdk.senpex
-    .confirm(orderData)
+  const { type = 'pickup', ...rest } = orderData || {};
+  const path =
+    type === 'dropoff'
+      ? '/api/shipping/senpex/dropoff/confirm'
+      : '/api/shipping/senpex/confirm';
+  return api
+    .request(path, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: rest,
+    })
     .then((response) => {
       dispatch(senpexConfirmSuccess());
       return response;

@@ -1,12 +1,14 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
+import PropTypes from 'prop-types';
+import { intlShape } from '../../util/reactIntl';
 import {
   Form,
   FieldTextInput,
   PrimaryButton,
   IconSpinner,
 } from '../../components';
-import { propTypes } from '../../util/types';
+import { propTypes as sdkPropTypes } from '../../util/types';
 
 const SenpexShippingForm = ({
   listing,
@@ -148,7 +150,7 @@ const SenpexShippingForm = ({
             <p>
               <FormattedMessage
                 id="SenpexShippingForm.quotePrice"
-                defaultMessage="Price: ${price}"
+                defaultMessage="Price: {price}"
                 values={{ price: quote.price }}
               />
             </p>
@@ -167,14 +169,14 @@ const SenpexShippingForm = ({
 };
 
 SenpexShippingForm.propTypes = {
-  listing: propTypes.listing.isRequired,
-  orderData: propTypes.object,
-  onSubmit: propTypes.func,
-  disabled: propTypes.bool,
-  onGetQuote: propTypes.func,
-  quoteInProgress: propTypes.bool,
-  quote: propTypes.object,
-  intl: propTypes.intl.isRequired,
+  listing: sdkPropTypes.listing.isRequired,
+  orderData: PropTypes.object,
+  onSubmit: PropTypes.func,
+  disabled: PropTypes.bool,
+  onGetQuote: PropTypes.func,
+  quoteInProgress: PropTypes.bool,
+  quote: PropTypes.object,
+  intl: intlShape.isRequired,
 };
 
 export default SenpexShippingForm;

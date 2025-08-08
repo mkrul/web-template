@@ -51,7 +51,7 @@ const handleFetchLineItems = ({
   }
 };
 
-const DeliveryMethodMaybe = props => {
+const DeliveryMethodMaybe = (props) => {
   const {
     displayDeliveryMethod,
     hasMultipleDeliveryMethods,
@@ -60,7 +60,8 @@ const DeliveryMethodMaybe = props => {
     formId,
     intl,
   } = props;
-  const showDeliveryMethodSelector = displayDeliveryMethod && hasMultipleDeliveryMethods;
+  const showDeliveryMethodSelector =
+    displayDeliveryMethod && hasMultipleDeliveryMethods;
   const showSingleDeliveryMethod = displayDeliveryMethod && deliveryMethod;
   return !hasStock ? null : showDeliveryMethodSelector ? (
     <FieldSelect
@@ -68,10 +69,14 @@ const DeliveryMethodMaybe = props => {
       className={css.deliveryField}
       name="deliveryMethod"
       label={intl.formatMessage({ id: 'ProductOrderForm.deliveryMethodLabel' })}
-      validate={required(intl.formatMessage({ id: 'ProductOrderForm.deliveryMethodRequired' }))}
+      validate={required(
+        intl.formatMessage({ id: 'ProductOrderForm.deliveryMethodRequired' })
+      )}
     >
       <option disabled value="">
-        {intl.formatMessage({ id: 'ProductOrderForm.selectDeliveryMethodOption' })}
+        {intl.formatMessage({
+          id: 'ProductOrderForm.selectDeliveryMethodOption',
+        })}
       </option>
       <option value={'pickup'}>
         {intl.formatMessage({ id: 'ProductOrderForm.pickupOption' })}
@@ -79,6 +84,7 @@ const DeliveryMethodMaybe = props => {
       <option value={'shipping'}>
         {intl.formatMessage({ id: 'ProductOrderForm.shippingOption' })}
       </option>
+      <option value={'senpex-shipping'}>Senpex Delivery</option>
     </FieldSelect>
   ) : showSingleDeliveryMethod ? (
     <div className={css.deliveryField}>
@@ -107,7 +113,7 @@ const DeliveryMethodMaybe = props => {
   );
 };
 
-const renderForm = formRenderProps => {
+const renderForm = (formRenderProps) => {
   const [mounted, setMounted] = useState(false);
   const {
     // FormRenderProps from final-form
@@ -154,7 +160,7 @@ const renderForm = formRenderProps => {
   }, []);
 
   // If form values change, update line-items for the order breakdown
-  const handleOnChange = formValues => {
+  const handleOnChange = (formValues) => {
     const { quantity, deliveryMethod } = formValues.values;
     if (mounted) {
       handleFetchLineItems({
@@ -170,7 +176,7 @@ const renderForm = formRenderProps => {
 
   // In case quantity and deliveryMethod are missing focus on that select-input.
   // Otherwise continue with the default handleSubmit function.
-  const handleFormSubmit = e => {
+  const handleFormSubmit = (e) => {
     const { quantity, deliveryMethod } = values || {};
     if (!quantity || quantity < 1) {
       e.preventDefault();
@@ -189,11 +195,14 @@ const renderForm = formRenderProps => {
 
   const breakdownData = {};
   const showBreakdown =
-    breakdownData && lineItems && !fetchLineItemsInProgress && !fetchLineItemsError;
+    breakdownData &&
+    lineItems &&
+    !fetchLineItemsInProgress &&
+    !fetchLineItemsError;
 
   const showContactUser = typeof onContactUser === 'function';
 
-  const onClickContactUser = e => {
+  const onClickContactUser = (e) => {
     e.preventDefault();
     onContactUser();
   };
@@ -203,7 +212,9 @@ const renderForm = formRenderProps => {
       <FormattedMessage id="ProductOrderForm.finePrintNoStockLinkText" />
     </InlineTextButton>
   );
-  const quantityRequiredMsg = intl.formatMessage({ id: 'ProductOrderForm.quantityRequired' });
+  const quantityRequiredMsg = intl.formatMessage({
+    id: 'ProductOrderForm.quantityRequired',
+  });
 
   // Listing is out of stock if currentStock is zero.
   // Undefined/null stock means that stock has never been set.
@@ -211,8 +222,12 @@ const renderForm = formRenderProps => {
   const hasStock = currentStock && currentStock > 0;
   const hasOneItemLeft = currentStock === 1;
   const selectableStock =
-    currentStock > MAX_QUANTITY_FOR_DROPDOWN ? MAX_QUANTITY_FOR_DROPDOWN : currentStock;
-  const quantities = hasStock ? [...Array(selectableStock).keys()].map(i => i + 1) : [];
+    currentStock > MAX_QUANTITY_FOR_DROPDOWN
+      ? MAX_QUANTITY_FOR_DROPDOWN
+      : currentStock;
+  const quantities = hasStock
+    ? [...Array(selectableStock).keys()].map((i) => i + 1)
+    : [];
 
   const submitInProgress = fetchLineItemsInProgress;
   const submitDisabled = !hasStock;
@@ -238,11 +253,16 @@ const renderForm = formRenderProps => {
           validate={numberAtLeast(quantityRequiredMsg, 1)}
         >
           <option disabled value="">
-            {intl.formatMessage({ id: 'ProductOrderForm.selectQuantityOption' })}
+            {intl.formatMessage({
+              id: 'ProductOrderForm.selectQuantityOption',
+            })}
           </option>
-          {quantities.map(quantity => (
+          {quantities.map((quantity) => (
             <option key={quantity} value={quantity}>
-              {intl.formatMessage({ id: 'ProductOrderForm.quantityOption' }, { quantity })}
+              {intl.formatMessage(
+                { id: 'ProductOrderForm.quantityOption' },
+                { quantity }
+              )}
             </option>
           ))}
         </FieldSelect>
@@ -274,7 +294,11 @@ const renderForm = formRenderProps => {
       ) : null}
 
       <div className={css.submitButton}>
-        <PrimaryButton type="submit" inProgress={submitInProgress} disabled={submitDisabled}>
+        <PrimaryButton
+          type="submit"
+          inProgress={submitInProgress}
+          disabled={submitDisabled}
+        >
           {hasStock ? (
             <FormattedMessage id="ProductOrderForm.ctaButton" />
           ) : (
@@ -290,7 +314,10 @@ const renderForm = formRenderProps => {
         ) : hasStock ? (
           <FormattedMessage id="ProductOrderForm.finePrint" />
         ) : showContactUser ? (
-          <FormattedMessage id="ProductOrderForm.finePrintNoStock" values={{ contactSellerLink }} />
+          <FormattedMessage
+            id="ProductOrderForm.finePrintNoStock"
+            values={{ contactSellerLink }}
+          />
         ) : null}
       </p>
     </Form>
@@ -321,7 +348,7 @@ const renderForm = formRenderProps => {
  * @param {Function} props.onContactUser - The function to contact the user
  * @returns {JSX.Element}
  */
-const ProductOrderForm = props => {
+const ProductOrderForm = (props) => {
   const intl = useIntl();
   const {
     price,
@@ -344,15 +371,16 @@ const ProductOrderForm = props => {
 
   const hasOneItemLeft = currentStock && currentStock === 1;
   const hasOneItemMode = !allowOrdersOfMultipleItems && currentStock > 0;
-  const quantityMaybe = hasOneItemLeft || hasOneItemMode ? { quantity: '1' } : {};
+  const quantityMaybe =
+    hasOneItemLeft || hasOneItemMode ? { quantity: '1' } : {};
   const deliveryMethodMaybe =
     shippingEnabled && !pickupEnabled
       ? { deliveryMethod: 'shipping' }
       : !shippingEnabled && pickupEnabled
-      ? { deliveryMethod: 'pickup' }
-      : !shippingEnabled && !pickupEnabled
-      ? { deliveryMethod: 'none' }
-      : {};
+        ? { deliveryMethod: 'pickup' }
+        : !shippingEnabled && !pickupEnabled
+          ? { deliveryMethod: 'none' }
+          : {};
   const hasMultipleDeliveryMethods = pickupEnabled && shippingEnabled;
   const initialValues = { ...quantityMaybe, ...deliveryMethodMaybe };
 

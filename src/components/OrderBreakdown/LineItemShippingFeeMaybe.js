@@ -14,11 +14,14 @@ import css from './OrderBreakdown.module.css';
  * @param {intlShape} props.intl - The intl object
  * @returns {JSX.Element}
  */
-const LineItemShippingFeeMaybe = props => {
+const LineItemShippingFeeMaybe = (props) => {
   const { lineItems, intl } = props;
 
   const shippingFeeLineItem = lineItems.find(
-    item => item.code === LINE_ITEM_SHIPPING_FEE && !item.reversal
+    (item) =>
+      (item.code === LINE_ITEM_SHIPPING_FEE ||
+        item.code === 'line-item/senpex-shipping-fee') &&
+      !item.reversal
   );
 
   return shippingFeeLineItem ? (
@@ -26,7 +29,9 @@ const LineItemShippingFeeMaybe = props => {
       <span className={css.itemLabel}>
         <FormattedMessage id="OrderBreakdown.shippingFee" />
       </span>
-      <span className={css.itemValue}>{formatMoney(intl, shippingFeeLineItem.lineTotal)}</span>
+      <span className={css.itemValue}>
+        {formatMoney(intl, shippingFeeLineItem.lineTotal)}
+      </span>
     </div>
   ) : null;
 };
