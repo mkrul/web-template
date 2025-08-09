@@ -34,7 +34,7 @@ import {
 } from '../../../components';
 
 import EstimatedCustomerBreakdownMaybe from '../EstimatedCustomerBreakdownMaybe';
-import SenpexShippingForm from '../../../containers/CheckoutPage/SenpexShippingForm';
+import { useSelector } from 'react-redux';
 import { senpexDropoffQuote } from '../../../util/api';
 
 import css from './BookingDatesForm.module.css';
@@ -665,6 +665,7 @@ export const BookingDatesForm = (props) => {
     priceVariantFieldComponent: PriceVariantFieldComponent,
     preselectedPriceVariant,
     isPublishedListing,
+    providerPickupAddress,
     ...rest
   } = props;
   const intl = useIntl();
@@ -672,6 +673,7 @@ export const BookingDatesForm = (props) => {
     getStartOf(TODAY, 'month', timeZone)
   );
   const [senpexQuote, setSenpexQuote] = useState(null);
+  const currentUser = useSelector((state) => state.user.currentUser);
   const initialValuesMaybe =
     priceVariants.length > 1 && preselectedPriceVariant
       ? { initialValues: { priceVariantName: preselectedPriceVariant?.name } }
@@ -973,6 +975,15 @@ export const BookingDatesForm = (props) => {
                       ),
                     }
                   : {};
+                // Debug logging for line-item fetch payload
+                // eslint-disable-next-line no-console
+                console.log('BookingDatesForm: fetch line-items', {
+                  hasStartDate: !!startDate,
+                  hasEndDate: !!endDate,
+                  deliveryMethod: deliveryMethodMaybe.deliveryMethod || null,
+                  senpexShippingPriceInSubunits:
+                    senpexPriceMaybe.senpexShippingPriceInSubunits || null,
+                });
                 onHandleFetchLineItems({
                   values: {
                     priceVariantName,
@@ -983,6 +994,83 @@ export const BookingDatesForm = (props) => {
                     ...senpexPriceMaybe,
                   },
                 });
+
+                // Auto-quote when dates are present and user has details
+                const profile = currentUser?.attributes?.profile || {};
+                const firstName = profile?.firstName;
+                const lastName = profile?.lastName;
+                const phone = profile?.protectedData?.phoneNumber;
+                // Preferred address: user's saved delivery address; fallback: address from URL search bar or last stored in session
+                const urlParams = new URLSearchParams(window.location.search);
+                const addressFromUrl = urlParams.get('address');
+                let address =
+                  profile?.publicData?.deliveryAddress || addressFromUrl;
+                try {
+                  if (
+                    !address &&
+                    typeof window !== 'undefined' &&
+                    window.sessionStorage
+                  ) {
+                    const remembered = window.sessionStorage.getItem(
+                      'last_delivery_address'
+                    );
+                    address = remembered || address;
+                  }
+                } catch (_) {}
+                const canQuote =
+                  startDate &&
+                  endDate &&
+                  firstName &&
+                  lastName &&
+                  phone &&
+                  address &&
+                  !senpexQuote;
+                // Debug logging for quote prerequisites (includes pickup address candidate)
+                // eslint-disable-next-line no-console
+                console.log('BookingDatesForm: quote prereqs', {
+                  hasStartDate: !!startDate,
+                  hasEndDate: !!endDate,
+                  firstName: !!firstName,
+                  lastName: !!lastName,
+                  hasPhone: !!phone,
+                  hasAddress: !!address,
+                  addressFromUrl: !!addressFromUrl,
+                  providerPickupAddress: providerPickupAddress || null,
+                  alreadyQuoted: !!senpexQuote,
+                });
+                if (canQuote) {
+                  const receiverName = `${firstName} ${lastName}`;
+                  // eslint-disable-next-line no-console
+                  console.log('BookingDatesForm: calling senpexDropoffQuote');
+                  senpexDropoffQuote({
+                    receiverName,
+                    receiverPhone: phone,
+                    deliveryAddress: address,
+                    deliveryInstructions: '',
+                    listingId,
+                  })
+                    .then((q) => {
+                      // eslint-disable-next-line no-console
+                      console.log('BookingDatesForm: senpex quote success', q);
+                      setSenpexQuote(q);
+                      onHandleFetchLineItems({
+                        values: {
+                          priceVariantName,
+                          startDate,
+                          endDate,
+                          seats: seatsEnabled ? 1 : undefined,
+                          deliveryMethod: 'senpex-shipping',
+                          senpexShippingPriceInSubunits: Math.round(
+                            (q?.price || 0) * 100
+                          ),
+                        },
+                      });
+                    })
+                    .catch((e) => {
+                      // eslint-disable-next-line no-console
+                      console.error('BookingDatesForm: senpex quote failed', e);
+                    });
+                }
               }}
             />
 

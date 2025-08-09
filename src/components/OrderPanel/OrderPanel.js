@@ -33,36 +33,53 @@ import {
   resolveLatestProcessName,
 } from '../../transactions/transaction';
 
-import { ModalInMobile, PrimaryButton, AvatarSmall, H1, H2 } from '../../components';
+import {
+  ModalInMobile,
+  PrimaryButton,
+  AvatarSmall,
+  H1,
+  H2,
+} from '../../components';
 import PriceVariantPicker from './PriceVariantPicker/PriceVariantPicker';
 
 import css from './OrderPanel.module.css';
 
-const BookingTimeForm = loadable(() =>
-  import(/* webpackChunkName: "BookingTimeForm" */ './BookingTimeForm/BookingTimeForm')
+const BookingTimeForm = loadable(
+  () =>
+    import(
+      /* webpackChunkName: "BookingTimeForm" */ './BookingTimeForm/BookingTimeForm'
+    )
 );
-const BookingDatesForm = loadable(() =>
-  import(/* webpackChunkName: "BookingDatesForm" */ './BookingDatesForm/BookingDatesForm')
+const BookingDatesForm = loadable(
+  () =>
+    import(
+      /* webpackChunkName: "BookingDatesForm" */ './BookingDatesForm/BookingDatesForm'
+    )
 );
-const BookingFixedDurationForm = loadable(() =>
-  import(
-    /* webpackChunkName: "BookingFixedDurationForm" */ './BookingFixedDurationForm/BookingFixedDurationForm'
-  )
+const BookingFixedDurationForm = loadable(
+  () =>
+    import(
+      /* webpackChunkName: "BookingFixedDurationForm" */ './BookingFixedDurationForm/BookingFixedDurationForm'
+    )
 );
-const InquiryWithoutPaymentForm = loadable(() =>
-  import(
-    /* webpackChunkName: "InquiryWithoutPaymentForm" */ './InquiryWithoutPaymentForm/InquiryWithoutPaymentForm'
-  )
+const InquiryWithoutPaymentForm = loadable(
+  () =>
+    import(
+      /* webpackChunkName: "InquiryWithoutPaymentForm" */ './InquiryWithoutPaymentForm/InquiryWithoutPaymentForm'
+    )
 );
-const ProductOrderForm = loadable(() =>
-  import(/* webpackChunkName: "ProductOrderForm" */ './ProductOrderForm/ProductOrderForm')
+const ProductOrderForm = loadable(
+  () =>
+    import(
+      /* webpackChunkName: "ProductOrderForm" */ './ProductOrderForm/ProductOrderForm'
+    )
 );
 
 // This defines when ModalInMobile shows content as Modal
 const MODAL_BREAKPOINT = 1023;
 const TODAY = new Date();
 
-const isPublishedListing = listing => {
+const isPublishedListing = (listing) => {
   return listing.attributes.state === LISTING_STATE_PUBLISHED;
 };
 
@@ -81,7 +98,9 @@ const priceData = (price, currency, intl) => {
 
 const getCheapestPriceVariant = (priceVariants = []) => {
   return priceVariants.reduce((cheapest, current) => {
-    return current.priceInSubunits < cheapest.priceInSubunits ? current : cheapest;
+    return current.priceInSubunits < cheapest.priceInSubunits
+      ? current
+      : cheapest;
   }, priceVariants[0]);
 };
 
@@ -125,9 +144,13 @@ const handleSubmit = (
     : () => openOrderModal(isOwnListing, isClosed, history, location);
 };
 
-const dateFormattingOptions = { month: 'short', day: 'numeric', weekday: 'short' };
+const dateFormattingOptions = {
+  month: 'short',
+  day: 'numeric',
+  weekday: 'short',
+};
 
-const PriceMaybe = props => {
+const PriceMaybe = (props) => {
   const {
     price,
     publicData,
@@ -138,19 +161,31 @@ const PriceMaybe = props => {
   } = props;
   const { listingType, unitType } = publicData || {};
 
-  const foundListingTypeConfig = validListingTypes.find(conf => conf.listingType === listingType);
+  const foundListingTypeConfig = validListingTypes.find(
+    (conf) => conf.listingType === listingType
+  );
   const showPrice = displayPrice(foundListingTypeConfig);
   const isPriceVariationsInUse = !!publicData?.priceVariationsEnabled;
   const hasMultiplePriceVariants = publicData?.priceVariants?.length > 1;
 
-  if (!showPrice || !price || (isPriceVariationsInUse && hasMultiplePriceVariants)) {
+  if (
+    !showPrice ||
+    !price ||
+    (isPriceVariationsInUse && hasMultiplePriceVariants)
+  ) {
     return null;
   }
 
   // Get formatted price or currency code if the currency does not match with marketplace currency
-  const { formattedPrice, priceTitle } = priceData(price, marketplaceCurrency, intl);
+  const { formattedPrice, priceTitle } = priceData(
+    price,
+    marketplaceCurrency,
+    intl
+  );
   const priceValue = (
-    <span className={css.priceValue}>{formatMoneyIfSupportedCurrency(price, intl)}</span>
+    <span className={css.priceValue}>
+      {formatMoneyIfSupportedCurrency(price, intl)}
+    </span>
   );
   const pricePerUnit = (
     <span className={css.perUnit}>
@@ -175,7 +210,10 @@ const PriceMaybe = props => {
   ) : (
     <div className={css.priceContainer}>
       <p className={css.price}>
-        <FormattedMessage id="OrderPanel.price" values={{ priceValue, pricePerUnit }} />
+        <FormattedMessage
+          id="OrderPanel.price"
+          values={{ priceValue, pricePerUnit }}
+        />
       </p>
     </div>
   );
@@ -204,17 +242,18 @@ const InvalidPriceVariants = () => {
   );
 };
 
-const hasUniqueVariants = priceVariants => {
-  const priceVariantsSlugs = priceVariants?.map(variant =>
+const hasUniqueVariants = (priceVariants) => {
+  const priceVariantsSlugs = priceVariants?.map((variant) =>
     variant.name ? createSlug(variant.name) : 'no-name'
   );
   return new Set(priceVariantsSlugs).size === priceVariants.length;
 };
 
-const hasValidPriceVariants = priceVariants => {
+const hasValidPriceVariants = (priceVariants) => {
   const isArray = Array.isArray(priceVariants);
   const hasItems = isArray && priceVariants.length > 0;
-  const variantsHaveNames = hasItems && priceVariants.every(variant => variant.name);
+  const variantsHaveNames =
+    hasItems && priceVariants.every((variant) => variant.name);
   const namesAreUnique = hasItems && hasUniqueVariants(priceVariants);
 
   return variantsHaveNames && namesAreUnique;
@@ -261,7 +300,7 @@ const hasValidPriceVariants = priceVariants => {
  *
  * @returns {JSX.Element} Component that displays the order panel with appropriate form
  */
-const OrderPanel = props => {
+const OrderPanel = (props) => {
   const [mounted, setMounted] = useState(false);
   const intl = useIntl();
   const location = useLocation();
@@ -299,32 +338,48 @@ const OrderPanel = props => {
   } = props;
 
   const publicData = listing?.attributes?.publicData || {};
-  const { listingType, unitType, transactionProcessAlias = '', priceVariants, startTimeInterval } =
-    publicData || {};
+  const {
+    listingType,
+    unitType,
+    transactionProcessAlias = '',
+    priceVariants,
+    startTimeInterval,
+  } = publicData || {};
 
-  const processName = resolveLatestProcessName(transactionProcessAlias.split('/')[0]);
+  const processName = resolveLatestProcessName(
+    transactionProcessAlias.split('/')[0]
+  );
   const lineItemUnitType = lineItemUnitTypeMaybe || `line-item/${unitType}`;
 
   const price = listing?.attributes?.price;
   const isPaymentProcess = processName !== INQUIRY_PROCESS_NAME;
 
   const showPriceMissing = isPaymentProcess && !price;
-  const showInvalidCurrency = isPaymentProcess && price?.currency !== marketplaceCurrency;
+  const showInvalidCurrency =
+    isPaymentProcess && price?.currency !== marketplaceCurrency;
 
   const timeZone = listing?.attributes?.availabilityPlan?.timezone;
   const isClosed = listing?.attributes?.state === LISTING_STATE_CLOSED;
 
   const isBooking = isBookingProcess(processName);
-  const shouldHaveFixedBookingDuration = isBooking && [LINE_ITEM_FIXED].includes(lineItemUnitType);
+  const shouldHaveFixedBookingDuration =
+    isBooking && [LINE_ITEM_FIXED].includes(lineItemUnitType);
   const showBookingFixedDurationForm =
-    mounted && shouldHaveFixedBookingDuration && !isClosed && timeZone && priceVariants?.length > 0;
+    mounted &&
+    shouldHaveFixedBookingDuration &&
+    !isClosed &&
+    timeZone &&
+    priceVariants?.length > 0;
 
-  const shouldHaveBookingTime = isBooking && [LINE_ITEM_HOUR].includes(lineItemUnitType);
-  const showBookingTimeForm = mounted && shouldHaveBookingTime && !isClosed && timeZone;
+  const shouldHaveBookingTime =
+    isBooking && [LINE_ITEM_HOUR].includes(lineItemUnitType);
+  const showBookingTimeForm =
+    mounted && shouldHaveBookingTime && !isClosed && timeZone;
 
   const shouldHaveBookingDates =
     isBooking && [LINE_ITEM_DAY, LINE_ITEM_NIGHT].includes(lineItemUnitType);
-  const showBookingDatesForm = mounted && shouldHaveBookingDates && !isClosed && timeZone;
+  const showBookingDatesForm =
+    mounted && shouldHaveBookingDates && !isClosed && timeZone;
 
   // The listing resource has a relationship: `currentStock`,
   // which you should include when making API calls.
@@ -336,33 +391,50 @@ const OrderPanel = props => {
   // Show form only when stock is fully loaded. This avoids "Out of stock" UI by
   // default before all data has been downloaded.
   const showProductOrderForm =
-    mounted && shouldHavePurchase && !isClosed && typeof currentStock === 'number';
+    mounted &&
+    shouldHavePurchase &&
+    !isClosed &&
+    typeof currentStock === 'number';
 
-  const showInquiryForm = mounted && !isClosed && processName === INQUIRY_PROCESS_NAME;
+  const showInquiryForm =
+    mounted && !isClosed && processName === INQUIRY_PROCESS_NAME;
 
   const supportedProcessesInfo = getSupportedProcessesInfo();
-  const isKnownProcess = supportedProcessesInfo.map(info => info.name).includes(processName);
+  const isKnownProcess = supportedProcessesInfo
+    .map((info) => info.name)
+    .includes(processName);
 
-  const { pickupEnabled, shippingEnabled } = listing?.attributes?.publicData || {};
+  const { pickupEnabled, shippingEnabled } =
+    listing?.attributes?.publicData || {};
 
-  const listingTypeConfig = validListingTypes.find(conf => conf.listingType === listingType);
+  const listingTypeConfig = validListingTypes.find(
+    (conf) => conf.listingType === listingType
+  );
   const displayShipping = displayDeliveryShipping(listingTypeConfig);
   const displayPickup = displayDeliveryPickup(listingTypeConfig);
-  const allowOrdersOfMultipleItems = [STOCK_MULTIPLE_ITEMS, STOCK_INFINITE_MULTIPLE_ITEMS].includes(
-    listingTypeConfig?.stockType
-  );
+  const allowOrdersOfMultipleItems = [
+    STOCK_MULTIPLE_ITEMS,
+    STOCK_INFINITE_MULTIPLE_ITEMS,
+  ].includes(listingTypeConfig?.stockType);
 
   const searchParams = parse(location.search);
   const isOrderOpen = !!searchParams.orderOpen;
   const preselectedPriceVariantSlug = searchParams.bookableOption;
 
-  const seatsEnabled = [AVAILABILITY_MULTIPLE_SEATS].includes(listingTypeConfig?.availabilityType);
+  const seatsEnabled = [AVAILABILITY_MULTIPLE_SEATS].includes(
+    listingTypeConfig?.availabilityType
+  );
 
   // Note: publicData contains priceVariationsEnabled if listing is created with priceVariations enabled.
   const isPriceVariationsInUse = !!publicData?.priceVariationsEnabled;
   const preselectedPriceVariant =
-    Array.isArray(priceVariants) && preselectedPriceVariantSlug && isPriceVariationsInUse
-      ? priceVariants.find(pv => pv?.name && createSlug(pv?.name) === preselectedPriceVariantSlug)
+    Array.isArray(priceVariants) &&
+    preselectedPriceVariantSlug &&
+    isPriceVariationsInUse
+      ? priceVariants.find(
+          (pv) =>
+            pv?.name && createSlug(pv?.name) === preselectedPriceVariantSlug
+        )
       : null;
 
   const priceVariantsMaybe = isPriceVariationsInUse
@@ -374,15 +446,20 @@ const OrderPanel = props => {
         isPublishedListing: isPublishedListing(listing),
       }
     : !isPriceVariationsInUse && showBookingFixedDurationForm
-    ? {
-        isPriceVariationsInUse: false,
-        priceVariants: [getCheapestPriceVariant(priceVariants)],
-        priceVariantFieldComponent: PriceVariantPicker,
-      }
-    : {};
+      ? {
+          isPriceVariationsInUse: false,
+          priceVariants: [getCheapestPriceVariant(priceVariants)],
+          priceVariantFieldComponent: PriceVariantPicker,
+        }
+      : {};
 
   const showInvalidPriceVariantsMessage =
     isPriceVariationsInUse && !hasValidPriceVariants(priceVariants);
+
+  const providerPickupAddressCandidate =
+    listing?.author?.attributes?.profile?.publicData?.deliveryAddress ||
+    listing?.attributes?.publicData?.location?.address ||
+    null;
 
   const sharedProps = {
     lineItemUnitType,
@@ -397,6 +474,7 @@ const OrderPanel = props => {
     fetchLineItemsInProgress,
     fetchLineItemsError,
     payoutDetailsWarning,
+    providerPickupAddress: providerPickupAddressCandidate,
   };
 
   const showClosedListingHelpText = listing.id && isClosed;
@@ -426,8 +504,14 @@ const OrderPanel = props => {
         </div>
 
         <div className={css.orderHeading}>
-          {titleDesktop ? titleDesktop : <H2 className={titleClasses}>{title}</H2>}
-          {subTitleText ? <div className={css.orderHelp}>{subTitleText}</div> : null}
+          {titleDesktop ? (
+            titleDesktop
+          ) : (
+            <H2 className={titleClasses}>{title}</H2>
+          )}
+          {subTitleText ? (
+            <div className={css.orderHelp}>{subTitleText}</div>
+          ) : null}
         </div>
 
         <PriceMaybe
@@ -441,10 +525,16 @@ const OrderPanel = props => {
         <div className={css.author}>
           <AvatarSmall user={author} className={css.providerAvatar} />
           <span className={css.providerNameLinked}>
-            <FormattedMessage id="OrderPanel.author" values={{ name: authorLink }} />
+            <FormattedMessage
+              id="OrderPanel.author"
+              values={{ name: authorLink }}
+            />
           </span>
           <span className={css.providerNamePlain}>
-            <FormattedMessage id="OrderPanel.author" values={{ name: authorDisplayName }} />
+            <FormattedMessage
+              id="OrderPanel.author"
+              values={{ name: authorDisplayName }}
+            />
           </span>
         </div>
 
@@ -508,7 +598,10 @@ const OrderPanel = props => {
             {...sharedProps}
           />
         ) : showInquiryForm ? (
-          <InquiryWithoutPaymentForm formId="OrderPanelInquiryForm" onSubmit={onSubmit} />
+          <InquiryWithoutPaymentForm
+            formId="OrderPanelInquiryForm"
+            onSubmit={onSubmit}
+          />
         ) : !isKnownProcess ? (
           <p className={css.errorSidebar}>
             <FormattedMessage id="OrderPanel.unknownTransactionProcess" />

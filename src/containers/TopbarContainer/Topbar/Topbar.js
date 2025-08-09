@@ -198,6 +198,22 @@ const TopbarComponent = (props) => {
       ...topbarSearchParams(),
     };
 
+    // Persist last delivery address for downstream flows (e.g. BookingDatesForm auto-quote)
+    try {
+      if (
+        searchParams.address &&
+        typeof window !== 'undefined' &&
+        window.sessionStorage
+      ) {
+        window.sessionStorage.setItem(
+          'last_delivery_address',
+          searchParams.address
+        );
+      }
+    } catch (_) {
+      // noop
+    }
+
     const { routeName, pathParams } = getSearchPageResourceLocatorStringParams(
       routeConfiguration,
       location

@@ -484,6 +484,22 @@ export const CheckoutPageWithPayment = (props) => {
     isTransactionInitiateListingNotFoundError(initiateOrderError);
 
   const { listing, transaction, orderData } = pageData;
+  // Debug: verify provider pickup address stored on provider profile or listing location
+  React.useEffect(() => {
+    if (listing) {
+      // eslint-disable-next-line no-console
+      console.log(
+        'Provider profile deliveryAddress:',
+        listing?.author?.attributes?.profile?.publicData?.deliveryAddress ||
+          null
+      );
+      // eslint-disable-next-line no-console
+      console.log(
+        'Listing location address:',
+        listing?.attributes?.publicData?.location?.address || null
+      );
+    }
+  }, [listing]);
   const existingTransaction = ensureTransaction(transaction);
   const speculatedTransaction = ensureTransaction(
     speculatedTransactionMaybe,
