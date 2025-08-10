@@ -8,20 +8,7 @@ const senpexRequest = async (method, path, options = {}) => {
   const { headers = {}, body, ...otherOptions } = options;
   const url = `${process.env.SENPEX_API_BASE_URL}${path}`;
   try {
-    // High-signal outbound request logging (masking phone)
-    const safeBody = body
-      ? {
-          ...body,
-          routes: Array.isArray(body.routes)
-            ? body.routes.map((r) => ({
-                ...r,
-                rec_phone: r.rec_phone ? '***masked***' : r.rec_phone,
-              }))
-            : body.routes,
-        }
-      : undefined;
-    // eslint-disable-next-line no-console
-    console.log('[Senpex] Request', { method, url, body: safeBody });
+    // Remove request logging
   } catch (_) {}
   const res = await globalThis.fetch(url, {
     method,
@@ -36,12 +23,6 @@ const senpexRequest = async (method, path, options = {}) => {
   });
   if (!res.ok) {
     const text = await res.text();
-    // eslint-disable-next-line no-console
-    console.error('[Senpex] Response error', {
-      status: res.status,
-      statusText: res.statusText,
-      body: text,
-    });
     const err = new Error(`Senpex request failed: ${res.status}`);
     err.status = res.status;
     err.statusText = res.statusText;
@@ -49,11 +30,7 @@ const senpexRequest = async (method, path, options = {}) => {
     throw err;
   }
   try {
-    // eslint-disable-next-line no-console
-    console.log('[Senpex] Response ok', {
-      status: res.status,
-      statusText: res.statusText,
-    });
+    // Remove ok logging
   } catch (_) {}
   return res.json();
 };
@@ -87,7 +64,6 @@ module.exports = (router) => {
       const normalized = parseSenpexQuoteResponse(response);
       res.status(200).json(normalized);
     } catch (error) {
-      console.error('Senpex quote error:', error);
       handleError(res, error);
     }
   });
@@ -99,7 +75,6 @@ module.exports = (router) => {
       const response = await senpexRequest('PUT', '/orders/pickup', { body });
       res.status(200).json(response);
     } catch (error) {
-      console.error('Senpex confirm error:', error);
       handleError(res, error);
     }
   });
@@ -119,6 +94,7 @@ module.exports = (router) => {
         orderDescription: body.deliveryInstructions || '',
         routes: [
           {
+            pickupAddress: body.pickupAddress,
             address: body.deliveryAddress,
             receiverName: body.receiverName,
             receiverPhone: body.receiverPhone,
@@ -132,7 +108,6 @@ module.exports = (router) => {
       const normalized = parseSenpexQuoteResponse(response);
       res.status(200).json(normalized);
     } catch (error) {
-      console.error('Senpex dropoff quote error:', error);
       handleError(res, error);
     }
   });
@@ -144,7 +119,6 @@ module.exports = (router) => {
       const response = await senpexRequest('PUT', '/orders/dropoff', { body });
       res.status(200).json(response);
     } catch (error) {
-      console.error('Senpex dropoff confirm error:', error);
       handleError(res, error);
     }
   });

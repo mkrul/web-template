@@ -1,7 +1,11 @@
 import React from 'react';
 import { FormattedMessage, intlShape } from '../../util/reactIntl';
 import { formatMoney } from '../../util/currency';
-import { LINE_ITEM_SHIPPING_FEE, propTypes } from '../../util/types';
+import {
+  LINE_ITEM_SHIPPING_FEE,
+  LINE_ITEM_SENPEX_SHIPPING_FEE,
+  propTypes,
+} from '../../util/types';
 
 import css from './OrderBreakdown.module.css';
 
@@ -20,7 +24,7 @@ const LineItemShippingFeeMaybe = (props) => {
   const shippingFeeLineItem = lineItems.find(
     (item) =>
       (item.code === LINE_ITEM_SHIPPING_FEE ||
-        item.code === 'line-item/senpex-shipping-fee') &&
+        item.code === LINE_ITEM_SENPEX_SHIPPING_FEE) &&
       !item.reversal
   );
 

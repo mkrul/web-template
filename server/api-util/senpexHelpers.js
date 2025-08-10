@@ -40,6 +40,7 @@ const buildSenpexQuoteRequest = ({
   routes = [],
   promoCode = '',
 }) => {
+  const firstRoute = routes[0] || {};
   return {
     order_name: orderName,
     taken_asap: isUrgent ? 1 : 0,
@@ -49,7 +50,13 @@ const buildSenpexQuoteRequest = ({
     pack_size_id: getPackageSizeForWeight(weightLbs),
     promo_code: promoCode,
     order_desc: orderDescription,
+    // Compatibility top-level fields some Senpex endpoints accept
+    ...(firstRoute.pickupAddress
+      ? { pack_from_text: firstRoute.pickupAddress }
+      : {}),
+    ...(firstRoute.address ? { pack_to_text: firstRoute.address } : {}),
     routes: routes.map((route) => ({
+      route_from_text: route.pickupAddress,
       route_to_text: route.address,
       rec_name: route.receiverName || '',
       rec_phone: route.receiverPhone || '',

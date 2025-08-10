@@ -62,7 +62,11 @@ const request = (path, options = {}) => {
   const shouldSerializeBody =
     (!headers || headers['Content-Type'] === 'application/transit+json') &&
     body;
-  const bodyMaybe = shouldSerializeBody ? { body: serialize(body) } : {};
+  const bodyMaybe = shouldSerializeBody
+    ? { body: serialize(body) }
+    : headers && headers['Content-Type'] === 'application/json' && body
+      ? { body: JSON.stringify(body) }
+      : {};
 
   const fetchOptions = {
     credentials: credentials || 'include',

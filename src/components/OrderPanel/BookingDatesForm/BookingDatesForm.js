@@ -718,16 +718,6 @@ export const BookingDatesForm = (props) => {
       );
       const [startMonth, endMonth] = getMonthlyFetchRange(monthlyTimeSlots, tz);
       const lastFetchedMonth = new Date(endMonth.getTime() - 1);
-      console.log(monthIdString(lastFetchedMonth, tz));
-
-      console.log(
-        `Fetched months: ${monthIdString(startMonth, tz)} ... ${monthIdString(
-          lastFetchedMonth,
-          tz
-        )}`,
-        '\nTime slots for the current month:',
-        timeSlotsData
-      );
     }
   }, [
     currentMonth,
@@ -975,15 +965,7 @@ export const BookingDatesForm = (props) => {
                       ),
                     }
                   : {};
-                // Debug logging for line-item fetch payload
-                // eslint-disable-next-line no-console
-                console.log('BookingDatesForm: fetch line-items', {
-                  hasStartDate: !!startDate,
-                  hasEndDate: !!endDate,
-                  deliveryMethod: deliveryMethodMaybe.deliveryMethod || null,
-                  senpexShippingPriceInSubunits:
-                    senpexPriceMaybe.senpexShippingPriceInSubunits || null,
-                });
+
                 onHandleFetchLineItems({
                   values: {
                     priceVariantName,
@@ -1025,33 +1007,18 @@ export const BookingDatesForm = (props) => {
                   phone &&
                   address &&
                   !senpexQuote;
-                // Debug logging for quote prerequisites (includes pickup address candidate)
-                // eslint-disable-next-line no-console
-                console.log('BookingDatesForm: quote prereqs', {
-                  hasStartDate: !!startDate,
-                  hasEndDate: !!endDate,
-                  firstName: !!firstName,
-                  lastName: !!lastName,
-                  hasPhone: !!phone,
-                  hasAddress: !!address,
-                  addressFromUrl: !!addressFromUrl,
-                  providerPickupAddress: providerPickupAddress || null,
-                  alreadyQuoted: !!senpexQuote,
-                });
+
                 if (canQuote) {
                   const receiverName = `${firstName} ${lastName}`;
-                  // eslint-disable-next-line no-console
-                  console.log('BookingDatesForm: calling senpexDropoffQuote');
                   senpexDropoffQuote({
                     receiverName,
                     receiverPhone: phone,
                     deliveryAddress: address,
                     deliveryInstructions: '',
                     listingId,
+                    pickupAddress: providerPickupAddress || undefined,
                   })
                     .then((q) => {
-                      // eslint-disable-next-line no-console
-                      console.log('BookingDatesForm: senpex quote success', q);
                       setSenpexQuote(q);
                       onHandleFetchLineItems({
                         values: {
@@ -1066,10 +1033,7 @@ export const BookingDatesForm = (props) => {
                         },
                       });
                     })
-                    .catch((e) => {
-                      // eslint-disable-next-line no-console
-                      console.error('BookingDatesForm: senpex quote failed', e);
-                    });
+                    .catch((e) => {});
                 }
               }}
             />

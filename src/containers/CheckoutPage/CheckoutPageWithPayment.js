@@ -382,7 +382,6 @@ const handleSubmit = (
       history.push(orderDetailsPath);
     })
     .catch((err) => {
-      console.error(err);
       setSubmitting(false);
     });
 };
@@ -487,17 +486,6 @@ export const CheckoutPageWithPayment = (props) => {
   // Debug: verify provider pickup address stored on provider profile or listing location
   React.useEffect(() => {
     if (listing) {
-      // eslint-disable-next-line no-console
-      console.log(
-        'Provider profile deliveryAddress:',
-        listing?.author?.attributes?.profile?.publicData?.deliveryAddress ||
-          null
-      );
-      // eslint-disable-next-line no-console
-      console.log(
-        'Listing location address:',
-        listing?.attributes?.publicData?.location?.address || null
-      );
     }
   }, [listing]);
   const existingTransaction = ensureTransaction(transaction);
@@ -707,10 +695,7 @@ export const CheckoutPageWithPayment = (props) => {
                         updated,
                         props.fetchSpeculatedTransaction
                       );
-                    } catch (e) {
-                      // eslint-disable-next-line no-console
-                      console.error(e);
-                    }
+                    } catch (e) {}
                   }}
                   intl={intl}
                 />

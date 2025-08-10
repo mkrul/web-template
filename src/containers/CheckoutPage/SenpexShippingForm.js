@@ -36,9 +36,14 @@ const SenpexShippingForm = ({
 
   const handleGetQuote = () => {
     if (onGetQuote) {
+      const pickupAddress =
+        listing?.author?.attributes?.profile?.publicData?.deliveryAddress ||
+        listing?.attributes?.publicData?.location?.address ||
+        null;
       onGetQuote({
         ...formValues,
         listingId: listing.id,
+        pickupAddress: pickupAddress || undefined,
         ...orderData,
       });
     }

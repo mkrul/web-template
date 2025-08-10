@@ -60,6 +60,8 @@
 .listingImageMobile {
   position: relative;
   background-color: var(--colorGrey100); /* Loading BG color */
+  max-width: 100vw;
+  overflow: hidden;
 
   @media (--viewportLarge) {
     display: none;
@@ -78,6 +80,14 @@
   @media (--viewportLarge) {
     border-radius: 2px 2px 0 0;
   }
+}
+
+/* Ensure nested <img> scales inside the aspect box on small screens */
+.rootForImage img {
+  width: 100%;
+  height: 100%;
+  display: block;
+  object-fit: cover;
 }
 
 .avatarWrapper {
