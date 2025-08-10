@@ -4,6 +4,13 @@
   background-color: var(--colorGrey100);
 }
 
+.root img {
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  display: block;
+}
+
 .mapRoot {
   width: 100%;
   height: 100%;
