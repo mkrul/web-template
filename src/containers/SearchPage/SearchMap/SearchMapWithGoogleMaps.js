@@ -501,6 +501,24 @@ class SearchMapWithGoogleMaps extends Component {
         this.currentRadiusCircle.setMap(null);
         this.currentRadiusCircle = null;
       }
+
+      // If map exists and we previously showed world view, recenter and zoom in to user location
+      if (
+        this.map &&
+        this.props.center &&
+        this.props.center.lat &&
+        this.props.center.lng
+      ) {
+        const currentZoom =
+          typeof this.map.getZoom === 'function' ? this.map.getZoom() : null;
+        if (!currentZoom || currentZoom <= 1) {
+          this.map.setCenter({
+            lat: this.props.center.lat,
+            lng: this.props.center.lng,
+          });
+          this.map.setZoom(this.props.zoom || 11);
+        }
+      }
     }
 
     if (this.map) {

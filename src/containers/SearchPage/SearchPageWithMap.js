@@ -16,7 +16,8 @@ import {
   isOriginInUse,
   getQueryParamNames,
 } from '../../util/search';
-import { filterListingsByRadius } from '../../util/maps';
+import { filterListingsByRadius, userLocation } from '../../util/maps';
+import { request as apiRequest } from '../../util/api';
 import {
   NO_ACCESS_PAGE_USER_PENDING_APPROVAL,
   NO_ACCESS_PAGE_VIEW_LISTINGS,
@@ -114,6 +115,7 @@ export class SearchPageComponent extends Component {
       isMobileModalOpen: false,
       currentQueryParams: validUrlQueryParamsFromProps(props),
       isSecondaryFiltersOpen: false,
+      resolvedCenter: null,
     };
 
     this.onMapMoveEnd = debounce(
@@ -131,6 +133,42 @@ export class SearchPageComponent extends Component {
 
     // SortBy
     this.handleSortBy = this.handleSortBy.bind(this);
+  }
+
+  async componentDidMount() {
+    // Resolve user center once on mount.
+    // When REACT_APP_TEST_IP_GEO_ONLY === 'true', skip browser geolocation to test IP fallback.
+    const useIpOnly = process.env.REACT_APP_TEST_IP_GEO_ONLY === 'true';
+
+    if (useIpOnly) {
+      try {
+        const res = await apiRequest('/api/geo/ip', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const { lat, lng } = res || {};
+        if (Number.isFinite(lat) && Number.isFinite(lng)) {
+          this.setState({ resolvedCenter: { lat, lng } });
+        }
+      } catch (e) {}
+      return;
+    }
+
+    try {
+      const loc = await userLocation();
+      this.setState({ resolvedCenter: { lat: loc.lat, lng: loc.lng } });
+    } catch (_) {
+      try {
+        const res = await apiRequest('/api/geo/ip', {
+          method: 'GET',
+          headers: { 'Content-Type': 'application/json' },
+        });
+        const { lat, lng } = res || {};
+        if (Number.isFinite(lat) && Number.isFinite(lng)) {
+          this.setState({ resolvedCenter: { lat, lng } });
+        }
+      } catch (e) {}
+    }
   }
 
   // Callback to determine if new search is needed
@@ -597,11 +635,18 @@ export class SearchPageComponent extends Component {
     );
 
     const { bounds, origin } = searchParamsInURL || {};
+    const mapCenter = origin || this.state.resolvedCenter || undefined;
+    const mapZoom = origin ? 8 : this.state.resolvedCenter ? 8 : 8;
 
     // Filter listings to only include those within 100-mile radius from delivery address
     const RADIUS_100_MILES_METERS = 160934; // 100 miles in meters
-    const filteredListings = origin
-      ? filterListingsByRadius(listings, origin, RADIUS_100_MILES_METERS)
+    const centerForFiltering = mapCenter;
+    const filteredListings = centerForFiltering
+      ? filterListingsByRadius(
+          listings,
+          centerForFiltering,
+          RADIUS_100_MILES_METERS
+        )
       : listings;
 
     const { title, description, schema } = createSearchResultSchema(
@@ -795,7 +840,8 @@ export class SearchPageComponent extends Component {
                   rootClassName={css.mapRoot}
                   activeListingId={activeListingId}
                   bounds={bounds}
-                  center={origin}
+                  center={mapCenter}
+                  zoom={mapZoom}
                   isSearchMapOpenOnMobile={this.state.isSearchMapOpenOnMobile}
                   location={location}
                   listings={filteredListings || []}
