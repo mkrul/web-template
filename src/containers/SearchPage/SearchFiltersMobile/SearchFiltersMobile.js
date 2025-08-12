@@ -27,7 +27,10 @@ class SearchFiltersMobileComponent extends Component {
   openFilters() {
     const { onOpenModal, urlQueryParams } = this.props;
     onOpenModal();
-    this.setState({ isFiltersOpenOnMobile: true, initialQueryParams: urlQueryParams });
+    this.setState({
+      isFiltersOpenOnMobile: true,
+      initialQueryParams: urlQueryParams,
+    });
   }
 
   // Close the filters by clicking cancel, revert to the initial params
@@ -88,12 +91,21 @@ class SearchFiltersMobileComponent extends Component {
     const classes = classNames(rootClassName || css.root, className);
 
     const resultsFound = (
-      <FormattedMessage id="SearchFiltersMobile.foundResults" values={{ count: resultsCount }} />
+      <FormattedMessage
+        id="SearchFiltersMobile.foundResults"
+        values={{ count: resultsCount }}
+      />
     );
     const noResults = <FormattedMessage id="SearchFiltersMobile.noResults" />;
-    const loadingResults = <FormattedMessage id="SearchFiltersMobile.loadingResults" />;
-    const filtersHeading = intl.formatMessage({ id: 'SearchFiltersMobile.heading' });
-    const modalCloseButtonMessage = intl.formatMessage({ id: 'SearchFiltersMobile.cancel' });
+    const loadingResults = (
+      <FormattedMessage id="SearchFiltersMobile.loadingResults" />
+    );
+    const filtersHeading = intl.formatMessage({
+      id: 'SearchFiltersMobile.heading',
+    });
+    const modalCloseButtonMessage = intl.formatMessage({
+      id: 'SearchFiltersMobile.cancel',
+    });
 
     const showListingsLabel = intl.formatMessage(
       { id: 'SearchFiltersMobile.showListings' },
@@ -108,7 +120,10 @@ class SearchFiltersMobileComponent extends Component {
           {searchInProgress ? loadingResults : null}
         </div>
         <div className={css.buttons}>
-          <PopupOpenerButton isSelected={selectedFiltersCount > 0} toggleOpen={this.openFilters}>
+          <PopupOpenerButton
+            isSelected={selectedFiltersCount > 0}
+            toggleOpen={this.openFilters}
+          >
             <FormattedMessage
               id="SearchFiltersMobile.filtersButtonLabel"
               className={css.mapIconText}
@@ -116,11 +131,6 @@ class SearchFiltersMobileComponent extends Component {
           </PopupOpenerButton>
 
           {sortByComponent}
-          {isMapVariant ? (
-            <div className={css.mapIcon} onClick={onMapIconClick}>
-              <FormattedMessage id="SearchFiltersMobile.openMapView" className={css.mapIconText} />
-            </div>
-          ) : null}
         </div>
 
         {noResultsInfo ? noResultsInfo : null}
@@ -136,7 +146,10 @@ class SearchFiltersMobileComponent extends Component {
         >
           <div className={css.modalHeadingWrapper}>
             <span className={css.modalHeading}>{filtersHeading}</span>
-            <button className={css.resetAllButton} onClick={e => this.resetAll(e)}>
+            <button
+              className={css.resetAllButton}
+              onClick={(e) => this.resetAll(e)}
+            >
               <FormattedMessage id={'SearchFiltersMobile.resetAll'} />
             </button>
           </div>
@@ -145,7 +158,10 @@ class SearchFiltersMobileComponent extends Component {
           ) : null}
 
           <div className={css.showListingsContainer}>
-            <Button className={css.showListingsButton} onClick={this.closeFilters}>
+            <Button
+              className={css.showListingsButton}
+              onClick={this.closeFilters}
+            >
               {showListingsLabel}
             </Button>
           </div>
@@ -177,7 +193,7 @@ class SearchFiltersMobileComponent extends Component {
  * @param {boolean} props.isMapVariant - Whether the map variant is enabled
  * @returns {JSX.Element}
  */
-const SearchFiltersMobile = props => {
+const SearchFiltersMobile = (props) => {
   const routeConfiguration = useRouteConfiguration();
   const intl = useIntl();
   const history = useHistory();

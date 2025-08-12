@@ -819,13 +819,14 @@ export class SearchPageComponent extends Component {
                   pagination={listingsAreLoaded ? pagination : null}
                   search={parse(location.search)}
                   setActiveListing={onActivateListing}
-                  isMapVariant
+                  isMapVariant={false}
                   listingTypeParam={listingTypePathParam}
                 />
               </div>
             )}
           </div>
-          <ModalInMobile
+          {/* Map modal disabled */}
+          {/* <ModalInMobile
             className={css.mapPanel}
             id="SearchPage_map"
             isModalOpenOnMobile={this.state.isSearchMapOpenOnMobile}
@@ -853,7 +854,7 @@ export class SearchPageComponent extends Component {
                 />
               ) : null}
             </div>
-          </ModalInMobile>
+          </ModalInMobile> */}
         </div>
       </Page>
     );

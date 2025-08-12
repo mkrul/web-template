@@ -86,6 +86,7 @@ const SearchResultsPanel = (props) => {
             listing={l}
             renderSizes={cardRenderSizes(isMapVariant)}
             setActiveListing={setActiveListing}
+            showAuthorInfo={false}
           />
         ))}
         {children}

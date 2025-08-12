@@ -2,8 +2,9 @@ import React, { Component } from 'react';
 import { FormattedMessage } from '../../util/reactIntl';
 import classNames from 'classnames';
 import { propTypes } from '../../util/types';
-import { obfuscatedCoordinates } from '../../util/maps';
-import { Heading, Map } from '../../components';
+import { userLocation } from '../../util/maps';
+import { request as apiRequest } from '../../util/api';
+import { Heading } from '../../components';
 
 import css from './ListingPage.module.css';
 
@@ -21,42 +22,69 @@ import css from './ListingPage.module.css';
 class SectionMapMaybe extends Component {
   constructor(props) {
     super(props);
-    this.state = { isStatic: true };
+    this.state = { distanceMiles: null };
+  }
+
+  componentDidMount() {
+    const { geolocation } = this.props;
+    if (!geolocation) return;
+
+    const listingLat = geolocation.lat;
+    const listingLng = geolocation.lng;
+
+    const computeDistanceMiles = (lat1, lng1, lat2, lng2) => {
+      const toRad = (d) => (d * Math.PI) / 180;
+      const R = 6371000;
+      const dLat = toRad(lat2 - lat1);
+      const dLng = toRad(lng2 - lng1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) *
+          Math.cos(toRad(lat2)) *
+          Math.sin(dLng / 2) *
+          Math.sin(dLng / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const meters = R * c;
+      return meters / 1609.344;
+    };
+
+    const setDistanceFrom = (lat, lng) => {
+      const miles = computeDistanceMiles(lat, lng, listingLat, listingLng);
+      const roundedOneDecimal = Math.round(miles * 10) / 10;
+      this.setState({ distanceMiles: roundedOneDecimal });
+    };
+
+    userLocation()
+      .then((loc) => setDistanceFrom(loc.lat, loc.lng))
+      .catch(async () => {
+        try {
+          const res = await apiRequest('/api/geo/ip', {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+          });
+          const { lat, lng } = res || {};
+          if (Number.isFinite(lat) && Number.isFinite(lng)) {
+            setDistanceFrom(lat, lng);
+          }
+        } catch (e) {}
+      });
   }
 
   render() {
-    const { className, rootClassName, geolocation, publicData, listingId, mapsConfig } = this.props;
+    const { className, rootClassName, geolocation } = this.props;
+    if (!geolocation) return null;
 
-    if (!geolocation) {
-      return null;
-    }
-
-    const address = publicData && publicData.location ? publicData.location.address : '';
     const classes = classNames(rootClassName || css.sectionMap, className);
-    const cacheKey = listingId ? `${listingId.uuid}_${geolocation.lat}_${geolocation.lng}` : null;
-
-    const mapProps = mapsConfig.fuzzy.enabled
-      ? { obfuscatedCenter: obfuscatedCoordinates(geolocation, mapsConfig.fuzzy.offset, cacheKey) }
-      : { address, center: geolocation };
-    const map = <Map {...mapProps} useStaticMap={this.state.isStatic} />;
+    const { distanceMiles } = this.state;
 
     return (
       <section className={classes} id="listing-location">
         <Heading as="h2" rootClassName={css.sectionHeadingWithExtraMargin}>
           <FormattedMessage id="ListingPage.locationTitle" />
         </Heading>
-        {this.state.isStatic ? (
-          <button
-            className={css.map}
-            onClick={() => {
-              this.setState({ isStatic: false });
-            }}
-          >
-            {map}
-          </button>
-        ) : (
-          <div className={css.map}>{map}</div>
-        )}
+        {Number.isFinite(distanceMiles) ? (
+          <p className={css.text}>{distanceMiles.toFixed(1)} miles away</p>
+        ) : null}
       </section>
     );
   }
