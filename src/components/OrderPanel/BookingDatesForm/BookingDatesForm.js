@@ -31,6 +31,7 @@ import {
   FieldDateRangePicker,
   FieldSelect,
   H6,
+  IconSpinner,
 } from '../../../components';
 
 import EstimatedCustomerBreakdownMaybe from '../EstimatedCustomerBreakdownMaybe';
@@ -673,6 +674,8 @@ export const BookingDatesForm = (props) => {
     getStartOf(TODAY, 'month', timeZone)
   );
   const [senpexQuote, setSenpexQuote] = useState(null);
+  const [senpexQuoteInProgress, setSenpexQuoteInProgress] = useState(false);
+  const [senpexQuoteError, setSenpexQuoteError] = useState(null);
   const currentUser = useSelector((state) => state.user.currentUser);
   const initialValuesMaybe =
     priceVariants.length > 1 && preselectedPriceVariant
@@ -1009,6 +1012,8 @@ export const BookingDatesForm = (props) => {
                   !senpexQuote;
 
                 if (canQuote) {
+                  setSenpexQuoteError(null);
+                  setSenpexQuoteInProgress(true);
                   const receiverName = `${firstName} ${lastName}`;
                   senpexDropoffQuote({
                     receiverName,
@@ -1020,6 +1025,7 @@ export const BookingDatesForm = (props) => {
                   })
                     .then((q) => {
                       setSenpexQuote(q);
+                      setSenpexQuoteInProgress(false);
                       onHandleFetchLineItems({
                         values: {
                           priceVariantName,
@@ -1033,7 +1039,10 @@ export const BookingDatesForm = (props) => {
                         },
                       });
                     })
-                    .catch((e) => {});
+                    .catch((e) => {
+                      setSenpexQuoteInProgress(false);
+                      setSenpexQuoteError('shipping-quote-failed');
+                    });
                 }
               }}
             />
@@ -1079,14 +1088,25 @@ export const BookingDatesForm = (props) => {
                 </H6>
                 <hr className={css.totalDivider} />
 
-                <EstimatedCustomerBreakdownMaybe
-                  breakdownData={breakdownData}
-                  lineItems={lineItems}
-                  timeZone={timeZone}
-                  currency={unitPrice.currency}
-                  marketplaceName={marketplaceName}
-                  processName={BOOKING_PROCESS_NAME}
-                />
+                {senpexQuoteInProgress ? (
+                  <div className={css.loadingBreakdown}>
+                    <IconSpinner rootClassName={css.spinner} />
+                  </div>
+                ) : senpexQuoteError ? (
+                  <div className={css.sideBarError}>
+                    We are unable to calculate shipping at this time. Please try
+                    again or contact support
+                  </div>
+                ) : (
+                  <EstimatedCustomerBreakdownMaybe
+                    breakdownData={breakdownData}
+                    lineItems={lineItems}
+                    timeZone={timeZone}
+                    currency={unitPrice.currency}
+                    marketplaceName={marketplaceName}
+                    processName={BOOKING_PROCESS_NAME}
+                  />
+                )}
               </div>
             ) : null}
             {fetchLineItemsError ? (
