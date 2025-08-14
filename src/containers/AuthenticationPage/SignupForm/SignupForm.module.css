@@ -13,23 +13,21 @@
 .welcomeMessage {
   text-align: center;
   margin-bottom: 32px;
-  padding: 0 16px;
 
   @media (--viewportMedium) {
     margin-bottom: 40px;
-    padding: 0 18px;
   }
 }
 
 .welcomeTitle {
-  font-size: 20px;
+  font-size: 22px;
   font-weight: 600;
   color: var(--matterColor);
   margin: 0 0 12px 0;
   line-height: 1.2;
 
   @media (--viewportMedium) {
-    font-size: 22px;
+    font-size: 24px;
     margin-bottom: 16px;
   }
 }
@@ -41,7 +39,7 @@
   line-height: 1.4;
 
   @media (--viewportMedium) {
-    font-size: 18px;
+    font-size: 16px;
   }
 }
 

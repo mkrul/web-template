@@ -19,6 +19,7 @@ const SenpexShippingForm = ({
   quoteInProgress,
   quote,
   intl,
+  currentUser,
 }) => {
   const [formValues, setFormValues] = useState({
     receiverName: '',

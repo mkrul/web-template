@@ -670,6 +670,7 @@ export const CheckoutPageWithPayment = (props) => {
                   disabled={submitting}
                   quoteInProgress={false}
                   quote={orderData?.senpexQuote}
+                  currentUser={currentUser}
                   onGetQuote={async (payload) => {
                     try {
                       const quote = await senpexDropoffQuote(payload);

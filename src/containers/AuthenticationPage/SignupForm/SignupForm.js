@@ -129,9 +129,10 @@ const SignupFormComponent = (props) => (
           <div className={css.welcomeMessage}>
             <h2 className={css.welcomeTitle}>Welcome to DogCrateRental!</h2>
             <p className={css.welcomeText}>
-              Choose "Independent Crate Provider" if you are providing your own
-              crates for others to rent, or "Renter" if you will be renting
-              crates from a provider.
+              Start by choosing the type of account you want to create. Select
+              "Independent Crate Provider" if you are providing your own crates
+              for others to rent, or "Renter" if you will be renting crates from
+              a provider.
               <br />
             </p>
           </div>
