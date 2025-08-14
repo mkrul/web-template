@@ -21,6 +21,7 @@ import UserFieldDisplayName from '../UserFieldDisplayName';
 import UserFieldPhoneNumber from '../UserFieldPhoneNumber';
 
 import css from './SignupForm.module.css';
+import authCss from '../AuthenticationPage.module.css';
 
 const getSoleUserTypeMaybe = (userTypes) =>
   Array.isArray(userTypes) && userTypes.length === 1
@@ -135,12 +136,11 @@ const SignupFormComponent = (props) => (
       return (
         <Form className={classes} onSubmit={handleSubmit}>
           <div className={css.welcomeMessage}>
-            <h2 className={css.welcomeTitle}>Welcome to DogCrateRental!</h2>
+            <h2 className={css.welcomeTitle}>
+              <FormattedMessage id="SignupForm.welcomeTitle" />
+            </h2>
             <p className={css.welcomeText}>
-              Start by choosing the type of account you want to create. Select
-              "Independent Crate Provider" if you are providing your own crates
-              for others to rent, or "Renter" if you will be renting crates from
-              a provider.
+              <FormattedMessage id="SignupForm.welcomeText" />
               <br />
             </p>
           </div>
@@ -231,17 +231,22 @@ const SignupFormComponent = (props) => (
                 validate={passwordValidators}
               />
 
-              <FieldLocationAutocompleteInput
-                className={css.homeAddress}
-                name="pub_providerAddress"
-                label={intl.formatMessage({
-                  id: 'SignupForm.homeAddressLabel',
-                })}
-                placeholder={intl.formatMessage({
-                  id: 'SignupForm.homeAddressPlaceholder',
-                })}
-                validate={addressRequired}
-              />
+              <div className={css.homeAddressWrapper}>
+                <FieldLocationAutocompleteInput
+                  className={css.homeAddress}
+                  name="pub_providerAddress"
+                  label={intl.formatMessage({
+                    id: 'SignupForm.homeAddressLabel',
+                  })}
+                  placeholder={intl.formatMessage({
+                    id: 'SignupForm.homeAddressPlaceholder',
+                  })}
+                  validate={addressRequired}
+                />
+                <p className={authCss.modalHelperText}>
+                  <FormattedMessage id="SignupForm.homeAddressDisclaimer" />
+                </p>
+              </div>
 
               <UserFieldPhoneNumber
                 formName="SignupForm"

@@ -21,6 +21,7 @@ import UserFieldDisplayName from '../UserFieldDisplayName';
 import UserFieldPhoneNumber from '../UserFieldPhoneNumber';
 
 import css from './ConfirmSignupForm.module.css';
+import authCss from '../AuthenticationPage.module.css';
 
 const getSoleUserTypeMaybe = (userTypes) =>
   Array.isArray(userTypes) && userTypes.length === 1
@@ -180,17 +181,22 @@ const ConfirmSignupFormComponent = (props) => (
                 userTypeConfig={userTypeConfig}
                 intl={intl}
               />
-              <FieldLocationAutocompleteInput
-                className={css.homeAddress}
-                name="pub_providerAddress"
-                label={intl.formatMessage({
-                  id: 'ConfirmSignupForm.homeAddressLabel',
-                })}
-                placeholder={intl.formatMessage({
-                  id: 'ConfirmSignupForm.homeAddressPlaceholder',
-                })}
-                validate={addressRequired}
-              />
+              <div className={css.homeAddressWrapper}>
+                <FieldLocationAutocompleteInput
+                  className={css.homeAddress}
+                  name="pub_providerAddress"
+                  label={intl.formatMessage({
+                    id: 'ConfirmSignupForm.homeAddressLabel',
+                  })}
+                  placeholder={intl.formatMessage({
+                    id: 'ConfirmSignupForm.homeAddressPlaceholder',
+                  })}
+                  validate={addressRequired}
+                />
+                <p className={authCss.modalHelperText}>
+                  <FormattedMessage id="ConfirmSignupForm.homeAddressDisclaimer" />
+                </p>
+              </div>
 
               <UserFieldPhoneNumber
                 formName="ConfirmSignupForm"
