@@ -89,6 +89,14 @@
   padding-top: 5px;
 }
 
+.homeAddressWrapper :global(.marketplaceModalHelperText) {
+  margin-top: 8px;
+
+  @media (--viewportMedium) {
+    margin-top: 0;
+  }
+}
+
 
 
 .bottomWrapper {

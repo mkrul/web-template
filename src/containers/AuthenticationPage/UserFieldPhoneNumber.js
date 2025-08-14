@@ -47,7 +47,7 @@ const UserFieldPhoneNumber = (props) => {
     : {};
 
   return (
-    <div>
+    <div className={css.phoneNumberWrapper}>
       <FieldPhoneNumberInput
         className={classNames(className, { [rootClassName]: !!rootClassName })}
         type="text"
@@ -62,9 +62,9 @@ const UserFieldPhoneNumber = (props) => {
         {...validateMaybe}
       />
       <p className={css.modalHelperText}>
-        * We ask for your phone number in the event that we need to contact you
-        about your account. Your phone number will never be shared with renters
-        and is not viewable to the public.
+        * We ask for your phone number in case we need to contact you about your
+        account. We will never share your phone number with renters or other
+        third parties.
       </p>
     </div>
   );

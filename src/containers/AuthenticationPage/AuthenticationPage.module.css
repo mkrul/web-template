@@ -205,6 +205,14 @@
   composes: marketplaceModalHelperText from global;
 }
 
+.phoneNumberWrapper .modalHelperText {
+  margin-top: 8px;
+
+  @media (--viewportMedium) {
+    margin-top: 0;
+  }
+}
+
 .modalIcon {
   composes: marketplaceModalIconStyles from global;
 

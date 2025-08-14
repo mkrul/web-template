@@ -889,7 +889,7 @@
   "SignupForm.homeAddressRequired": "You need to add your home address.",
   "SignupForm.welcomeTitle": "Welcome to DogCrateRental!",
   "SignupForm.welcomeText": "Start by choosing the type of account you want to create. Select \"Independent Crate Provider\" if you are providing your own crates for others to rent, or \"Renter\" if you will be renting crates from a provider.",
-  "SignupForm.homeAddressDisclaimer": "* Your address is kept private and is only used for shipping purposes. We will never share your home address with other third parties or renters.",
+  "SignupForm.homeAddressDisclaimer": "* Your address is kept private and is only used for shipping purposes. We will never share your home address with renters or other third parties.",
   "SignupForm.signUp": "Sign up",
   "SortBy.heading": "Sort by",
   "SortBy.newest": "Newest",
