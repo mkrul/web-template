@@ -62,7 +62,9 @@ const UserFieldPhoneNumber = (props) => {
         {...validateMaybe}
       />
       <p className={css.modalHelperText}>
-        * Your phone number will be hidden and not viewable to the public.
+        * We ask for your phone number in the event that we need to contact you
+        about your account. Your phone number will never be shared with renters
+        and is not viewable to the public.
       </p>
     </div>
   );

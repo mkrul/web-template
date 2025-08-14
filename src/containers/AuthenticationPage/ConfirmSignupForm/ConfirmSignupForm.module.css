@@ -35,6 +35,19 @@
   composes: marketplaceModalPasswordMargins from global;
 }
 
+.homeAddress {
+  margin-top: 0;
+}
+
+.homeAddress :global(.LocationAutocompleteInput_icon__f-F0V) {
+  display: none;
+}
+
+.homeAddress :global(.IconLocation_root__ZDDw1) {
+  width: 20px;
+  height: 20px;
+}
+
 .bottomWrapper {
   composes: marketplaceModalBottomWrapper from global;
 }

@@ -77,6 +77,16 @@
   composes: marketplaceModalPasswordMargins from global;
 }
 
+.homeAddress {
+  margin-top: 0;
+}
+
+.homeAddress :global(.LocationAutocompleteInput_icon__f-F0V) {
+  display: none;
+}
+
+
+
 .bottomWrapper {
   composes: marketplaceModalBottomWrapper from global;
 }

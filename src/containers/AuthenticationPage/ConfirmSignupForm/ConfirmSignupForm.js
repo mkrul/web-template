@@ -13,6 +13,7 @@ import {
   PrimaryButton,
   FieldTextInput,
   CustomExtendedDataField,
+  FieldLocationAutocompleteInput,
 } from '../../../components';
 
 import FieldSelectUserType from '../FieldSelectUserType';
@@ -65,6 +66,13 @@ const ConfirmSignupFormComponent = (props) => (
       const emailValid = validators.emailFormatValid(
         intl.formatMessage({
           id: 'ConfirmSignupForm.emailInvalid',
+        })
+      );
+
+      // address validation
+      const addressRequired = validators.required(
+        intl.formatMessage({
+          id: 'ConfirmSignupForm.homeAddressRequired',
         })
       );
 
@@ -172,6 +180,18 @@ const ConfirmSignupFormComponent = (props) => (
                 userTypeConfig={userTypeConfig}
                 intl={intl}
               />
+              <FieldLocationAutocompleteInput
+                className={css.homeAddress}
+                name="pub_providerAddress"
+                label={intl.formatMessage({
+                  id: 'ConfirmSignupForm.homeAddressLabel',
+                })}
+                placeholder={intl.formatMessage({
+                  id: 'ConfirmSignupForm.homeAddressPlaceholder',
+                })}
+                validate={addressRequired}
+              />
+
               <UserFieldPhoneNumber
                 formName="ConfirmSignupForm"
                 className={css.row}

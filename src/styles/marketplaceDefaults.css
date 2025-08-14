@@ -1536,6 +1536,7 @@ textarea {
   /* Leave space between the input and the button below when the
   viewport height is small */
   margin-top: 24px;
+  margin-bottom: 26px;
 
   @media (--viewportMedium) {
     margin-top: 32px;

@@ -220,7 +220,7 @@ export const AuthenticationForms = (props) => {
   ];
 
   const handleSubmitSignup = (values) => {
-    const { userType, email, password, fname, lname, displayName, ...rest } =
+    const { userType, email, password, fname, lname, displayName, pub_providerAddress, ...rest } =
       values;
     const displayNameMaybe = displayName
       ? { displayName: displayName.trim() }
@@ -234,6 +234,7 @@ export const AuthenticationForms = (props) => {
       ...displayNameMaybe,
       publicData: {
         userType,
+        providerAddress: pub_providerAddress,
         ...pickUserFieldsData(rest, 'public', userType, userFields),
       },
       privateData: {
@@ -344,6 +345,7 @@ const ConfirmIdProviderInfoForm = (props) => {
       firstName: newFirstName,
       lastName: newLastName,
       displayName,
+      pub_providerAddress,
       ...rest
     } = values;
 
@@ -361,10 +363,11 @@ const ConfirmIdProviderInfoForm = (props) => {
     };
 
     // Pass other values as extended data according to user field configuration
-    const extendedDataMaybe = !isEmpty(rest)
+    const extendedDataMaybe = !isEmpty(rest) || pub_providerAddress
       ? {
           publicData: {
             userType,
+            ...(pub_providerAddress && { providerAddress: pub_providerAddress }),
             ...pickUserFieldsData(rest, 'public', userType, userFields),
           },
           privateData: {

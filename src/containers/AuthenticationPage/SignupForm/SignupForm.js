@@ -13,6 +13,7 @@ import {
   PrimaryButton,
   FieldTextInput,
   CustomExtendedDataField,
+  FieldLocationAutocompleteInput,
 } from '../../../components';
 
 import FieldSelectUserType from '../FieldSelectUserType';
@@ -101,6 +102,13 @@ const SignupFormComponent = (props) => (
         passwordRequired,
         passwordMinLength,
         passwordMaxLength
+      );
+
+      // address validation
+      const addressRequired = validators.required(
+        intl.formatMessage({
+          id: 'SignupForm.homeAddressRequired',
+        })
       );
 
       // Custom user fields. Since user types are not supported here,
@@ -221,6 +229,18 @@ const SignupFormComponent = (props) => (
                   id: 'SignupForm.passwordPlaceholder',
                 })}
                 validate={passwordValidators}
+              />
+
+              <FieldLocationAutocompleteInput
+                className={css.homeAddress}
+                name="pub_providerAddress"
+                label={intl.formatMessage({
+                  id: 'SignupForm.homeAddressLabel',
+                })}
+                placeholder={intl.formatMessage({
+                  id: 'SignupForm.homeAddressPlaceholder',
+                })}
+                validate={addressRequired}
               />
 
               <UserFieldPhoneNumber
