@@ -39,7 +39,7 @@
   font-size: 22px;
 
   @media (--viewportMedium) {
-    font-size: 30px;
+    font-size: 26px;
   }
 }
 

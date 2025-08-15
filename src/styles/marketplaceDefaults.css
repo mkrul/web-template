@@ -254,8 +254,8 @@ a:hover {
 }
 
 h1 {
-  font-size: 24px;
-  line-height: 24px;
+  font-size: 26px;
+  line-height: 1;
   font-weight: var(--fontWeightBlack);
   padding: 3px 0 3px 0;
   /* margin-top + n * line-height + margin-bottom => x * 6px */
@@ -263,8 +263,8 @@ h1 {
   margin-bottom: 18px;
 
   @media (--viewportMedium) {
-    font-size: 64px;
-    line-height: 64px;
+    font-size: 26px;
+    line-height: 1;
     padding: 0;
     /* margin-top + n * line-height + margin-bottom => x * 8px */
     margin-top: 24px;
@@ -764,12 +764,12 @@ textarea {
   font-weight: var(--fontWeightMedium);
 
   /* No margins for default font */
-  font-size: 15px;
+  font-size: 16px;
   line-height: 24px;
   padding: 0;
 
   @media (--viewportMedium) {
-    font-size: 15px;
+    font-size: 16px;
     line-height: 24px;
     padding: 5px 0 3px 0;
   }
@@ -1099,7 +1099,7 @@ textarea {
   cursor: pointer;
 
   /* Font */
-  font-size: 13px;
+  font-size: 16px;
   line-height: 18px;
   font-weight: var(--fontWeightMedium);
 
@@ -1214,7 +1214,7 @@ textarea {
    * Font
    */
   font-weight: var(--fontWeightMedium);
-  font-size: 14px;
+  font-size: 16px;
   line-height: 18px;
   letter-spacing: 0;
 
@@ -1257,7 +1257,7 @@ textarea {
   font-family: var(--fontFamily);
   font-weight: var(--fontWeightMedium);
 
-  font-size: 14px;
+  font-size: 16px;
   line-height: 16px;
   padding: 6px 16px;
 
@@ -1366,7 +1366,7 @@ textarea {
 /* Modal title */
 .marketplaceModalTitleStyles {
   font-weight: var(--fontWeightBold);
-  font-size: 30px;
+  font-size: 26px;
   line-height: 36px;
   margin: 0;
 
@@ -1379,8 +1379,8 @@ textarea {
 
 /* Modal message */
 .marketplaceModalParagraphStyles {
-  font-size: 20px;
-  line-height: 32px;
+  font-size: 18px;
+  line-height: 1.6;
   font-weight: var(--fontWeightMedium);
   margin: 18px 0 0 0;
 
@@ -1412,7 +1412,7 @@ textarea {
 
 .marketplaceModalHelperText {
   font-weight: var(--fontWeightRegular);
-  font-size: 14px;
+  font-size: 16px;
   line-height: 18px;
 
   -webkit-font-smoothing: subpixel-antialiased;
@@ -1428,7 +1428,7 @@ textarea {
 
 .marketplaceModalHelperLink {
   font-weight: var(--fontWeightRegular);
-  font-size: 14px;
+  font-size: 16px;
   line-height: 18px;
 
   -webkit-font-smoothing: subpixel-antialiased;

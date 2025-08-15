@@ -887,6 +887,8 @@
   "SignupForm.homeAddressLabel": "Dirección del hogar",
   "SignupForm.homeAddressPlaceholder": "Introduce tu dirección del hogar",
   "SignupForm.homeAddressRequired": "Necesitas añadir tu dirección del hogar.",
+  "SignupForm.apartmentUnitLabel": "Apartamento / Unidad #",
+  "SignupForm.apartmentUnitPlaceholder": "Introduce el número de apartamento o unidad",
   "SignupForm.welcomeTitle": "¡Bienvenido a DogCrateRental!",
   "SignupForm.welcomeText": "¿Cómo planeas usar nuestro sitio? Con DogCrateRental, puedes alquilar cajas de proveedores en tu área local, o listar tus propias cajas para alquilar en nuestro mercado.",
   "SignupForm.userIntentLabel": "Por favor selecciona una opción:",

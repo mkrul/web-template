@@ -288,6 +288,21 @@ const SignupFormComponent = (props) => (
                         />
                       </div>
 
+                      <FieldTextInput
+                        className={css.row}
+                        type="text"
+                        id={
+                          formId ? `${formId}.apartmentUnit` : 'apartmentUnit'
+                        }
+                        name="apartmentUnit"
+                        label={intl.formatMessage({
+                          id: 'SignupForm.apartmentUnitLabel',
+                        })}
+                        placeholder={intl.formatMessage({
+                          id: 'SignupForm.apartmentUnitPlaceholder',
+                        })}
+                      />
+
                       <FieldPhoneNumberInput
                         className={css.row}
                         type="text"

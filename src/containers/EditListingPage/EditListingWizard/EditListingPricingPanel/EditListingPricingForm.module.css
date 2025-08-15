@@ -47,7 +47,7 @@
 .submitButton :global(button),
 .submitButton :global(.Button_root),
 .submitButton :global(button[class*="Button"]) {
-  font-size: 18px !important;
+  font-size: 16px !important;
   padding-top: 12px !important;
   padding-bottom: 12px !important;
 }
@@ -57,7 +57,7 @@
 .submitButton :global(button),
 .submitButton :global(*[class*="button"]),
 .submitButton :global(*[class*="Button"]) {
-  font-size: 18px !important;
+  font-size: 16px !important;
   line-height: 1.2 !important;
 }
 
@@ -65,7 +65,7 @@
 .submitButton :global(button) *,
 .submitButton :global(*[class*="button"]) *,
 .submitButton :global(*[class*="Button"]) * {
-  font-size: 18px !important;
+  font-size: 16px !important;
 }
 
 @media (--viewportMedium) {

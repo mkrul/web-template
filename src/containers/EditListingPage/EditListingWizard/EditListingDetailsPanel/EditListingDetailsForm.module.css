@@ -29,7 +29,7 @@
 
   @media (--viewportMedium) {
     margin-bottom: 16px;
-    font-size: 30px;
+    font-size: 26px;
     line-height: 40px;
   }
 }
@@ -97,7 +97,7 @@
 button[class*="submitButton"],
 [class*="submitButton"] button,
 [class*="submitButton"] :global(button) {
-  font-size: 18px !important;
+  font-size: 16px !important;
 }
 
 .submitButton *,
@@ -107,7 +107,7 @@ button[class*="submitButton"],
 button[class*="submitButton"] *,
 [class*="submitButton"] button *,
 [class*="submitButton"] :global(button) * {
-  font-size: 18px !important;
+  font-size: 16px !important;
 }
 
 @media (--viewportMedium) {

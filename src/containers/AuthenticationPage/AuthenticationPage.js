@@ -229,6 +229,7 @@ export const AuthenticationForms = (props) => {
       lname,
       displayName,
       pub_providerAddress,
+      apartmentUnit,
       ...rest
     } = values;
     const displayNameMaybe = displayName
@@ -245,6 +246,7 @@ export const AuthenticationForms = (props) => {
         userType,
         userIntent,
         providerAddress: pub_providerAddress,
+        apartmentUnit: apartmentUnit?.trim() || null,
         ...pickUserFieldsData(rest, 'public', userType, userFields),
       },
       privateData: {

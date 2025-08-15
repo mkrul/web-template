@@ -887,6 +887,8 @@
   "SignupForm.homeAddressLabel": "Home address",
   "SignupForm.homeAddressPlaceholder": "Enter your home address",
   "SignupForm.homeAddressRequired": "You need to add your home address.",
+  "SignupForm.apartmentUnitLabel": "Apartment / Unit #",
+  "SignupForm.apartmentUnitPlaceholder": "Enter apartment or unit number",
   "SignupForm.welcomeTitle": "Welcome to DogCrateRental!",
   "SignupForm.welcomeText": "How do you plan to use our site? With DogCrateRental, you can rent crates from providers in your local area, or list your own crates for rent on our marketplace.",
   "SignupForm.userIntentLabel": "Please select one:",

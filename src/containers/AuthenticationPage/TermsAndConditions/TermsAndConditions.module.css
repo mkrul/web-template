@@ -20,6 +20,7 @@
 .termsLink {
   composes: marketplaceModalHelperLink from global;
   color: var(--marketplaceColor);
+  font-size: 14px;
 
   &:hover {
     color: var(--marketplaceColorDark);

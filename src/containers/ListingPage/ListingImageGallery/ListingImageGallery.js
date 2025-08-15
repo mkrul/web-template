@@ -43,10 +43,10 @@ const getFirstImageAspectRatio = (firstImage, scaledVariant) => {
   return hasDimensions && aspectRatio >= MAX_LANDSCAPE_ASPECT_RATIO
     ? { aspectWidth: 2, aspectHeight: 1 }
     : hasDimensions && aspectRatio <= MAX_PORTRAIT_ASPECT_RATIO
-    ? { aspectWidth: 4, aspectHeight: 3 }
-    : hasDimensions
-    ? { aspectWidth: w, aspectHeight: h }
-    : { aspectWidth: 1, aspectHeight: 1 };
+      ? { aspectWidth: 4, aspectHeight: 3 }
+      : hasDimensions
+        ? { aspectWidth: w, aspectHeight: h }
+        : { aspectWidth: 1, aspectHeight: 1 };
 };
 
 /**
@@ -61,13 +61,17 @@ const getFirstImageAspectRatio = (firstImage, scaledVariant) => {
  * @param {Array<string>} props.thumbnailVariants - The thumbnail variants
  * @returns {JSX.Element} listing image gallery component
  */
-const ListingImageGallery = props => {
+const ListingImageGallery = (props) => {
   const [isFullscreen, setIsFullscreen] = useState(false);
   const intl = useIntl();
-  const { rootClassName, className, images, imageVariants, thumbnailVariants } = props;
+  const { rootClassName, className, images, imageVariants, thumbnailVariants } =
+    props;
   const thumbVariants = thumbnailVariants || imageVariants;
   // imageVariants are scaled variants.
-  const { aspectWidth, aspectHeight } = getFirstImageAspectRatio(images?.[0], imageVariants[0]);
+  const { aspectWidth, aspectHeight } = getFirstImageAspectRatio(
+    images?.[0],
+    imageVariants[0]
+  );
   const items = images.map((img, i) => {
     return {
       // We will only use the image resource, but react-image-gallery
@@ -87,8 +91,10 @@ const ListingImageGallery = props => {
   });
   const imageSizesMaybe = isFullscreen
     ? {}
-    : { sizes: `(max-width: 1024px) 100vw, (max-width: 1200px) calc(100vw - 192px), 708px` };
-  const renderItem = item => {
+    : {
+        sizes: `(max-width: 1024px) 100vw, (max-width: 1200px) calc(100vw - 192px), 708px`,
+      };
+  const renderItem = (item) => {
     return (
       <AspectRatioWrapper
         width={aspectWidth || 1}
@@ -107,7 +113,7 @@ const ListingImageGallery = props => {
       </AspectRatioWrapper>
     );
   };
-  const renderThumbInner = item => {
+  const renderThumbInner = (item) => {
     return (
       <div>
         <ResponsiveImage
@@ -121,7 +127,7 @@ const ListingImageGallery = props => {
     );
   };
 
-  const onScreenChange = isFull => {
+  const onScreenChange = (isFull) => {
     setIsFullscreen(isFull);
   };
 
@@ -148,11 +154,10 @@ const ListingImageGallery = props => {
       <Button
         onClick={onClick}
         rootClassName={css.close}
-        title={intl.formatMessage({ id: 'ListingImageGallery.closeModalTitle' })}
+        title={intl.formatMessage({
+          id: 'ListingImageGallery.closeModalTitle',
+        })}
       >
-        <span className={css.closeText}>
-          <FormattedMessage id="ListingImageGallery.closeModal" />
-        </span>
         <IconClose rootClassName={css.closeIcon} />
       </Button>
     ) : (
@@ -166,7 +171,14 @@ const ListingImageGallery = props => {
   };
 
   if (items.length === 0) {
-    return <ResponsiveImage className={css.noImage} image={null} variants={[]} alt="" />;
+    return (
+      <ResponsiveImage
+        className={css.noImage}
+        image={null}
+        variants={[]}
+        alt=""
+      />
+    );
   }
 
   const classes = classNames(rootClassName || css.root, className);
