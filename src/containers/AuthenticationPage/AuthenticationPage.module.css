@@ -84,6 +84,14 @@
     padding-top: 2px;
     max-height: 60vh;
     overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  @media (--viewportMedium) {
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 }
 
@@ -102,6 +110,14 @@
     padding-top: 2px;
     max-height: 60vh;
     overflow-y: auto;
+    scrollbar-width: none;
+    -ms-overflow-style: none;
+  }
+
+  @media (--viewportMedium) {
+    &::-webkit-scrollbar {
+      display: none;
+    }
   }
 }
 
