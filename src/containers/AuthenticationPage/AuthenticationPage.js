@@ -220,8 +220,17 @@ export const AuthenticationForms = (props) => {
   ];
 
   const handleSubmitSignup = (values) => {
-    const { userType, email, password, fname, lname, displayName, pub_providerAddress, ...rest } =
-      values;
+    const {
+      userType,
+      userIntent,
+      email,
+      password,
+      fname,
+      lname,
+      displayName,
+      pub_providerAddress,
+      ...rest
+    } = values;
     const displayNameMaybe = displayName
       ? { displayName: displayName.trim() }
       : {};
@@ -234,6 +243,7 @@ export const AuthenticationForms = (props) => {
       ...displayNameMaybe,
       publicData: {
         userType,
+        userIntent,
         providerAddress: pub_providerAddress,
         ...pickUserFieldsData(rest, 'public', userType, userFields),
       },
@@ -341,6 +351,7 @@ const ConfirmIdProviderInfoForm = (props) => {
 
     const {
       userType,
+      userIntent,
       email: newEmail,
       firstName: newFirstName,
       lastName: newLastName,
@@ -363,23 +374,27 @@ const ConfirmIdProviderInfoForm = (props) => {
     };
 
     // Pass other values as extended data according to user field configuration
-    const extendedDataMaybe = !isEmpty(rest) || pub_providerAddress
-      ? {
-          publicData: {
-            userType,
-            ...(pub_providerAddress && { providerAddress: pub_providerAddress }),
-            ...pickUserFieldsData(rest, 'public', userType, userFields),
-          },
-          privateData: {
-            ...pickUserFieldsData(rest, 'private', userType, userFields),
-          },
-          protectedData: {
-            ...pickUserFieldsData(rest, 'protected', userType, userFields),
-            // If the confirm form has any additional values, pass them forward as user's protected data
-            ...getNonUserFieldParams(rest, userFields),
-          },
-        }
-      : {};
+    const extendedDataMaybe =
+      !isEmpty(rest) || pub_providerAddress
+        ? {
+            publicData: {
+              userType,
+              userIntent,
+              ...(pub_providerAddress && {
+                providerAddress: pub_providerAddress,
+              }),
+              ...pickUserFieldsData(rest, 'public', userType, userFields),
+            },
+            privateData: {
+              ...pickUserFieldsData(rest, 'private', userType, userFields),
+            },
+            protectedData: {
+              ...pickUserFieldsData(rest, 'protected', userType, userFields),
+              // If the confirm form has any additional values, pass them forward as user's protected data
+              ...getNonUserFieldParams(rest, userFields),
+            },
+          }
+        : {};
 
     submitSingupWithIdp({
       idpToken,

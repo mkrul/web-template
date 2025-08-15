@@ -14,11 +14,12 @@ import {
   FieldTextInput,
   CustomExtendedDataField,
   FieldLocationAutocompleteInput,
+  FieldRadioButton,
+  FieldPhoneNumberInput,
 } from '../../../components';
 
 import FieldSelectUserType from '../FieldSelectUserType';
 import UserFieldDisplayName from '../UserFieldDisplayName';
-import UserFieldPhoneNumber from '../UserFieldPhoneNumber';
 
 import css from './SignupForm.module.css';
 import authCss from '../AuthenticationPage.module.css';
@@ -35,6 +36,7 @@ const SignupFormComponent = (props) => (
     initialValues={{
       userType:
         props.preselectedUserType || getSoleUserTypeMaybe(props.userTypes),
+      userIntent: '',
     }}
     render={(formRenderProps) => {
       const {
@@ -53,8 +55,15 @@ const SignupFormComponent = (props) => (
         termsAccepted,
       } = formRenderProps;
 
-      const { userType, terms } = values || {};
+      const { userType, terms, userIntent } = values || {};
       const termsAcceptedFromForm = terms && terms.includes('tos-and-privacy');
+
+      // userIntent validation
+      const userIntentRequired = validators.required(
+        intl.formatMessage({
+          id: 'SignupForm.userIntentRequired',
+        })
+      );
 
       // email
       const emailRequired = validators.required(
@@ -105,13 +114,6 @@ const SignupFormComponent = (props) => (
         passwordMaxLength
       );
 
-      // address validation
-      const addressRequired = validators.required(
-        intl.formatMessage({
-          id: 'SignupForm.homeAddressRequired',
-        })
-      );
-
       // Custom user fields. Since user types are not supported here,
       // only fields with no user type id limitation are selected.
       const userFieldProps = getPropsForCustomUserFieldInputs(
@@ -131,7 +133,19 @@ const SignupFormComponent = (props) => (
       const classes = classNames(rootClassName || css.root, className);
       const submitInProgress = inProgress;
       const submitDisabled =
-        invalid || submitInProgress || !termsAcceptedFromForm;
+        invalid || submitInProgress || !termsAcceptedFromForm || !userIntent;
+
+      const showFormFields = userIntent === 'list' || userIntent === 'rent';
+      const showProviderFields = userIntent === 'list';
+
+      // address validation - only required for providers
+      const addressRequired = showProviderFields
+        ? validators.required(
+            intl.formatMessage({
+              id: 'SignupForm.homeAddressRequired',
+            })
+          )
+        : null;
 
       return (
         <Form className={classes} onSubmit={handleSubmit}>
@@ -145,140 +159,190 @@ const SignupFormComponent = (props) => (
             </p>
           </div>
 
-          <FieldSelectUserType
-            name="userType"
-            userTypes={userTypes}
-            hasExistingUserType={!!preselectedUserType}
-            intl={intl}
-          />
-
-          {showDefaultUserFields ? (
-            <div className={css.defaultUserFields}>
-              <FieldTextInput
-                type="email"
-                id={formId ? `${formId}.email` : 'email'}
-                name="email"
-                autoComplete="email"
+          <div className={css.userIntentSection}>
+            <div className={css.radioGroup}>
+              <FieldRadioButton
+                id="userIntent.list"
+                name="userIntent"
+                value="list"
                 label={intl.formatMessage({
-                  id: 'SignupForm.emailLabel',
+                  id: 'SignupForm.userIntentList',
                 })}
-                placeholder={intl.formatMessage({
-                  id: 'SignupForm.emailPlaceholder',
-                })}
-                validate={validators.composeValidators(
-                  emailRequired,
-                  emailValid
-                )}
+                className={css.radioButton}
+                validate={userIntentRequired}
               />
-              <div className={css.name}>
-                <FieldTextInput
-                  className={css.firstNameRoot}
-                  type="text"
-                  id={formId ? `${formId}.fname` : 'fname'}
-                  name="fname"
-                  autoComplete="given-name"
-                  label={intl.formatMessage({
-                    id: 'SignupForm.firstNameLabel',
-                  })}
-                  placeholder={intl.formatMessage({
-                    id: 'SignupForm.firstNamePlaceholder',
-                  })}
-                  validate={validators.required(
-                    intl.formatMessage({
-                      id: 'SignupForm.firstNameRequired',
-                    })
-                  )}
-                />
-                <FieldTextInput
-                  className={css.lastNameRoot}
-                  type="text"
-                  id={formId ? `${formId}.lname` : 'lname'}
-                  name="lname"
-                  autoComplete="family-name"
-                  label={intl.formatMessage({
-                    id: 'SignupForm.lastNameLabel',
-                  })}
-                  placeholder={intl.formatMessage({
-                    id: 'SignupForm.lastNamePlaceholder',
-                  })}
-                  validate={validators.required(
-                    intl.formatMessage({
-                      id: 'SignupForm.lastNameRequired',
-                    })
-                  )}
-                />
-              </div>
-
-              <UserFieldDisplayName
-                formName="SignupForm"
-                className={css.row}
-                userTypeConfig={userTypeConfig}
-                intl={intl}
-              />
-
-              <FieldTextInput
-                className={css.password}
-                type="password"
-                id={formId ? `${formId}.password` : 'password'}
-                name="password"
-                autoComplete="new-password"
+              <FieldRadioButton
+                id="userIntent.rent"
+                name="userIntent"
+                value="rent"
                 label={intl.formatMessage({
-                  id: 'SignupForm.passwordLabel',
+                  id: 'SignupForm.userIntentRent',
                 })}
-                placeholder={intl.formatMessage({
-                  id: 'SignupForm.passwordPlaceholder',
-                })}
-                validate={passwordValidators}
-              />
-
-              <div className={css.homeAddressWrapper}>
-                <FieldLocationAutocompleteInput
-                  className={css.homeAddress}
-                  name="pub_providerAddress"
-                  label={intl.formatMessage({
-                    id: 'SignupForm.homeAddressLabel',
-                  })}
-                  placeholder={intl.formatMessage({
-                    id: 'SignupForm.homeAddressPlaceholder',
-                  })}
-                  validate={addressRequired}
-                />
-                <p className={authCss.modalHelperText}>
-                  <FormattedMessage id="SignupForm.homeAddressDisclaimer" />
-                </p>
-              </div>
-
-              <UserFieldPhoneNumber
-                formName="SignupForm"
-                className={css.row}
-                userTypeConfig={userTypeConfig}
-                intl={intl}
+                className={css.radioButton}
+                validate={userIntentRequired}
               />
             </div>
-          ) : null}
-
-          {showCustomUserFields ? (
-            <div className={css.customFields}>
-              {userFieldProps.map(({ key, ...fieldProps }) => (
-                <CustomExtendedDataField
-                  key={key}
-                  {...fieldProps}
-                  formId={formId}
-                />
-              ))}
-            </div>
-          ) : null}
-
-          <div className={css.bottomWrapper}>
-            {termsAndConditions}
-            <PrimaryButton
-              type="submit"
-              inProgress={submitInProgress}
-              disabled={submitDisabled}
-            >
-              <FormattedMessage id="SignupForm.signUp" />
-            </PrimaryButton>
           </div>
+
+          {showFormFields ? (
+            <>
+              <FieldSelectUserType
+                name="userType"
+                userTypes={userTypes}
+                hasExistingUserType={!!preselectedUserType}
+                intl={intl}
+              />
+
+              {showDefaultUserFields ? (
+                <div className={css.defaultUserFields}>
+                  <FieldTextInput
+                    type="email"
+                    id={formId ? `${formId}.email` : 'email'}
+                    name="email"
+                    autoComplete="email"
+                    label={intl.formatMessage({
+                      id: 'SignupForm.emailLabel',
+                    })}
+                    placeholder={intl.formatMessage({
+                      id: 'SignupForm.emailPlaceholder',
+                    })}
+                    validate={validators.composeValidators(
+                      emailRequired,
+                      emailValid
+                    )}
+                  />
+                  <div className={css.name}>
+                    <FieldTextInput
+                      className={css.firstNameRoot}
+                      type="text"
+                      id={formId ? `${formId}.fname` : 'fname'}
+                      name="fname"
+                      autoComplete="given-name"
+                      label={intl.formatMessage({
+                        id: 'SignupForm.firstNameLabel',
+                      })}
+                      placeholder={intl.formatMessage({
+                        id: 'SignupForm.firstNamePlaceholder',
+                      })}
+                      validate={validators.required(
+                        intl.formatMessage({
+                          id: 'SignupForm.firstNameRequired',
+                        })
+                      )}
+                    />
+                    <FieldTextInput
+                      className={css.lastNameRoot}
+                      type="text"
+                      id={formId ? `${formId}.lname` : 'lname'}
+                      name="lname"
+                      autoComplete="family-name"
+                      label={intl.formatMessage({
+                        id: 'SignupForm.lastNameLabel',
+                      })}
+                      placeholder={intl.formatMessage({
+                        id: 'SignupForm.lastNamePlaceholder',
+                      })}
+                      validate={validators.required(
+                        intl.formatMessage({
+                          id: 'SignupForm.lastNameRequired',
+                        })
+                      )}
+                    />
+                  </div>
+
+                  <UserFieldDisplayName
+                    formName="SignupForm"
+                    className={css.row}
+                    userTypeConfig={userTypeConfig}
+                    intl={intl}
+                  />
+
+                  <FieldTextInput
+                    className={css.password}
+                    type="password"
+                    id={formId ? `${formId}.password` : 'password'}
+                    name="password"
+                    autoComplete="new-password"
+                    label={intl.formatMessage({
+                      id: 'SignupForm.passwordLabel',
+                    })}
+                    placeholder={intl.formatMessage({
+                      id: 'SignupForm.passwordPlaceholder',
+                    })}
+                    validate={passwordValidators}
+                  />
+
+                  {showProviderFields ? (
+                    <>
+                      <div className={css.homeAddressWrapper}>
+                        <FieldLocationAutocompleteInput
+                          className={css.homeAddress}
+                          name="pub_providerAddress"
+                          label={intl.formatMessage({
+                            id: 'SignupForm.homeAddressLabel',
+                          })}
+                          placeholder={intl.formatMessage({
+                            id: 'SignupForm.homeAddressPlaceholder',
+                          })}
+                          validate={addressRequired}
+                        />
+                      </div>
+
+                      <FieldPhoneNumberInput
+                        className={css.row}
+                        type="text"
+                        id={formId ? `${formId}.phoneNumber` : 'phoneNumber'}
+                        name="phoneNumber"
+                        label={intl.formatMessage({
+                          id: 'SignupForm.phoneNumberLabel',
+                        })}
+                        placeholder={intl.formatMessage({
+                          id: 'SignupForm.phoneNumberPlaceholder',
+                        })}
+                        validate={validators.required(
+                          intl.formatMessage({
+                            id: 'SignupForm.phoneNumberRequired',
+                          })
+                        )}
+                      />
+                    </>
+                  ) : null}
+                </div>
+              ) : null}
+
+              {showCustomUserFields ? (
+                <div className={css.customFields}>
+                  {userFieldProps.map(({ key, ...fieldProps }) => (
+                    <CustomExtendedDataField
+                      key={key}
+                      {...fieldProps}
+                      formId={formId}
+                    />
+                  ))}
+                </div>
+              ) : null}
+            </>
+          ) : null}
+
+          {showFormFields ? (
+            <div className={css.bottomWrapper}>
+              {showProviderFields && (
+                <p
+                  className={`${authCss.modalHelperText} ${css.disclaimerText}`}
+                >
+                  <FormattedMessage id="SignupForm.providerInfoDisclaimer" />
+                </p>
+              )}
+              {termsAndConditions}
+              <PrimaryButton
+                type="submit"
+                inProgress={submitInProgress}
+                disabled={submitDisabled}
+              >
+                <FormattedMessage id="SignupForm.signUp" />
+              </PrimaryButton>
+            </div>
+          ) : null}
         </Form>
       );
     }}

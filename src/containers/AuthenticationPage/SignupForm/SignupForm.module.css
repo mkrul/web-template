@@ -12,10 +12,10 @@
 
 .welcomeMessage {
   text-align: center;
-  margin-bottom: 32px;
+  margin-bottom: 52px;
 
   @media (--viewportMedium) {
-    margin-bottom: 40px;
+    margin-bottom: 30px;
   }
 }
 
@@ -41,6 +41,38 @@
   @media (--viewportMedium) {
     font-size: 16px;
   }
+}
+
+.userIntentSection {
+  margin-bottom: 32px;
+
+  @media (--viewportMedium) {
+    margin-bottom: 20px;
+  }
+}
+
+.userIntentLabel {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--matterColor);
+  margin: 0 0 16px 0;
+  line-height: 1.4;
+}
+
+.radioGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.radioGroup :global(.FieldRadioButton_text),
+.radioGroup :global(span[class*="FieldRadioButton_text"]) {
+  font-size: 16px !important;
+  line-height: 24px !important;
+}
+
+.radioButton {
+  margin: 0;
 }
 
 .defaultUserFields {
@@ -97,8 +129,20 @@
   }
 }
 
-
-
 .bottomWrapper {
   composes: marketplaceModalBottomWrapper from global;
+  margin-top: 32px;
+
+  @media (--viewportMedium) {
+    margin-top: 40px;
+  }
+}
+
+.disclaimerText {
+  margin-bottom: 24px;
+  text-align: left;
+}
+
+.requiredAsterisk {
+  color: var(--colorGrey300);
 }
