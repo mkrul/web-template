@@ -10,11 +10,13 @@
 .contentContainer {
   composes: marketplaceModalRootStyles from global;
   min-height: calc(100vh - 60px);
-  height: auto;
+  height: 100vh;
+  overflow-y: auto;
 
   @media (--viewportMedium) {
-    height: unset;
-    min-height: unset;
+    height: 100vh;
+    min-height: 100vh;
+    overflow-y: auto;
   }
 }
 
@@ -80,6 +82,8 @@
     flex-basis: 330px;
     margin-top: 30px;
     padding-top: 2px;
+    max-height: 60vh;
+    overflow-y: auto;
   }
 }
 
@@ -96,6 +100,8 @@
   @media (--viewportMedium) {
     margin-top: 30px;
     padding-top: 2px;
+    max-height: 60vh;
+    overflow-y: auto;
   }
 }
 

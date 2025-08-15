@@ -26,7 +26,7 @@
   "AuthenticationPage.signupWithFacebook": "Continue with Facebook",
   "AuthenticationPage.signupWithGoogle": "Continue with Google",
   "AuthenticationPage.termsAndConditionsAcceptRequired": "You need to accept the Terms of Service",
-  "AuthenticationPage.termsAndConditionsAcceptText": "I accept the {termsLink} and the {privacyLink}",
+  "AuthenticationPage.termsAndConditionsAcceptText": "I accept the {termsLink} and {privacyLink}",
   "AuthenticationPage.termsAndConditionsPrivacyLinkText": "Privacy Policy",
   "AuthenticationPage.termsAndConditionsTermsLinkText": "Terms of Service",
   "AuthenticationPage.verifyEmailClose": "LATER",
