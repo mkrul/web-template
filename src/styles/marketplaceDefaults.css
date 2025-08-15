@@ -294,14 +294,14 @@ h2 {
 
 h3 {
   font-weight: var(--fontWeightBold);
-  font-size: 18px;
+  font-size: 15px;
   line-height: 24px;
   /* x * 6px */
   margin-top: 18px;
   margin-bottom: 12px;
 
   @media (--viewportMedium) {
-    font-size: 30px;
+    font-size: 15px;
     line-height: 40px;
     padding: 1px 0 7px 0;
     /* x * 8px */
@@ -330,7 +330,7 @@ h4 {
 
 h5 {
   font-weight: var(--fontWeightMedium);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 18px;
   /* x * 6px */
   padding: 3px 0 3px 0;
@@ -338,6 +338,7 @@ h5 {
   margin-bottom: 6px;
 
   @media (--viewportMedium) {
+    font-size: 15px;
     line-height: 16px;
     /* x * 8px */
     padding: 3px 0 5px 0;
@@ -348,7 +349,7 @@ h5 {
 
 h6 {
   font-weight: var(--fontWeightBold);
-  font-size: 12px;
+  font-size: 15px;
   line-height: 18px;
   text-transform: uppercase;
   /* x * 6px */
@@ -357,6 +358,7 @@ h6 {
   margin-bottom: 6px;
 
   @media (--viewportMedium) {
+    font-size: 15px;
     line-height: 16px;
     /* x * 8px */
     padding: 3px 0 5px 0;
@@ -415,7 +417,7 @@ legend {
   display: block;
 
   font-weight: var(--fontWeightSemiBold);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 18px;
 
   margin-top: 0;
@@ -423,6 +425,7 @@ legend {
 
   @media (--viewportMedium) {
     font-weight: var(--fontWeightSemiBold);
+    font-size: 15px;
     line-height: 16px;
     margin-top: 0;
     margin-bottom: 0;
@@ -433,7 +436,7 @@ legend {
 
 label {
   font-weight: var(--fontWeightSemiBold);
-  font-size: 13px;
+  font-size: 15px;
   line-height: 18px;
   display: block;
   margin-top: 0;
@@ -441,6 +444,7 @@ label {
 
   @media (--viewportMedium) {
     font-weight: var(--fontWeightSemiBold);
+    font-size: 15px;
     line-height: 16px;
     margin-top: 0;
     margin-bottom: 0;
@@ -653,14 +657,14 @@ textarea {
 
 .h3 {
   font-weight: var(--fontWeightBold);
-  font-size: 18px;
+  font-size: 15px;
   line-height: 24px;
   /* x * 6px */
   margin-top: 18px;
   margin-bottom: 12px;
 
   @media (--viewportMedium) {
-    font-size: 30px;
+    font-size: 15px;
     line-height: 40px;
     padding: 1px 0 7px 0;
     /* x * 8px */
@@ -689,7 +693,7 @@ textarea {
 
 .h5 {
   font-weight: var(--fontWeightMedium);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 18px;
   /* x * 6px */
   padding: 3px 0 3px 0;
@@ -697,6 +701,7 @@ textarea {
   margin-bottom: 6px;
 
   @media (--viewportMedium) {
+    font-size: 15px;
     line-height: 16px;
     /* x * 8px */
     padding: 3px 0 5px 0;
@@ -707,7 +712,7 @@ textarea {
 
 .h6 {
   font-weight: var(--fontWeightBold);
-  font-size: 12px;
+  font-size: 15px;
   line-height: 18px;
   text-transform: uppercase;
   /* x * 6px */
@@ -716,6 +721,7 @@ textarea {
   margin-bottom: 6px;
 
   @media (--viewportMedium) {
+    font-size: 15px;
     line-height: 16px;
     /* x * 8px */
     padding: 3px 0 5px 0;
@@ -726,7 +732,7 @@ textarea {
 
 .label {
   font-weight: var(--fontWeightSemiBold);
-  font-size: 13px;
+  font-size: 15px;
   line-height: 18px;
   display: block;
   margin-top: 0;
@@ -734,6 +740,7 @@ textarea {
 
   @media (--viewportMedium) {
     font-weight: var(--fontWeightSemiBold);
+    font-size: 15px;
     line-height: 16px;
     margin-top: 0;
     margin-bottom: 0;
@@ -782,32 +789,35 @@ textarea {
 }
 
 .textLarge {
-  font-size: 20px;
+  font-size: 15px;
   line-height: 30px;
   font-weight: var(--fontWeightMedium);
 
   @media (--viewportMedium) {
+    font-size: 15px;
     line-height: 32px;
   }
 }
 
 .textSmall {
-  font-size: 14px;
+  font-size: 15px;
   line-height: 18px;
   font-weight: var(--fontWeightMedium);
   letter-spacing: -0.1px;
 
   @media (--viewportMedium) {
+    font-size: 15px;
     line-height: 16px;
   }
 }
 
 .textXSmall {
-  font-size: 13px;
+  font-size: 15px;
   line-height: 18px;
   font-weight: var(--fontWeightMedium);
 
   @media (--viewportMedium) {
+    font-size: 15px;
     line-height: 16px;
   }
 }
@@ -816,13 +826,13 @@ textarea {
 
 .marketplaceSmallFontStyles {
   font-weight: var(--fontWeightMedium);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 24px;
 }
 
 .marketplaceTinyFontStyles {
   font-weight: var(--fontWeightRegular);
-  font-size: 13px;
+  font-size: 15px;
   line-height: 18px;
   /* margin-top + n * line-height + margin-bottom => x * 6px */
   margin-top: 9.5px;
@@ -830,6 +840,7 @@ textarea {
   -webkit-font-smoothing: subpixel-antialiased;
 
   @media (--viewportMedium) {
+    font-size: 15px;
     line-height: 16px;
     /* margin-top + n * line-height + margin-bottom => x * 8px */
     margin-top: 10.5px;
@@ -855,19 +866,19 @@ textarea {
 
 .marketplaceSearchFilterLabelFontStyles {
   font-weight: var(--fontWeightSemiBold);
-  font-size: 13px;
+  font-size: 15px;
   line-height: 18px;
 
   @media (--viewportMedium) {
     font-weight: var(--fontWeightMedium);
-    font-size: 13px;
+    font-size: 15px;
     line-height: 20px;
   }
 }
 
 .marketplaceSearchFilterSublabelFontStyles {
   font-weight: var(--fontWeightMedium);
-  font-size: 18px;
+  font-size: 15px;
   line-height: 18px;
 }
 
@@ -924,19 +935,19 @@ textarea {
 
 .marketplaceTabNavFontStyles {
   font-weight: var(--fontWeightMedium);
-  font-size: 16px;
+  font-size: 15px;
   line-height: 24px;
 
   @media (--viewportLarge) {
     font-weight: var(--fontWeightSemiBold);
-    font-size: 20px;
+    font-size: 15px;
     line-height: 24px;
   }
 }
 
 .marketplaceTabNavHorizontalFontStyles {
   font-weight: var(--fontWeightMedium);
-  font-size: 14px;
+  font-size: 15px;
   line-height: 24px;
 }
 

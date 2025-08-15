@@ -6,9 +6,10 @@
   margin-bottom: 0;
   color: var(--colorFail);
   overflow: hidden;
-  font-size: 13px;
+  font-size: 15px;
 
   @media (--viewportMedium) {
+    font-size: 15px;
     margin-top: 8px;
   }
 }

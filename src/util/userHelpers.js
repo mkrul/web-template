@@ -9,10 +9,10 @@ import { getFieldValue } from './fieldHelpers';
  */
 export const addScopePrefix = (scope, key) => {
   const scopeFnMap = {
-    private: k => `priv_${k}`,
-    protected: k => `prot_${k}`,
-    public: k => `pub_${k}`,
-    meta: k => `meta_${k}`,
+    private: (k) => `priv_${k}`,
+    protected: (k) => `prot_${k}`,
+    public: (k) => `pub_${k}`,
+    meta: (k) => `meta_${k}`,
   };
 
   const validKey = key.replace(/\s/g, '_');
@@ -37,7 +37,12 @@ export const addScopePrefix = (scope, key) => {
  * @param {Object} userFieldConfigs Extended data configurations for user fields.
  * @returns Array of picked extended data fields from submitted data.
  */
-export const pickUserFieldsData = (data, targetScope, targetUserType, userFieldConfigs) => {
+export const pickUserFieldsData = (
+  data,
+  targetScope,
+  targetUserType,
+  userFieldConfigs
+) => {
   return userFieldConfigs.reduce((fields, field) => {
     const { key, userTypeConfig, scope = 'public', schemaType } = field || {};
     const namespacedKey = addScopePrefix(scope, key);
@@ -45,7 +50,8 @@ export const pickUserFieldsData = (data, targetScope, targetUserType, userFieldC
     const isKnownSchemaType = EXTENDED_DATA_SCHEMA_TYPES.includes(schemaType);
     const isTargetScope = scope === targetScope;
     const isTargetUserType =
-      !userTypeConfig.limitToUserTypeIds || userTypeConfig.userTypeIds.includes(targetUserType);
+      !userTypeConfig.limitToUserTypeIds ||
+      userTypeConfig.userTypeIds.includes(targetUserType);
 
     if (isKnownSchemaType && isTargetScope && isTargetUserType) {
       const fieldValue = getFieldValue(data, namespacedKey);
@@ -71,7 +77,12 @@ export const pickUserFieldsData = (data, targetScope, targetUserType, userFieldC
  * @param {Object} userFieldConfigs Extended data configurations for user fields.
  * @returns Array of picked extended data fields
  */
-export const initialValuesForUserFields = (data, targetScope, targetUserType, userFieldConfigs) => {
+export const initialValuesForUserFields = (
+  data,
+  targetScope,
+  targetUserType,
+  userFieldConfigs
+) => {
   return userFieldConfigs.reduce((fields, field) => {
     const { key, userTypeConfig, scope = 'public', schemaType } = field || {};
     const namespacedKey = addScopePrefix(scope, key);
@@ -79,7 +90,8 @@ export const initialValuesForUserFields = (data, targetScope, targetUserType, us
     const isKnownSchemaType = EXTENDED_DATA_SCHEMA_TYPES.includes(schemaType);
     const isTargetScope = scope === targetScope;
     const isTargetUserType =
-      !userTypeConfig?.limitToUserTypeIds || userTypeConfig?.userTypeIds?.includes(targetUserType);
+      !userTypeConfig?.limitToUserTypeIds ||
+      userTypeConfig?.userTypeIds?.includes(targetUserType);
 
     if (isKnownSchemaType && isTargetScope && isTargetUserType) {
       const fieldValue = getFieldValue(data, key);
@@ -108,13 +120,20 @@ export const getPropsForCustomUserFieldInputs = (
 ) => {
   return (
     userFieldsConfig?.reduce((pickedFields, fieldConfig) => {
-      const { key, userTypeConfig, schemaType, scope, saveConfig = {} } = fieldConfig || {};
+      const {
+        key,
+        userTypeConfig,
+        schemaType,
+        scope,
+        saveConfig = {},
+      } = fieldConfig || {};
       const namespacedKey = addScopePrefix(scope, key);
       const showField = isSignup ? saveConfig.displayInSignUp : true;
 
       const isKnownSchemaType = EXTENDED_DATA_SCHEMA_TYPES.includes(schemaType);
       const isTargetUserType =
-        !userTypeConfig?.limitToUserTypeIds || userTypeConfig?.userTypeIds?.includes(userType);
+        !userTypeConfig?.limitToUserTypeIds ||
+        userTypeConfig?.userTypeIds?.includes(userType);
       const isUserScope = ['public', 'private', 'protected'].includes(scope);
 
       return isKnownSchemaType && isTargetUserType && isUserScope && showField
@@ -142,13 +161,16 @@ export const getPropsForCustomUserFieldInputs = (
  * @param {Object} currentUser API entity
  * @returns {Boolean} true if currentUser has permission to post listings.
  */
-export const hasPermissionToPostListings = currentUser => {
+export const hasPermissionToPostListings = (currentUser) => {
   if (currentUser?.id && !currentUser?.effectivePermissionSet?.id) {
     console.warn(
       '"effectivePermissionSet" relationship is not defined or included to the fetched currentUser entity.'
     );
   }
-  return currentUser?.effectivePermissionSet?.attributes?.postListings === 'permission/allow';
+  return (
+    currentUser?.effectivePermissionSet?.attributes?.postListings ===
+    'permission/allow'
+  );
 };
 
 /**
@@ -159,14 +181,15 @@ export const hasPermissionToPostListings = currentUser => {
  * @param {Object} currentUser API entity
  * @returns {Boolean} true if currentUser has permission to initiate transactions.
  */
-export const hasPermissionToInitiateTransactions = currentUser => {
+export const hasPermissionToInitiateTransactions = (currentUser) => {
   if (currentUser?.id && !currentUser?.effectivePermissionSet?.id) {
     console.warn(
       '"effectivePermissionSet" relationship is not defined or included to the fetched currentUser entity.'
     );
   }
   return (
-    currentUser?.effectivePermissionSet?.attributes?.initiateTransactions === 'permission/allow'
+    currentUser?.effectivePermissionSet?.attributes?.initiateTransactions ===
+    'permission/allow'
   );
 };
 
@@ -178,13 +201,15 @@ export const hasPermissionToInitiateTransactions = currentUser => {
  * @param {Object} currentUser API entity
  * @returns {Boolean} true if currentUser has permission to view listing and user data on a private marketplace.
  */
-export const hasPermissionToViewData = currentUser => {
+export const hasPermissionToViewData = (currentUser) => {
   if (currentUser?.id && !currentUser?.effectivePermissionSet?.id) {
     console.warn(
       '"effectivePermissionSet" relationship is not defined or included to the fetched currentUser entity.'
     );
   }
-  return currentUser?.effectivePermissionSet?.attributes?.read === 'permission/allow';
+  return (
+    currentUser?.effectivePermissionSet?.attributes?.read === 'permission/allow'
+  );
 };
 
 /**
@@ -196,7 +221,8 @@ export const hasPermissionToViewData = currentUser => {
  * @param {Object} currentUser API entity.
  * @returns {Boolean} true if currentUser has been approved (state is 'active').
  */
-export const isUserAuthorized = currentUser => currentUser?.attributes?.state === 'active';
+export const isUserAuthorized = (currentUser) =>
+  currentUser?.attributes?.state === 'active';
 
 /**
  * Get the user type configuration for the current user's user type
@@ -207,7 +233,8 @@ export const isUserAuthorized = currentUser => currentUser?.attributes?.state ==
 const getCurrentUserTypeConfig = (config, currentUser) => {
   const { userTypes } = config.user;
   return userTypes.find(
-    ut => ut.userType === currentUser?.attributes?.profile?.publicData?.userType
+    (ut) =>
+      ut.userType === currentUser?.attributes?.profile?.publicData?.userType
   );
 };
 
@@ -219,18 +246,7 @@ const getCurrentUserTypeConfig = (config, currentUser) => {
  * @returns {Boolean} true if the currentUser's user type, or the anonymous user configuration, is set to see the link
  */
 export const showCreateListingLinkForUser = (config, currentUser) => {
-  const { topbar } = config;
-  const currentUserTypeConfig = getCurrentUserTypeConfig(config, currentUser);
-
-  const { accountLinksVisibility } = currentUserTypeConfig || {};
-
-  return currentUser && accountLinksVisibility
-    ? accountLinksVisibility.postListings
-    : currentUser
-    ? true
-    : topbar?.postListingsLink
-    ? topbar.postListingsLink.showToUnauthenticatedUsers
-    : true;
+  return true;
 };
 
 /**

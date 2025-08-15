@@ -9,10 +9,11 @@
 }
 
 .label {
-  font-size: 13px;
+  font-size: 15px;
   margin-bottom: 6px;
 
   @media (--viewportMedium) {
+    font-size: 15px;
     margin-bottom: 0;
   }
 }
