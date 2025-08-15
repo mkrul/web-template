@@ -15,6 +15,10 @@ import {
   pickCategoryFields,
 } from '../../../../util/fieldHelpers';
 import { isBookingProcessAlias } from '../../../../transactions/transaction';
+import {
+  LISTING_PAGE_PARAM_TYPE_DRAFT,
+  LISTING_PAGE_PARAM_TYPE_NEW,
+} from '../../../../util/urlHelpers';
 
 // Import shared components
 import { H3, ListingLink } from '../../../../components';
@@ -246,7 +250,8 @@ const getInitialValues = (
   listingTypes,
   listingFields,
   listingCategories,
-  categoryKey
+  categoryKey,
+  isDraftFlow = false
 ) => {
   const { description, title, publicData, privateData } =
     props?.listing?.attributes || {};
@@ -258,24 +263,44 @@ const getInitialValues = (
     1,
     listingCategories
   );
+
+  // For draft flows, default to 'daily-booking' if no existing listing type is set
+  const transactionInfo =
+    isDraftFlow && !existingListingTypeInfo?.listingType
+      ? (() => {
+          const dailyBookingConfig = listingTypes.find(
+            (config) => config.listingType === 'daily-booking'
+          );
+          if (dailyBookingConfig) {
+            return {
+              listingType: dailyBookingConfig.listingType,
+              transactionProcessAlias: dailyBookingConfig.transactionType.alias,
+              unitType: dailyBookingConfig.transactionType.unitType,
+            };
+          }
+          // Fallback to first available listing type if daily-booking is not found
+          return getTransactionInfo(listingTypes, existingListingTypeInfo);
+        })()
+      : getTransactionInfo(listingTypes, existingListingTypeInfo);
+
   // Initial values for the form
   return {
     title,
     description,
     ...nestedCategories,
     // Transaction type info: listingType, transactionProcessAlias, unitType
-    ...getTransactionInfo(listingTypes, existingListingTypeInfo),
+    ...transactionInfo,
     ...initialValuesForListingFields(
       publicData,
       'public',
-      listingType,
+      transactionInfo.listingType || listingType,
       nestedCategories,
       listingFields
     ),
     ...initialValuesForListingFields(
       privateData,
       'private',
-      listingType,
+      transactionInfo.listingType || listingType,
       nestedCategories,
       listingFields
     ),
@@ -315,6 +340,7 @@ const EditListingDetailsPanel = (props) => {
     updateInProgress,
     errors,
     config,
+    params,
   } = props;
 
   const classes = classNames(rootClassName || css.root, className);
@@ -323,6 +349,11 @@ const EditListingDetailsPanel = (props) => {
   const listingFields = config.listing.listingFields;
   const listingCategories = config.categoryConfiguration.categories;
   const categoryKey = config.categoryConfiguration.key;
+
+  // Check if we're in a draft flow (new or draft listing)
+  const isDraftFlow =
+    params?.type === LISTING_PAGE_PARAM_TYPE_NEW ||
+    params?.type === LISTING_PAGE_PARAM_TYPE_DRAFT;
 
   const { hasExistingListingType, existingListingTypeInfo } =
     hasSetListingType(publicData);
@@ -342,7 +373,8 @@ const EditListingDetailsPanel = (props) => {
     listingTypes,
     listingFields,
     listingCategories,
-    categoryKey
+    categoryKey,
+    isDraftFlow
   );
 
   const noListingTypesSet = listingTypes?.length === 0;
@@ -452,6 +484,7 @@ const EditListingDetailsPanel = (props) => {
           updated={panelUpdated}
           updateInProgress={updateInProgress}
           fetchErrors={errors}
+          isDraftFlow={isDraftFlow}
           autoFocus
         />
       ) : (

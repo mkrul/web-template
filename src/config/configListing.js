@@ -63,6 +63,7 @@ export const listingFields = [
     },
     saveConfig: {
       label: 'Car Travel',
+      placeholderMessage: 'Is this crate eligible for car travel?',
       isRequired: true,
       requiredMessage:
         'Please specify if this item is eligible for car travel.',

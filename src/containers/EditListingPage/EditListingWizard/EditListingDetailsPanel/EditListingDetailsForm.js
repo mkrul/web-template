@@ -76,6 +76,7 @@ const FieldSelectListingType = (props) => {
     formApi,
     formId,
     intl,
+    isDraftFlow = false,
   } = props;
   const hasMultipleListingTypes = listingTypes?.length > 1;
 
@@ -100,7 +101,8 @@ const FieldSelectListingType = (props) => {
     return listingTypeConfig ? listingTypeConfig.label : listingType;
   };
 
-  return hasMultipleListingTypes && !hasExistingListingType ? (
+  // For draft flows, don't show the listing type selection - it's already defaulted to 'daily-booking'
+  return hasMultipleListingTypes && !hasExistingListingType && !isDraftFlow ? (
     <>
       <FieldSelect
         id={formId ? `${formId}.${name}` : name}
@@ -380,6 +382,7 @@ const EditListingDetailsForm = (props) => (
         listingFieldsConfig = [],
         listingCurrency,
         values,
+        isDraftFlow = false,
       } = formRenderProps;
 
       const intl = useIntl();
@@ -445,6 +448,7 @@ const EditListingDetailsForm = (props) => (
             formApi={formApi}
             formId={formId}
             intl={intl}
+            isDraftFlow={isDraftFlow}
           />
 
           {showCategories && isCompatibleCurrency && (
