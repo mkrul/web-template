@@ -277,6 +277,32 @@
   }
 }
 
+.homeAddressWrapper {
+  margin-top: 12px;
+  margin-bottom: 12px;
+
+  @media (--viewportMedium) {
+    margin-top: 24px;
+    margin-bottom: 24px;
+  }
+}
+
+.homeAddress {
+  margin-top: 0;
+}
+
+.homeAddress :global(.LocationAutocompleteInput_icon__f-F0V) {
+  display: none;
+}
+
+.phoneNumber {
+  margin-top: 20px;
+
+  @media (--viewportMedium) {
+    margin-top: 24px;
+  }
+}
+
 .submitButton {
   margin-top: 24px;
   margin-bottom: 56px;

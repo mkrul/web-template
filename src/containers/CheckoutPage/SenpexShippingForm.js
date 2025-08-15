@@ -5,6 +5,7 @@ import { intlShape } from '../../util/reactIntl';
 import {
   Form,
   FieldTextInput,
+  FieldPhoneNumberInput,
   PrimaryButton,
   IconSpinner,
 } from '../../components';
@@ -88,10 +89,9 @@ const SenpexShippingForm = ({
           required
         />
 
-        <FieldTextInput
+        <FieldPhoneNumberInput
           id="receiverPhone"
           name="receiverPhone"
-          type="tel"
           label={
             <FormattedMessage
               id="SenpexShippingForm.receiverPhoneLabel"

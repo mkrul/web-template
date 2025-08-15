@@ -15,7 +15,13 @@ import {
 } from '../../util/userHelpers';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
 
-import { H3, Page, UserNav, NamedLink, LayoutSingleColumn } from '../../components';
+import {
+  H3,
+  Page,
+  UserNav,
+  NamedLink,
+  LayoutSingleColumn,
+} from '../../components';
 
 import TopbarContainer from '../../containers/TopbarContainer/TopbarContainer';
 import FooterContainer from '../../containers/FooterContainer/FooterContainer';
@@ -32,7 +38,7 @@ const onImageUploadHandler = (values, fn) => {
   }
 };
 
-const ViewProfileLink = props => {
+const ViewProfileLink = (props) => {
   const { userUUID, isUnauthorizedUser } = props;
   return userUUID && isUnauthorizedUser ? (
     <NamedLink
@@ -43,7 +49,11 @@ const ViewProfileLink = props => {
       <FormattedMessage id="ProfileSettingsPage.viewProfileLink" />
     </NamedLink>
   ) : userUUID ? (
-    <NamedLink className={css.profileLink} name="ProfilePage" params={{ id: userUUID }}>
+    <NamedLink
+      className={css.profileLink}
+      name="ProfilePage"
+      params={{ id: userUUID }}
+    >
       <FormattedMessage id="ProfileSettingsPage.viewProfileLink" />
     </NamedLink>
   ) : null;
@@ -69,7 +79,7 @@ const ViewProfileLink = props => {
  * @param {boolean} props.uploadInProgress - Whether the upload is in progress
  * @returns {JSX.Element}
  */
-export const ProfileSettingsPageComponent = props => {
+export const ProfileSettingsPageComponent = (props) => {
   const config = useConfiguration();
   const intl = useIntl();
   const {
@@ -87,7 +97,16 @@ export const ProfileSettingsPageComponent = props => {
   const { userFields, userTypes = [] } = config.user;
 
   const handleSubmit = (values, userType) => {
-    const { firstName, lastName, displayName, bio: rawBio, ...rest } = values;
+    const {
+      firstName,
+      lastName,
+      displayName,
+      bio: rawBio,
+      pub_providerAddress,
+      apartmentUnit,
+      phoneNumber,
+      ...rest
+    } = values;
 
     const displayNameMaybe = displayName
       ? { displayName: displayName.trim() }
@@ -102,9 +121,12 @@ export const ProfileSettingsPageComponent = props => {
       ...displayNameMaybe,
       bio,
       publicData: {
+        providerAddress: pub_providerAddress,
+        apartmentUnit: apartmentUnit?.trim() || null,
         ...pickUserFieldsData(rest, 'public', userType, userFields),
       },
       protectedData: {
+        phoneNumber: phoneNumber?.trim() || null,
         ...pickUserFieldsData(rest, 'protected', userType, userFields),
       },
       privateData: {
@@ -138,10 +160,14 @@ export const ProfileSettingsPageComponent = props => {
   const { userType } = publicData || {};
   const profileImageId = user.profileImage ? user.profileImage.id : null;
   const profileImage = image || { imageId: profileImageId };
-  const userTypeConfig = userTypes.find(config => config.userType === userType);
-  const isDisplayNameIncluded = userTypeConfig?.defaultUserFields?.displayName !== false;
+  const userTypeConfig = userTypes.find(
+    (config) => config.userType === userType
+  );
+  const isDisplayNameIncluded =
+    userTypeConfig?.defaultUserFields?.displayName !== false;
   // ProfileSettingsForm decides if it's allowed to show the input field.
-  const displayNameMaybe = isDisplayNameIncluded && displayName ? { displayName } : {};
+  const displayNameMaybe =
+    isDisplayNameIncluded && displayName ? { displayName } : {};
 
   const profileSettingsForm = user.id ? (
     <ProfileSettingsForm
@@ -153,17 +179,35 @@ export const ProfileSettingsPageComponent = props => {
         ...displayNameMaybe,
         bio,
         profileImage: user.profileImage,
-        ...initialValuesForUserFields(publicData, 'public', userType, userFields),
-        ...initialValuesForUserFields(protectedData, 'protected', userType, userFields),
-        ...initialValuesForUserFields(privateData, 'private', userType, userFields),
+        pub_providerAddress: publicData?.providerAddress,
+        apartmentUnit: publicData?.apartmentUnit,
+        phoneNumber: protectedData?.phoneNumber,
+        ...initialValuesForUserFields(
+          publicData,
+          'public',
+          userType,
+          userFields
+        ),
+        ...initialValuesForUserFields(
+          protectedData,
+          'protected',
+          userType,
+          userFields
+        ),
+        ...initialValuesForUserFields(
+          privateData,
+          'private',
+          userType,
+          userFields
+        ),
       }}
       profileImage={profileImage}
-      onImageUpload={e => onImageUploadHandler(e, onImageUpload)}
+      onImageUpload={(e) => onImageUploadHandler(e, onImageUpload)}
       uploadInProgress={uploadInProgress}
       updateInProgress={updateInProgress}
       uploadImageError={uploadImageError}
       updateProfileError={updateProfileError}
-      onSubmit={values => handleSubmit(values, userType)}
+      onSubmit={(values) => handleSubmit(values, userType)}
       marketplaceName={config.marketplaceName}
       userFields={userFields}
       userTypeConfig={userTypeConfig}
@@ -172,10 +216,17 @@ export const ProfileSettingsPageComponent = props => {
 
   const title = intl.formatMessage({ id: 'ProfileSettingsPage.title' });
 
-  const showManageListingsLink = showCreateListingLinkForUser(config, currentUser);
+  const showManageListingsLink = showCreateListingLinkForUser(
+    config,
+    currentUser
+  );
 
   return (
-    <Page className={css.root} title={title} scrollingDisabled={scrollingDisabled}>
+    <Page
+      className={css.root}
+      title={title}
+      scrollingDisabled={scrollingDisabled}
+    >
       <LayoutSingleColumn
         topbar={
           <>
@@ -194,7 +245,10 @@ export const ProfileSettingsPageComponent = props => {
               <FormattedMessage id="ProfileSettingsPage.heading" />
             </H3>
 
-            <ViewProfileLink userUUID={user?.id?.uuid} isUnauthorizedUser={isUnauthorizedUser} />
+            <ViewProfileLink
+              userUUID={user?.id?.uuid}
+              isUnauthorizedUser={isUnauthorizedUser}
+            />
           </div>
           {profileSettingsForm}
         </div>
@@ -203,7 +257,7 @@ export const ProfileSettingsPageComponent = props => {
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   const { currentUser } = state.user;
   const {
     image,
@@ -223,16 +277,13 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => ({
-  onImageUpload: data => dispatch(uploadImage(data)),
-  onUpdateProfile: data => dispatch(updateProfile(data)),
+const mapDispatchToProps = (dispatch) => ({
+  onImageUpload: (data) => dispatch(uploadImage(data)),
+  onUpdateProfile: (data) => dispatch(updateProfile(data)),
 });
 
 const ProfileSettingsPage = compose(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
+  connect(mapStateToProps, mapDispatchToProps)
 )(ProfileSettingsPageComponent);
 
 export default ProfileSettingsPage;

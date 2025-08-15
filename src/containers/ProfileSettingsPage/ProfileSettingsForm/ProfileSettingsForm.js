@@ -5,7 +5,11 @@ import isEqual from 'lodash/isEqual';
 import classNames from 'classnames';
 import arrayMutators from 'final-form-arrays';
 
-import { FormattedMessage, injectIntl, intlShape } from '../../../util/reactIntl';
+import {
+  FormattedMessage,
+  injectIntl,
+  intlShape,
+} from '../../../util/reactIntl';
 import { ensureCurrentUser } from '../../../util/data';
 import { propTypes } from '../../../util/types';
 import * as validators from '../../../util/validators';
@@ -21,6 +25,8 @@ import {
   FieldTextInput,
   H4,
   CustomExtendedDataField,
+  FieldLocationAutocompleteInput,
+  FieldPhoneNumberInput,
 } from '../../../components';
 
 import css from './ProfileSettingsForm.module.css';
@@ -28,7 +34,7 @@ import css from './ProfileSettingsForm.module.css';
 const ACCEPT_IMAGES = 'image/*';
 const UPLOAD_CHANGE_DELAY = 2000; // Show spinner so that browser has time to load img srcset
 
-const DisplayNameMaybe = props => {
+const DisplayNameMaybe = (props) => {
   const { userTypeConfig, intl } = props;
 
   const isDisabled = userTypeConfig?.defaultUserFields?.displayName === false;
@@ -127,7 +133,7 @@ class ProfileSettingsFormComponent extends Component {
       <FinalForm
         {...this.props}
         mutators={{ ...arrayMutators }}
-        render={fieldRenderProps => {
+        render={(fieldRenderProps) => {
           const {
             className,
             currentUser,
@@ -162,7 +168,9 @@ class ProfileSettingsFormComponent extends Component {
           const firstNameRequiredMessage = intl.formatMessage({
             id: 'ProfileSettingsForm.firstNameRequired',
           });
-          const firstNameRequired = validators.required(firstNameRequiredMessage);
+          const firstNameRequired = validators.required(
+            firstNameRequiredMessage
+          );
 
           // Last name
           const lastNameLabel = intl.formatMessage({
@@ -192,14 +200,21 @@ class ProfileSettingsFormComponent extends Component {
             ) : null;
 
           const hasUploadError = !!uploadImageError && !uploadInProgress;
-          const errorClasses = classNames({ [css.avatarUploadError]: hasUploadError });
-          const transientUserProfileImage = profileImage.uploadedImage || user.profileImage;
-          const transientUser = { ...user, profileImage: transientUserProfileImage };
+          const errorClasses = classNames({
+            [css.avatarUploadError]: hasUploadError,
+          });
+          const transientUserProfileImage =
+            profileImage.uploadedImage || user.profileImage;
+          const transientUser = {
+            ...user,
+            profileImage: transientUserProfileImage,
+          };
 
           // Ensure that file exists if imageFromFile is used
           const fileExists = !!profileImage.file;
           const fileUploadInProgress = uploadInProgress && fileExists;
-          const delayAfterUpload = profileImage.imageId && this.state.uploadDelay;
+          const delayAfterUpload =
+            profileImage.imageId && this.state.uploadDelay;
           const imageFromFile =
             fileExists && (fileUploadInProgress || delayAfterUpload) ? (
               <ImageFromFile
@@ -259,9 +274,14 @@ class ProfileSettingsFormComponent extends Component {
           const classes = classNames(rootClassName || css.root, className);
           const submitInProgress = updateInProgress;
           const submittedOnce = Object.keys(this.submittedValues).length > 0;
-          const pristineSinceLastSubmit = submittedOnce && isEqual(values, this.submittedValues);
+          const pristineSinceLastSubmit =
+            submittedOnce && isEqual(values, this.submittedValues);
           const submitDisabled =
-            invalid || pristine || pristineSinceLastSubmit || uploadInProgress || submitInProgress;
+            invalid ||
+            pristine ||
+            pristineSinceLastSubmit ||
+            uploadInProgress ||
+            submitInProgress;
 
           const userFieldProps = getPropsForCustomUserFieldInputs(
             userFields,
@@ -273,7 +293,7 @@ class ProfileSettingsFormComponent extends Component {
           return (
             <Form
               className={classes}
-              onSubmit={e => {
+              onSubmit={(e) => {
                 this.submittedValues = values;
                 handleSubmit(e);
               }}
@@ -292,10 +312,17 @@ class ProfileSettingsFormComponent extends Component {
                   uploadImageError={uploadImageError}
                   disabled={uploadInProgress}
                 >
-                  {fieldProps => {
-                    const { accept, id, input, label, disabled, uploadImageError } = fieldProps;
+                  {(fieldProps) => {
+                    const {
+                      accept,
+                      id,
+                      input,
+                      label,
+                      disabled,
+                      uploadImageError,
+                    } = fieldProps;
                     const { name, type } = input;
-                    const onChange = e => {
+                    const onChange = (e) => {
                       const file = e.target.files[0];
                       form.change(`profileImage`, file);
                       form.blur(`profileImage`);
@@ -387,12 +414,65 @@ class ProfileSettingsFormComponent extends Component {
                   placeholder={bioPlaceholder}
                 />
                 <p className={css.extraInfo}>
-                  <FormattedMessage id="ProfileSettingsForm.bioInfo" values={{ marketplaceName }} />
+                  <FormattedMessage
+                    id="ProfileSettingsForm.bioInfo"
+                    values={{ marketplaceName }}
+                  />
                 </p>
               </div>
-              <div className={classNames(css.sectionContainer, css.lastSection)}>
+
+              <div className={classNames(css.sectionContainer)}>
+                <H4 as="h2" className={css.sectionTitle}>
+                  <FormattedMessage id="ProfileSettingsForm.contactInfoHeading" />
+                </H4>
+                <div className={css.homeAddressWrapper}>
+                  <FieldLocationAutocompleteInput
+                    className={css.homeAddress}
+                    name="pub_providerAddress"
+                    label={intl.formatMessage({
+                      id: 'ProfileSettingsForm.homeAddressLabel',
+                    })}
+                    placeholder={intl.formatMessage({
+                      id: 'ProfileSettingsForm.homeAddressPlaceholder',
+                    })}
+                  />
+                </div>
+
+                <FieldTextInput
+                  className={css.row}
+                  type="text"
+                  id="apartmentUnit"
+                  name="apartmentUnit"
+                  label={intl.formatMessage({
+                    id: 'ProfileSettingsForm.apartmentUnitLabel',
+                  })}
+                  placeholder={intl.formatMessage({
+                    id: 'ProfileSettingsForm.apartmentUnitPlaceholder',
+                  })}
+                />
+
+                <FieldPhoneNumberInput
+                  className={css.phoneNumber}
+                  type="text"
+                  id="phoneNumber"
+                  name="phoneNumber"
+                  label={intl.formatMessage({
+                    id: 'ProfileSettingsForm.phoneNumberLabel',
+                  })}
+                  placeholder={intl.formatMessage({
+                    id: 'ProfileSettingsForm.phoneNumberPlaceholder',
+                  })}
+                />
+              </div>
+              <div
+                className={classNames(css.sectionContainer, css.lastSection)}
+              >
                 {userFieldProps.map(({ key, ...fieldProps }) => (
-                  <CustomExtendedDataField key={key} {...fieldProps} formId={formId} />
+                  <CustomExtendedDataField
+                    key={key}
+                    {...fieldProps}
+                    formId={formId}
+                  />
                 ))}
               </div>
               {submitError}

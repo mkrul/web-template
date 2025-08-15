@@ -53,6 +53,21 @@
  *   - requiredMessage (optional):    Message for those fields, which are mandatory.
  */
 export const listingFields = [
+  {
+    key: 'carTravel',
+    scope: 'public',
+    schemaType: 'boolean',
+    showConfig: {
+      label: 'Car Travel',
+      isDetail: true,
+    },
+    saveConfig: {
+      label: 'Car Travel',
+      isRequired: true,
+      requiredMessage:
+        'Please specify if this item is eligible for car travel.',
+    },
+  },
   // {
   //   "scope": "public",
   //   "label": "Gears",

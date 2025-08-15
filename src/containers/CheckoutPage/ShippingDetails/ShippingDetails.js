@@ -22,8 +22,9 @@ import css from './ShippingDetails.module.css';
  * @param {Object} props.formApi - The form API from React Final Form
  * @param {string} props.fieldId - The field ID
  */
-const ShippingDetails = props => {
-  const { rootClassName, className, locale, intl, disabled, formApi, fieldId } = props;
+const ShippingDetails = (props) => {
+  const { rootClassName, className, locale, intl, disabled, formApi, fieldId } =
+    props;
   const classes = classNames(rootClassName || css.root, className);
 
   const optionalText = intl.formatMessage({
@@ -54,12 +55,11 @@ const ShippingDetails = props => {
         )}
         onUnmount={() => formApi.change('recipientName', undefined)}
       />
-      <FieldTextInput
+      <FieldPhoneNumberInput
         id={`${fieldId}.recipientPhoneNumber`}
         name="recipientPhoneNumber"
         disabled={disabled}
         className={css.fieldFullWidth}
-        type="text"
         autoComplete="shipping phoneNumber"
         label={intl.formatMessage(
           { id: 'ShippingDetails.recipientPhoneNumberLabel' },
@@ -78,7 +78,9 @@ const ShippingDetails = props => {
           className={css.field}
           type="text"
           autoComplete="shipping address-line1"
-          label={intl.formatMessage({ id: 'ShippingDetails.addressLine1Label' })}
+          label={intl.formatMessage({
+            id: 'ShippingDetails.addressLine1Label',
+          })}
           placeholder={intl.formatMessage({
             id: 'ShippingDetails.addressLine1Placeholder',
           })}
@@ -131,8 +133,12 @@ const ShippingDetails = props => {
           type="text"
           autoComplete="shipping address-level2"
           label={intl.formatMessage({ id: 'ShippingDetails.cityLabel' })}
-          placeholder={intl.formatMessage({ id: 'ShippingDetails.cityPlaceholder' })}
-          validate={validators.required(intl.formatMessage({ id: 'ShippingDetails.cityRequired' }))}
+          placeholder={intl.formatMessage({
+            id: 'ShippingDetails.cityPlaceholder',
+          })}
+          validate={validators.required(
+            intl.formatMessage({ id: 'ShippingDetails.cityRequired' })
+          )}
           onUnmount={() => formApi.change('recipientCity', undefined)}
         />
       </div>
@@ -148,7 +154,9 @@ const ShippingDetails = props => {
             { id: 'ShippingDetails.stateLabel' },
             { optionalText: optionalText }
           )}
-          placeholder={intl.formatMessage({ id: 'ShippingDetails.statePlaceholder' })}
+          placeholder={intl.formatMessage({
+            id: 'ShippingDetails.statePlaceholder',
+          })}
           onUnmount={() => formApi.change('recipientState', undefined)}
         />
 
@@ -165,7 +173,7 @@ const ShippingDetails = props => {
           <option disabled value="">
             {intl.formatMessage({ id: 'ShippingDetails.countryPlaceholder' })}
           </option>
-          {countryCodes.map(country => {
+          {countryCodes.map((country) => {
             return (
               <option key={country.code} value={country.code}>
                 {country.name}

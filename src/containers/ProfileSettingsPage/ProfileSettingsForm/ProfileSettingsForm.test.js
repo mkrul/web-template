@@ -1,7 +1,10 @@
 import React from 'react';
 import '@testing-library/jest-dom';
 
-import { renderWithProviders as render, testingLibrary } from '../../../util/testHelpers';
+import {
+  renderWithProviders as render,
+  testingLibrary,
+} from '../../../util/testHelpers';
 import { createCurrentUser, fakeIntl } from '../../../util/testData';
 import { initialValuesForUserFields } from '../../../util/userHelpers';
 
@@ -169,6 +172,56 @@ const attributes = {
 };
 
 describe('ProfileSettingsForm', () => {
+  it('renders contact information fields', () => {
+    const props = {
+      currentUser: {
+        id: { uuid: 'test-user-id' },
+        attributes: {
+          profile: {
+            firstName: 'John',
+            lastName: 'Doe',
+            bio: 'Test bio',
+            publicData: {
+              providerAddress: {
+                selectedPlace: { address: '123 Main St, New York, NY' },
+              },
+              apartmentUnit: 'Apt 4B',
+            },
+            protectedData: {
+              phoneNumber: '+1234567890',
+            },
+          },
+        },
+      },
+      userTypeConfig: {
+        userType: 'default',
+        defaultUserFields: {
+          displayName: true,
+        },
+      },
+      userFields: [],
+      intl: fakeIntl,
+      onImageUpload: () => null,
+      onSubmit: () => null,
+      uploadInProgress: false,
+      updateInProgress: false,
+    };
+
+    const tree = renderWithIntl(<ProfileSettingsForm {...props} />);
+
+    // Check that contact information section is rendered
+    expect(tree.getByText('Contact Information')).toBeInTheDocument();
+
+    // Check that home address field is rendered
+    expect(tree.getByLabelText('Home Address')).toBeInTheDocument();
+
+    // Check that apartment unit field is rendered
+    expect(tree.getByLabelText('Apartment / Unit #')).toBeInTheDocument();
+
+    // Check that phone number field is rendered
+    expect(tree.getByLabelText('Phone Number')).toBeInTheDocument();
+  });
+
   it('shows inputs and initial values for name', () => {
     const u1 = createCurrentUser('userId');
     const { firstName, lastName } = u1.attributes.profile;
@@ -191,11 +244,17 @@ describe('ProfileSettingsForm', () => {
     expect(
       screen.getByRole('heading', { name: 'ProfileSettingsForm.yourName' })
     ).toBeInTheDocument();
-    expect(screen.getByText('ProfileSettingsForm.firstNameLabel')).toBeInTheDocument();
+    expect(
+      screen.getByText('ProfileSettingsForm.firstNameLabel')
+    ).toBeInTheDocument();
     expect(screen.getByDisplayValue(firstName)).toBeInTheDocument();
-    expect(screen.getByText('ProfileSettingsForm.lastNameLabel')).toBeInTheDocument();
+    expect(
+      screen.getByText('ProfileSettingsForm.lastNameLabel')
+    ).toBeInTheDocument();
     expect(screen.getByDisplayValue(lastName)).toBeInTheDocument();
-    expect(screen.getByText('ProfileSettingsForm.bioLabel')).toBeInTheDocument();
+    expect(
+      screen.getByText('ProfileSettingsForm.bioLabel')
+    ).toBeInTheDocument();
   });
 
   it('shows inputs and initial values for bio', () => {
@@ -219,7 +278,9 @@ describe('ProfileSettingsForm', () => {
     expect(
       screen.getByRole('heading', { name: 'ProfileSettingsForm.bioHeading' })
     ).toBeInTheDocument();
-    expect(screen.getByText('ProfileSettingsForm.bioLabel')).toBeInTheDocument();
+    expect(
+      screen.getByText('ProfileSettingsForm.bioLabel')
+    ).toBeInTheDocument();
     expect(screen.getByDisplayValue(bio)).toBeInTheDocument();
   });
 
@@ -237,12 +298,19 @@ describe('ProfileSettingsForm', () => {
         userFields={userFieldConfig}
         userTypeConfig={userTypeConfig}
         initialValues={{
-          ...initialValuesForUserFields(publicData, 'public', 'a', userFieldConfig),
+          ...initialValuesForUserFields(
+            publicData,
+            'public',
+            'a',
+            userFieldConfig
+          ),
         }}
       />
     );
 
-    expect(screen.getByRole('combobox', { name: 'Enum Field 1' })).toBeInTheDocument();
+    expect(
+      screen.getByRole('combobox', { name: 'Enum Field 1' })
+    ).toBeInTheDocument();
     expect(screen.getByRole('option', { name: 'e1l1' }).selected).toBe(true);
   });
 
@@ -260,13 +328,22 @@ describe('ProfileSettingsForm', () => {
         userFields={userFieldConfig}
         userTypeConfig={userTypeConfigC}
         initialValues={{
-          ...initialValuesForUserFields(publicData, 'public', 'c', userFieldConfig),
+          ...initialValuesForUserFields(
+            publicData,
+            'public',
+            'c',
+            userFieldConfig
+          ),
         }}
       />
     );
 
-    expect(screen.getByRole('combobox', { name: 'Boolean Field' })).toBeInTheDocument();
-    expect(screen.getByRole('option', { name: 'FieldBoolean.yes' }).selected).toBe(true);
+    expect(
+      screen.getByRole('combobox', { name: 'Boolean Field' })
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('option', { name: 'FieldBoolean.yes' }).selected
+    ).toBe(true);
   });
 
   it('shows a numeric input for long fields', () => {
@@ -283,7 +360,12 @@ describe('ProfileSettingsForm', () => {
         userFields={userFieldConfig}
         userTypeConfig={userTypeConfig}
         initialValues={{
-          ...initialValuesForUserFields(publicData, 'public', 'a', userFieldConfig),
+          ...initialValuesForUserFields(
+            publicData,
+            'public',
+            'a',
+            userFieldConfig
+          ),
         }}
       />
     );
@@ -307,7 +389,12 @@ describe('ProfileSettingsForm', () => {
         userFields={userFieldConfig}
         userTypeConfig={userTypeConfig}
         initialValues={{
-          ...initialValuesForUserFields(privateData, 'private', 'a', userFieldConfig),
+          ...initialValuesForUserFields(
+            privateData,
+            'private',
+            'a',
+            userFieldConfig
+          ),
         }}
       />
     );
@@ -331,12 +418,19 @@ describe('ProfileSettingsForm', () => {
         userFields={userFieldConfig}
         userTypeConfig={userTypeConfig}
         initialValues={{
-          ...initialValuesForUserFields(publicData, 'public', 'a', userFieldConfig),
+          ...initialValuesForUserFields(
+            publicData,
+            'public',
+            'a',
+            userFieldConfig
+          ),
         }}
       />
     );
 
-    const multiEnumFieldInput = screen.getByRole('group', { name: 'Multi-enum Field' });
+    const multiEnumFieldInput = screen.getByRole('group', {
+      name: 'Multi-enum Field',
+    });
     expect(multiEnumFieldInput).toBeInTheDocument();
 
     expect(screen.getByRole('checkbox', { name: 'ml1' }).checked).toBe(true);
@@ -358,7 +452,12 @@ describe('ProfileSettingsForm', () => {
         userFields={userFieldConfig}
         userTypeConfig={userTypeConfig}
         initialValues={{
-          ...initialValuesForUserFields(publicData, 'public', 'a', userFieldConfig),
+          ...initialValuesForUserFields(
+            publicData,
+            'public',
+            'a',
+            userFieldConfig
+          ),
         }}
       />
     );
@@ -387,8 +486,18 @@ describe('ProfileSettingsForm', () => {
         userFields={userFieldConfig}
         userTypeConfig={null}
         initialValues={{
-          ...initialValuesForUserFields(publicData, 'public', null, userFieldConfig),
-          ...initialValuesForUserFields(privateData, 'private', null, userFieldConfig),
+          ...initialValuesForUserFields(
+            publicData,
+            'public',
+            null,
+            userFieldConfig
+          ),
+          ...initialValuesForUserFields(
+            privateData,
+            'private',
+            null,
+            userFieldConfig
+          ),
         }}
       />
     );
@@ -404,6 +513,69 @@ describe('ProfileSettingsForm', () => {
     expect(screen.queryByDisplayValue('e1l1')).toBeNull();
     expect(screen.queryByText('Long Field')).toBeNull();
     expect(screen.queryByDisplayValue(123)).toBeNull();
+  });
+
+  it('submits contact information fields correctly', () => {
+    const onSubmit = jest.fn();
+    const user = createCurrentUser('userId');
+    const u1 = {
+      ...user,
+      attributes: {
+        ...user.attributes,
+        profile: {
+          ...user.attributes.profile,
+          publicData: {
+            providerAddress: {
+              selectedPlace: { address: '123 Main St, New York, NY' },
+            },
+            apartmentUnit: 'Apt 4B',
+          },
+          protectedData: {
+            phoneNumber: '+1234567890',
+          },
+        },
+      },
+    };
+
+    render(
+      <ProfileSettingsForm
+        intl={fakeIntl}
+        onSubmit={onSubmit}
+        uploadInProgress={false}
+        updateInProgress={false}
+        currentUser={u1}
+        profileImage={{}}
+        userFields={[]}
+        userTypeConfig={{ userType: 'default' }}
+        initialValues={{
+          firstName: 'John',
+          lastName: 'Doe',
+          pub_providerAddress: {
+            selectedPlace: { address: '123 Main St, New York, NY' },
+          },
+          apartmentUnit: 'Apt 4B',
+          phoneNumber: '+1234567890',
+        }}
+      />
+    );
+
+    // Submit the form
+    fireEvent.click(
+      screen.getByRole('button', { name: 'ProfileSettingsForm.saveChanges' })
+    );
+
+    // Check that onSubmit was called with the correct data
+    expect(onSubmit).toHaveBeenCalledWith(
+      expect.objectContaining({
+        firstName: 'John',
+        lastName: 'Doe',
+        pub_providerAddress: {
+          selectedPlace: { address: '123 Main St, New York, NY' },
+        },
+        apartmentUnit: 'Apt 4B',
+        phoneNumber: '+1234567890',
+      })
+    );
   });
 
   it('enables Save button when required fields are filled', () => {
@@ -433,18 +605,29 @@ describe('ProfileSettingsForm', () => {
         initialValues={{
           firstName,
           lastName,
-          ...initialValuesForUserFields(publicData, 'public', 'e', userFieldConfig),
+          ...initialValuesForUserFields(
+            publicData,
+            'public',
+            'e',
+            userFieldConfig
+          ),
         }}
       />
     );
 
     // Save button should be disabled before changes.
-    expect(screen.getByRole('button', { name: 'ProfileSettingsForm.saveChanges' })).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: 'ProfileSettingsForm.saveChanges' })
+    ).toBeDisabled();
 
     // Expect the initial values to be in the document before any changes
-    expect(screen.getByText('ProfileSettingsForm.firstNameLabel')).toBeInTheDocument();
+    expect(
+      screen.getByText('ProfileSettingsForm.firstNameLabel')
+    ).toBeInTheDocument();
     expect(screen.getByDisplayValue(firstName)).toBeInTheDocument();
-    expect(screen.getByText('ProfileSettingsForm.lastNameLabel')).toBeInTheDocument();
+    expect(
+      screen.getByText('ProfileSettingsForm.lastNameLabel')
+    ).toBeInTheDocument();
     expect(screen.getByDisplayValue(lastName)).toBeInTheDocument();
     expect(screen.getByText('Multi-enum Field')).toBeInTheDocument();
     expect(screen.getByRole('checkbox', { name: 'ml1' }).checked).toBe(true);
@@ -456,13 +639,17 @@ describe('ProfileSettingsForm', () => {
     const textInput1 = screen.getByRole('textbox', { name: 'Text Field' });
     userEvent.type(textInput1, 'Text 1 value');
     expect(textInput1).toHaveValue('Text 1 value');
-    expect(screen.getByRole('button', { name: 'ProfileSettingsForm.saveChanges' })).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: 'ProfileSettingsForm.saveChanges' })
+    ).toBeDisabled();
 
     // Enter text into the other required text field, and check that the
     // save button is now enabled, since all required fields have values.
     const textInput2 = screen.getByRole('textbox', { name: 'Text Field 2' });
     userEvent.type(textInput2, 'Text 2 value');
     expect(textInput2).toHaveValue('Text 2 value');
-    expect(screen.getByRole('button', { name: 'ProfileSettingsForm.saveChanges' })).toBeEnabled();
+    expect(
+      screen.getByRole('button', { name: 'ProfileSettingsForm.saveChanges' })
+    ).toBeEnabled();
   });
 });
