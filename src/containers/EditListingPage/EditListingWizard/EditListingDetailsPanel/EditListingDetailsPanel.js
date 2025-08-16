@@ -424,6 +424,7 @@ const EditListingDetailsPanel = (props) => {
               1,
               listingCategories
             );
+
             // Remove old categories by explicitly saving null for them.
             const cleanedNestedCategories = {
               ...[1, 2, 3].reduce(
@@ -432,6 +433,7 @@ const EditListingDetailsPanel = (props) => {
               ),
               ...nestedCategories,
             };
+
             const publicListingFields = pickListingFieldsData(
               rest,
               'public',
@@ -446,6 +448,7 @@ const EditListingDetailsPanel = (props) => {
               nestedCategories,
               listingFields
             );
+
             // New values for listing attributes
             const updateValues = {
               title: title.trim(),

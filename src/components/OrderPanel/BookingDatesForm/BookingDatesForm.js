@@ -946,88 +946,62 @@ export const BookingDatesForm = (props) => {
                 const {
                   startDate: startDateFromValues,
                   endDate: endDateFromValues,
-                } = values || {};
-                const { startDate, endDate } = values
-                  ? getStartAndEndOnTimeZone(
-                      startDateFromValues,
-                      endDateFromValues,
-                      isDaily,
-                      timeZone
-                    )
-                  : {};
-                if (seatsEnabled) {
-                  formApi.change('seats', 1);
-                }
-                const deliveryMethodMaybe = senpexQuote
-                  ? { deliveryMethod: 'senpex-shipping' }
-                  : {};
-                const senpexPriceMaybe = senpexQuote?.price
-                  ? {
-                      senpexShippingPriceInSubunits: Math.round(
-                        senpexQuote.price * 100
-                      ),
-                    }
-                  : {};
+                } = values;
 
-                onHandleFetchLineItems({
-                  values: {
-                    priceVariantName,
-                    startDate,
-                    endDate,
-                    seats: seatsEnabled ? 1 : undefined,
-                    ...deliveryMethodMaybe,
-                    ...senpexPriceMaybe,
-                  },
-                });
+                console.log('=== Booking Dates Form Senpex Integration ===');
+                console.log('Form values:', values);
+                console.log('Current user:', currentUser);
+                console.log('Listing ID:', listingId);
 
-                // Auto-quote when dates are present and user has details
-                const profile = currentUser?.attributes?.profile || {};
-                const firstName = profile?.firstName;
-                const lastName = profile?.lastName;
-                const phone = profile?.protectedData?.phoneNumber;
-                // Preferred address: user's saved delivery address; fallback: address from URL search bar or last stored in session
-                const urlParams = new URLSearchParams(window.location.search);
-                const addressFromUrl = urlParams.get('address');
-                let address =
-                  profile?.publicData?.deliveryAddress || addressFromUrl;
-                try {
-                  if (
-                    !address &&
-                    typeof window !== 'undefined' &&
-                    window.sessionStorage
-                  ) {
-                    const remembered = window.sessionStorage.getItem(
-                      'last_delivery_address'
+                if (startDateFromValues && endDateFromValues) {
+                  const startDate = stringifyDateToISO8601(startDateFromValues);
+                  const endDate = stringifyDateToISO8601(endDateFromValues);
+
+                  console.log('Booking dates:', { startDate, endDate });
+
+                  // Check if user has required delivery info
+                  const firstName = currentUser?.attributes?.profile?.firstName;
+                  const lastName = currentUser?.attributes?.profile?.lastName;
+                  const phone =
+                    currentUser?.attributes?.profile?.protectedData
+                      ?.phoneNumber;
+                  const address =
+                    currentUser?.attributes?.profile?.publicData
+                      ?.deliveryAddress;
+
+                  console.log('User delivery info:', {
+                    firstName,
+                    lastName,
+                    phone,
+                    address,
+                  });
+
+                  if (firstName && lastName && phone && address) {
+                    console.log(
+                      'All delivery info present, requesting Senpex quote'
                     );
-                    address = remembered || address;
-                  }
-                } catch (_) {}
-                const canQuote =
-                  startDate &&
-                  endDate &&
-                  firstName &&
-                  lastName &&
-                  phone &&
-                  address &&
-                  !senpexQuote;
+                    setSenpexQuoteInProgress(true);
+                    setSenpexQuoteError(null);
 
-                if (canQuote) {
-                  setSenpexQuoteError(null);
-                  setSenpexQuoteInProgress(true);
-                  const receiverName = `${firstName} ${lastName}`;
-                  senpexDropoffQuote({
-                    receiverName,
-                    receiverPhone: phone,
-                    deliveryAddress: address,
-                    deliveryInstructions: '',
-                    listingId,
-                    pickupAddress: providerPickupAddress || undefined,
-                  })
-                    .then((q) => {
-                      setSenpexQuote(q);
-                      setSenpexQuoteInProgress(false);
-                      onHandleFetchLineItems({
-                        values: {
+                    const receiverName = `${firstName} ${lastName}`;
+                    const quoteRequest = {
+                      receiverName,
+                      receiverPhone: phone,
+                      deliveryAddress: address,
+                      deliveryInstructions: '',
+                      listingId,
+                      pickupAddress: providerPickupAddress || undefined,
+                    };
+
+                    console.log('Senpex quote request:', quoteRequest);
+
+                    senpexDropoffQuote(quoteRequest)
+                      .then((q) => {
+                        console.log('Senpex quote received:', q);
+                        setSenpexQuote(q);
+                        setSenpexQuoteInProgress(false);
+
+                        const lineItemValues = {
                           priceVariantName,
                           startDate,
                           endDate,
@@ -1036,14 +1010,26 @@ export const BookingDatesForm = (props) => {
                           senpexShippingPriceInSubunits: Math.round(
                             (q?.price || 0) * 100
                           ),
-                        },
+                        };
+
+                        console.log(
+                          'Updating line items with:',
+                          lineItemValues
+                        );
+                        onHandleFetchLineItems({
+                          values: lineItemValues,
+                        });
+                      })
+                      .catch((e) => {
+                        console.log('Senpex quote error:', e);
+                        setSenpexQuoteInProgress(false);
+                        setSenpexQuoteError('shipping-quote-failed');
                       });
-                    })
-                    .catch((e) => {
-                      setSenpexQuoteInProgress(false);
-                      setSenpexQuoteError('shipping-quote-failed');
-                    });
+                  } else {
+                    console.log('Missing delivery info, skipping Senpex quote');
+                  }
                 }
+                console.log('==============================');
               }}
             />
 

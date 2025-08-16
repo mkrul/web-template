@@ -135,19 +135,45 @@ export const transactionLineItems = (body) => {
 
 // Senpex shipping proxy endpoints
 export const senpexPickupQuote = (body) => {
+  console.log('=== Client Senpex Pickup Quote ===');
+  console.log('Request body:', body);
+
   return request('/api/shipping/senpex/quote', {
     method: methods.POST,
     headers: { 'Content-Type': 'application/json' },
     body,
-  });
+  })
+    .then((response) => {
+      console.log('Senpex pickup quote response:', response);
+      console.log('==============================');
+      return response;
+    })
+    .catch((error) => {
+      console.log('Senpex pickup quote error:', error);
+      console.log('==============================');
+      throw error;
+    });
 };
 
 export const senpexDropoffQuote = (body) => {
+  console.log('=== Client Senpex Dropoff Quote ===');
+  console.log('Request body:', body);
+
   return request('/api/shipping/senpex/dropoff/quote', {
     method: methods.POST,
     headers: { 'Content-Type': 'application/json' },
     body,
-  });
+  })
+    .then((response) => {
+      console.log('Senpex dropoff quote response:', response);
+      console.log('==============================');
+      return response;
+    })
+    .catch((error) => {
+      console.log('Senpex dropoff quote error:', error);
+      console.log('==============================');
+      throw error;
+    });
 };
 
 // Initiate a privileged transaction.

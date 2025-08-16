@@ -251,9 +251,18 @@ exports.transactionLineItems = (
 
   // For bookings (non-item unit types), add Senpex shipping fee if provided via orderData
   if (unitType !== 'item' && orderData?.deliveryMethod === 'senpex-shipping') {
+    console.log('=== Senpex Shipping Fee Processing ===');
+    console.log('Unit type:', unitType);
+    console.log('Delivery method:', orderData?.deliveryMethod);
+    console.log('Order data:', orderData);
+
     const resolveBookingSenpexPriceSubunits = () => {
       const fromOrderSubunits = orderData?.senpexShippingPriceInSubunits;
       if (Number.isInteger(fromOrderSubunits) && fromOrderSubunits >= 0) {
+        console.log(
+          'Using Senpex price from order subunits:',
+          fromOrderSubunits
+        );
         return fromOrderSubunits;
       }
       const fromOrderMajor = orderData?.senpexShippingPrice;
@@ -263,20 +272,43 @@ exports.transactionLineItems = (
           const sub = new Decimal(fromOrderMajor)
             .times(divisor)
             .toNearest(1, Decimal.ROUND_HALF_UP);
-          return convertDecimalJSToNumber(sub);
+          const result = convertDecimalJSToNumber(sub);
+          console.log(
+            'Using Senpex price from order major:',
+            fromOrderMajor,
+            'converted to:',
+            result
+          );
+          return result;
         } catch (_) {
+          console.log('Failed to convert Senpex price from order major');
           return null;
         }
       }
       const fromListing = listing?.attributes?.publicData?.senpexShippingPrice;
-      return Number.isInteger(fromListing) && fromListing >= 0
-        ? fromListing
-        : null;
+      const result =
+        Number.isInteger(fromListing) && fromListing >= 0 ? fromListing : null;
+      console.log(
+        'Using Senpex price from listing:',
+        fromListing,
+        'result:',
+        result
+      );
+      return result;
     };
 
     const bookingSenpexPriceSubunits = resolveBookingSenpexPriceSubunits();
+    console.log('Final Senpex price subunits:', bookingSenpexPriceSubunits);
+
     if (Number.isInteger(bookingSenpexPriceSubunits)) {
       const fee = new Money(bookingSenpexPriceSubunits, currency);
+      console.log('Adding Senpex shipping fee line item:', {
+        code: 'line-item/senpex-shipping-fee',
+        unitPrice: fee,
+        quantity: 1,
+        includeFor: ['customer', 'provider'],
+      });
+
       extraLineItems = [
         ...extraLineItems,
         {
@@ -286,7 +318,10 @@ exports.transactionLineItems = (
           includeFor: ['customer', 'provider'],
         },
       ];
+    } else {
+      console.log('No valid Senpex price found, skipping fee line item');
     }
+    console.log('==============================');
   }
 
   // Throw error if there is no quantity information given

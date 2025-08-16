@@ -438,39 +438,6 @@ const EditListingDetailsForm = (props) => (
         !hasMandatoryListingTypeData ||
         !isCompatibleCurrency;
 
-      // Comprehensive logging for debugging form submission
-      console.log('=== EditListingDetailsForm Debug ===');
-      console.log('Form State:', {
-        invalid,
-        disabled,
-        submitInProgress,
-        hasMandatoryListingTypeData,
-        isCompatibleCurrency,
-        submitDisabled,
-        submitReady,
-        updated,
-        pristine,
-        ready
-      });
-      console.log('Form Values:', {
-        listingType,
-        transactionProcessAlias,
-        unitType,
-        title: values.title,
-        description: values.description,
-        allCategoriesChosen,
-        hasCategories,
-        showTitle,
-        showDescription,
-        showCategories
-      });
-      console.log('Category State:', {
-        selectableCategories: selectableCategories?.length,
-        categoryPrefix,
-        values: Object.keys(values).filter(key => key.startsWith(categoryPrefix))
-      });
-      console.log('==============================');
-
       return (
         <Form className={classes} onSubmit={handleSubmit}>
           <ErrorMessage fetchErrors={fetchErrors} />

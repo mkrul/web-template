@@ -672,8 +672,13 @@ export const CheckoutPageWithPayment = (props) => {
                   quote={orderData?.senpexQuote}
                   currentUser={currentUser}
                   onGetQuote={async (payload) => {
+                    console.log('=== Checkout Page Senpex Quote ===');
+                    console.log('Quote payload:', payload);
+
                     try {
                       const quote = await senpexDropoffQuote(payload);
+                      console.log('Checkout Senpex quote received:', quote);
+
                       const updated = {
                         ...pageData,
                         orderData: {
@@ -684,19 +689,27 @@ export const CheckoutPageWithPayment = (props) => {
                           ),
                         },
                       };
+
+                      console.log('Updated page data:', updated);
                       setPageData(updated);
+
                       const orderParams = getOrderParams(
                         updated,
                         {},
                         {},
                         config
                       );
+
+                      console.log('Order params for speculation:', orderParams);
                       fetchSpeculatedTransactionIfNeeded(
                         orderParams,
                         updated,
                         props.fetchSpeculatedTransaction
                       );
-                    } catch (e) {}
+                    } catch (e) {
+                      console.log('Checkout Senpex quote error:', e);
+                    }
+                    console.log('==============================');
                   }}
                   intl={intl}
                 />

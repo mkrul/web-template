@@ -505,8 +505,12 @@ class EditListingWizard extends Component {
       listing,
       config,
     } = this.props;
-    const processName =
-      listing?.attributes?.publicData?.transactionProcessAlias.split('/')[0];
+    const transactionProcessAlias =
+      listing?.attributes?.publicData?.transactionProcessAlias;
+
+    const processName = transactionProcessAlias
+      ? transactionProcessAlias.split('/')[0]
+      : INQUIRY_PROCESS_NAME;
     const isInquiryProcess = processName === INQUIRY_PROCESS_NAME;
 
     const listingTypeConfig = getListingTypeConfig(
@@ -606,18 +610,26 @@ class EditListingWizard extends Component {
     //       if it's enabled with other processes, translations for "new" flow needs to be updated.
     const isPriceDisabled = !displayPrice(listingTypeConfig);
 
+    // For new listing flow, always consider daily-booking as selected since it's the default
+    const isDailyBookingAvailable = validListingTypes.some(
+      (lt) => lt.listingType === 'daily-booking'
+    );
+
     // Transaction process alias is used here, because the process defineds whether the listing is supported
     // I.e. old listings might not be supported through listing types, but client app might still support those processes.
     const processName = transactionProcessAlias
       ? transactionProcessAlias.split('/')[0]
       : validListingTypes.length === 1
         ? validListingTypes[0].transactionType.process
-        : INQUIRY_PROCESS_NAME;
-
+        : isNewListingFlow && isDailyBookingAvailable
+          ? validListingTypes.find((lt) => lt.listingType === 'daily-booking')
+              ?.transactionType.process || INQUIRY_PROCESS_NAME
+          : INQUIRY_PROCESS_NAME;
     const hasListingTypeSelected =
       existingListingType ||
       this.state.selectedListingType ||
-      validListingTypes.length === 1;
+      validListingTypes.length === 1 ||
+      (isNewListingFlow && isDailyBookingAvailable);
 
     // For oudated draft listing, we don't show other tabs but the "details"
     const tabs =
