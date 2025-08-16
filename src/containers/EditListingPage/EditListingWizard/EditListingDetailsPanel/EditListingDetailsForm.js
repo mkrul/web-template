@@ -236,10 +236,6 @@ const CategoryField = (props) => {
 };
 
 const FieldSelectCategory = (props) => {
-  useEffect(() => {
-    checkIfInitialValuesExist();
-  }, []);
-
   const {
     prefix,
     listingCategories,
@@ -251,15 +247,21 @@ const FieldSelectCategory = (props) => {
 
   // Counts the number of selected categories in the form values based on the given prefix.
   const countSelectedCategories = () => {
-    return Object.keys(values).filter((key) => key.startsWith(prefix)).length;
+    return Object.keys(values).filter(
+      (key) => key.startsWith(prefix) && values[key]
+    ).length;
   };
 
   // Checks if initial values exist for categories and sets the state accordingly.
   // If initial values exist, it sets `allCategoriesChosen` state to true; otherwise, it sets it to false
   const checkIfInitialValuesExist = () => {
-    const count = countSelectedCategories(values, prefix);
+    const count = countSelectedCategories();
     setAllCategoriesChosen(count > 0);
   };
+
+  useEffect(() => {
+    checkIfInitialValuesExist();
+  }, []);
 
   // If a parent category changes, clear all child category values
   const handleCategoryChange = (category, level, currentCategoryOptions) => {
@@ -435,6 +437,39 @@ const EditListingDetailsForm = (props) => (
         submitInProgress ||
         !hasMandatoryListingTypeData ||
         !isCompatibleCurrency;
+
+      // Comprehensive logging for debugging form submission
+      console.log('=== EditListingDetailsForm Debug ===');
+      console.log('Form State:', {
+        invalid,
+        disabled,
+        submitInProgress,
+        hasMandatoryListingTypeData,
+        isCompatibleCurrency,
+        submitDisabled,
+        submitReady,
+        updated,
+        pristine,
+        ready
+      });
+      console.log('Form Values:', {
+        listingType,
+        transactionProcessAlias,
+        unitType,
+        title: values.title,
+        description: values.description,
+        allCategoriesChosen,
+        hasCategories,
+        showTitle,
+        showDescription,
+        showCategories
+      });
+      console.log('Category State:', {
+        selectableCategories: selectableCategories?.length,
+        categoryPrefix,
+        values: Object.keys(values).filter(key => key.startsWith(categoryPrefix))
+      });
+      console.log('==============================');
 
       return (
         <Form className={classes} onSubmit={handleSubmit}>

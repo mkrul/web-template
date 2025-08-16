@@ -2,7 +2,7 @@
 
 .largeLabel {
   font-size: 15px;
-  font-weight: 500;
+  font-weight: var(--fontWeightSemiBold);
 }
 
 .customField {

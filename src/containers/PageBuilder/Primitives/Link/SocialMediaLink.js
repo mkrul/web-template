@@ -20,15 +20,15 @@ const PLATFORM_CONF = {
   linkedin: { icon: linkedinIcon, name: 'LinkedIn' },
   pinterest: { icon: pinterestIcon, name: 'Pinterest' },
   tiktok: { icon: tiktokIcon, name: 'TikTok' },
-  twitter: { icon: xIcon, name: 'X' },
-  youtube: { icon: youtubeIcon, name: 'YouTube' },
+  twitter: { icon: instagramIcon, name: 'Instagram' },
+  youtube: { icon: tiktokIcon, name: 'TikTok' },
 };
 
-const getIconConf = platform => {
+const getIconConf = (platform) => {
   const icon = PLATFORM_CONF[platform]?.icon || null;
   return icon;
 };
-const getIconTitle = platform => {
+const getIconTitle = (platform) => {
   return PLATFORM_CONF[platform]?.name || platform;
 };
 

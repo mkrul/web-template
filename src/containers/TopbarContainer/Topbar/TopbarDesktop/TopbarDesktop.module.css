@@ -220,12 +220,13 @@
   width: 100%;
   min-width: 276px;
   margin: 0;
-  padding: 4px 24px;
+  padding: 8px 24px;
 
   /* Layout details */
   color: var(--colorGrey700);
   text-align: left;
   transition: var(--transitionStyleButton);
+  font-size: 16px;
 
   &:hover {
     color: var(--colorBlack);
@@ -250,7 +251,7 @@
 
   /* Font is specific to this component */
   font-weight: var(--fontWeightMedium);
-  font-size: 14px;
+  font-size: 16px;
   line-height: 18px;
   letter-spacing: 0;
 
@@ -259,7 +260,7 @@
   width: 100%;
   min-width: 276px;
   margin: 0;
-  padding: 20px 24px;
+  padding: 24px 24px;
 
   /* Layout details */
   color: var(--colorGrey300);

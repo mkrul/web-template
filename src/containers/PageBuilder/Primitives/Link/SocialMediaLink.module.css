@@ -1,4 +1,5 @@
 .link {
   display: inline-block;
   color: var(--marketplaceColor);
+  line-height: 1.3;
 }
