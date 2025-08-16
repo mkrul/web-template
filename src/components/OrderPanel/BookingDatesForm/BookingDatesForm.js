@@ -758,6 +758,7 @@ export const BookingDatesForm = (props) => {
           fetchLineItemsError,
           onFetchTimeSlots,
           form: formApi,
+          invalid,
         } = formRenderProps;
         const { startDate, endDate } = values?.bookingDates
           ? values.bookingDates
@@ -847,7 +848,10 @@ export const BookingDatesForm = (props) => {
         const profile = currentUser?.attributes?.profile || {};
         const urlParams = new URLSearchParams(window.location.search);
         const addressFromUrl = urlParams.get('address');
-        const addressFromForm = values?.deliveryAddress;
+        const addressFromForm =
+          values?.deliveryAddress?.selectedPlace?.address ||
+          values?.deliveryAddress?.search ||
+          values?.deliveryAddress;
         let hasDeliveryAddress = false;
 
         let deliveryAddress =
@@ -873,8 +877,10 @@ export const BookingDatesForm = (props) => {
         const datePickerDisabled = !hasDeliveryAddress;
 
         const submitDisabled =
+          invalid ||
           (isPriceVariationsInUse && !isPublishedListing) ||
-          !hasDeliveryAddress;
+          !hasDeliveryAddress ||
+          senpexQuoteError;
 
         return (
           <Form
@@ -901,19 +907,9 @@ export const BookingDatesForm = (props) => {
                 placeholder={intl.formatMessage({
                   id: 'BookingDatesForm.deliveryAddressPlaceholder',
                 })}
-                format={(value) => {
-                  if (!value) return '';
-                  return typeof value === 'string'
-                    ? value
-                    : value?.selectedPlace?.address || '';
-                }}
-                parse={(value) => {
-                  if (!value) return null;
-                  if (typeof value === 'string') return value;
-                  return value?.selectedPlace?.address || value;
-                }}
                 onChange={(value) => {
-                  const address = value?.selectedPlace?.address || value;
+                  const address =
+                    value?.selectedPlace?.address || value?.search || value;
                   if (
                     address &&
                     typeof window !== 'undefined' &&
@@ -1018,18 +1014,29 @@ export const BookingDatesForm = (props) => {
               onClose={() => {
                 setCurrentMonth(startDate || endDate || startOfToday);
               }}
-              onChange={(values) => {
+              onChange={(dateValues) => {
                 const {
                   startDate: startDateFromValues,
                   endDate: endDateFromValues,
-                } = values || {};
+                } = dateValues || {};
+
+                const fullValues = formApi?.getState?.().values || {};
 
                 console.log('=== Booking Dates Form Senpex Integration ===');
-                console.log('Form values:', values);
+                console.log('Date values:', dateValues);
+                console.log('Form values keys:', Object.keys(fullValues || {}));
+                console.log(
+                  'Delivery address raw:',
+                  fullValues?.deliveryAddress
+                );
+                console.log(
+                  'Delivery address type:',
+                  typeof fullValues?.deliveryAddress
+                );
                 console.log('Current user:', currentUser);
                 console.log('Listing ID:', listingId);
 
-                const { startDate, endDate } = values
+                const { startDate, endDate } = dateValues
                   ? getStartAndEndOnTimeZone(
                       startDateFromValues,
                       endDateFromValues,
@@ -1075,7 +1082,17 @@ export const BookingDatesForm = (props) => {
                 // Preferred address: user's saved delivery address; fallback: form input, URL search bar, or last stored in session
                 const urlParams = new URLSearchParams(window.location.search);
                 const addressFromUrl = urlParams.get('address');
-                const addressFromForm = values?.deliveryAddress;
+                const addressFromForm =
+                  fullValues?.deliveryAddress?.selectedPlace?.address ||
+                  fullValues?.deliveryAddress?.search ||
+                  fullValues?.deliveryAddress;
+                console.log('Address extraction debug:', {
+                  deliveryAddressRaw: fullValues?.deliveryAddress,
+                  selectedPlaceAddress:
+                    fullValues?.deliveryAddress?.selectedPlace?.address,
+                  searchValue: fullValues?.deliveryAddress?.search,
+                  finalAddressFromForm: addressFromForm,
+                });
                 let address =
                   profile?.publicData?.deliveryAddress ||
                   addressFromForm ||
@@ -1152,6 +1169,7 @@ export const BookingDatesForm = (props) => {
                     });
                 } else {
                   console.log('Missing delivery info, skipping Senpex quote');
+                  setSenpexQuoteError('missing-delivery-info');
                 }
                 console.log('==============================');
               }}
@@ -1204,8 +1222,8 @@ export const BookingDatesForm = (props) => {
                   </div>
                 ) : senpexQuoteError ? (
                   <div className={css.sideBarError}>
-                    We are unable to calculate shipping at this time. Please try
-                    again or contact support
+                    Unable to calculate shipping at this time. Please try again
+                    later or contact support.
                   </div>
                 ) : (
                   <EstimatedCustomerBreakdownMaybe
