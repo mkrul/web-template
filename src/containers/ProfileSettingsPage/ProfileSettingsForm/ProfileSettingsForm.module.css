@@ -103,6 +103,7 @@
     display: block;
     max-width: 130px;
     text-align: center;
+    line-height: 1.3;
   }
 }
 
@@ -223,6 +224,7 @@
   color: var(--colorGrey300);
   margin-top: 0;
   margin-bottom: 12px;
+  font-size: 15px;
 
   @media (--viewportMedium) {
     margin-top: 0;

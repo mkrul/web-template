@@ -85,6 +85,8 @@
   color: var(--colorGrey300);
   padding: 0;
   margin: 14px 0 0 0;
+  line-height: 1.25;
+  font-size: 14px;
 }
 
 .submitButton {
@@ -104,6 +106,10 @@
 
 .paymentAddressField {
   padding-top: 38px;
+}
+
+.billingDetailsHeading {
+  font-size: 20px;
 }
 
 .formRow {

@@ -10,7 +10,13 @@ import classNames from 'classnames';
 import { useConfiguration } from '../../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../../util/reactIntl';
 
-import { Form, PrimaryButton, FieldTextInput, StripePaymentAddress, H4 } from '../../../components';
+import {
+  Form,
+  PrimaryButton,
+  FieldTextInput,
+  StripePaymentAddress,
+  H4,
+} from '../../../components';
 
 import css from './PaymentMethodsForm.module.css';
 
@@ -65,7 +71,8 @@ const stripeElementsOptions = {
 const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 const cardStyles = {
   base: {
-    fontFamily: '-apple-system, BlinkMacSystemFont, "Inter var", Helvetica, Arial, sans-serif',
+    fontFamily:
+      '-apple-system, BlinkMacSystemFont, "Inter var", Helvetica, Arial, sans-serif',
     fontSize: isMobile ? '14px' : '16px',
     fontSmoothing: 'antialiased',
     lineHeight: '24px',
@@ -119,9 +126,13 @@ class PaymentMethodsForm extends Component {
       // EventListener is the only way to simulate breakpoints with Stripe.
       window.addEventListener('resize', () => {
         if (window.innerWidth < 768) {
-          this.card.update({ style: { base: { fontSize: '14px', lineHeight: '24px' } } });
+          this.card.update({
+            style: { base: { fontSize: '14px', lineHeight: '24px' } },
+          });
         } else {
-          this.card.update({ style: { base: { fontSize: '18px', lineHeight: '24px' } } });
+          this.card.update({
+            style: { base: { fontSize: '18px', lineHeight: '24px' } },
+          });
         }
       });
     }
@@ -141,7 +152,7 @@ class PaymentMethodsForm extends Component {
       this.finalFormAPI.change('postal', postalCode);
     }
 
-    this.setState(prevState => {
+    this.setState((prevState) => {
       return {
         error: error ? stripeErrorTranslation(intl, error) : null,
         cardValueValid: complete,
@@ -186,7 +197,8 @@ class PaymentMethodsForm extends Component {
 
     this.finalFormAPI = form;
     const cardInputNeedsAttention = !this.state.cardValueValid;
-    const submitDisabled = invalid || cardInputNeedsAttention || submitInProgress;
+    const submitDisabled =
+      invalid || cardInputNeedsAttention || submitInProgress;
     const hasCardError = this.state.error && !submitInProgress;
     const classes = classNames(rootClassName || css.root, className);
     const cardClasses = classNames(css.card, {
@@ -200,7 +212,9 @@ class PaymentMethodsForm extends Component {
       createStripeCustomerError ||
       handleCardSetupError;
 
-    const errorMessage = intl.formatMessage({ id: 'PaymentMethodsForm.genericError' });
+    const errorMessage = intl.formatMessage({
+      id: 'PaymentMethodsForm.genericError',
+    });
 
     const billingDetailsNameLabel = intl.formatMessage({
       id: 'PaymentMethodsForm.billingDetailsNameLabel',
@@ -240,14 +254,16 @@ class PaymentMethodsForm extends Component {
         <div
           className={cardClasses}
           id={`${formId}-card`}
-          ref={el => {
+          ref={(el) => {
             this.cardContainer = el;
           }}
         />
         <div className={css.infoText}>{infoText}</div>
-        {hasCardError ? <span className={css.error}>{this.state.error}</span> : null}
+        {hasCardError ? (
+          <span className={css.error}>{this.state.error}</span>
+        ) : null}
         <div className={css.paymentAddressField}>
-          <H4 as="h3">
+          <H4 as="h3" className={css.billingDetailsHeading}>
             <FormattedMessage id="PaymentMethodsForm.billingDetails" />
           </H4>
 
@@ -289,7 +305,13 @@ class PaymentMethodsForm extends Component {
 
   render() {
     const { onSubmit, ...rest } = this.props;
-    return <FinalForm onSubmit={this.handleSubmit} {...rest} render={this.paymentForm} />;
+    return (
+      <FinalForm
+        onSubmit={this.handleSubmit}
+        {...rest}
+        render={this.paymentForm}
+      />
+    );
   }
 }
 
@@ -306,7 +328,7 @@ class PaymentMethodsForm extends Component {
  * @param {propTypes.error} props.handleCardSetupError - The handle card setup error
  * @returns {JSX.Element} EnhancedPaymentMethodsForm component
  */
-const EnhancedPaymentMethodsForm = props => {
+const EnhancedPaymentMethodsForm = (props) => {
   const config = useConfiguration();
   const intl = useIntl();
   return <PaymentMethodsForm config={config} intl={intl} {...props} />;

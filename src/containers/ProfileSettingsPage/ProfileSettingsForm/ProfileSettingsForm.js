@@ -368,9 +368,6 @@ class ProfileSettingsFormComponent extends Component {
                 <div className={css.tip}>
                   <FormattedMessage id="ProfileSettingsForm.tip" />
                 </div>
-                <div className={css.fileInfo}>
-                  <FormattedMessage id="ProfileSettingsForm.fileInfo" />
-                </div>
               </div>
               <div className={css.sectionContainer}>
                 <H4 as="h2" className={css.sectionTitle}>
