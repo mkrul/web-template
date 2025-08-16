@@ -15,3 +15,7 @@
 .mobileTopbar {
   box-shadow: none;
 }
+
+.heading {
+  font-size: 20px;
+}

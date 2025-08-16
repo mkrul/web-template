@@ -22,6 +22,10 @@
   }
 }
 
+.sectionContainer h3 {
+  font-size: 15px;
+}
+
 .formRow {
   display: flex;
   justify-content: space-between;
@@ -54,10 +58,17 @@
   composes: marketplaceModalHelperText from global;
   margin-bottom: 12px;
   text-align: center;
+  line-height: 1.25;
+  font-size: 15px;
 
   @media (--viewportMedium) {
     margin-bottom: 16px;
   }
+}
+
+.termsText span,
+.termsText a {
+  font-size: 15px !important;
 }
 
 .termsLink {

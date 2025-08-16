@@ -25,8 +25,6 @@ import {
   FieldTextInput,
   H4,
   CustomExtendedDataField,
-  FieldLocationAutocompleteInput,
-  FieldPhoneNumberInput,
 } from '../../../components';
 
 import css from './ProfileSettingsForm.module.css';
@@ -421,49 +419,6 @@ class ProfileSettingsFormComponent extends Component {
                 </p>
               </div>
 
-              <div className={classNames(css.sectionContainer)}>
-                <H4 as="h2" className={css.sectionTitle}>
-                  <FormattedMessage id="ProfileSettingsForm.contactInfoHeading" />
-                </H4>
-                <div className={css.homeAddressWrapper}>
-                  <FieldLocationAutocompleteInput
-                    className={css.homeAddress}
-                    name="pub_providerAddress"
-                    label={intl.formatMessage({
-                      id: 'ProfileSettingsForm.homeAddressLabel',
-                    })}
-                    placeholder={intl.formatMessage({
-                      id: 'ProfileSettingsForm.homeAddressPlaceholder',
-                    })}
-                  />
-                </div>
-
-                <FieldTextInput
-                  className={css.row}
-                  type="text"
-                  id="apartmentUnit"
-                  name="apartmentUnit"
-                  label={intl.formatMessage({
-                    id: 'ProfileSettingsForm.apartmentUnitLabel',
-                  })}
-                  placeholder={intl.formatMessage({
-                    id: 'ProfileSettingsForm.apartmentUnitPlaceholder',
-                  })}
-                />
-
-                <FieldPhoneNumberInput
-                  className={css.phoneNumber}
-                  type="text"
-                  id="phoneNumber"
-                  name="phoneNumber"
-                  label={intl.formatMessage({
-                    id: 'ProfileSettingsForm.phoneNumberLabel',
-                  })}
-                  placeholder={intl.formatMessage({
-                    id: 'ProfileSettingsForm.phoneNumberPlaceholder',
-                  })}
-                />
-              </div>
               <div
                 className={classNames(css.sectionContainer, css.lastSection)}
               >

@@ -4,21 +4,43 @@ import { connect } from 'react-redux';
 
 import { useConfiguration } from '../../context/configurationContext.js';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
-import { ensureCurrentUser, ensureStripeCustomer, ensurePaymentMethodCard } from '../../util/data';
+import {
+  ensureCurrentUser,
+  ensureStripeCustomer,
+  ensurePaymentMethodCard,
+} from '../../util/data';
 import { propTypes } from '../../util/types';
-import { showCreateListingLinkForUser, showPaymentDetailsForUser } from '../../util/userHelpers.js';
-import { savePaymentMethod, deletePaymentMethod } from '../../ducks/paymentMethods.duck';
+import {
+  showCreateListingLinkForUser,
+  showPaymentDetailsForUser,
+} from '../../util/userHelpers.js';
+import {
+  savePaymentMethod,
+  deletePaymentMethod,
+} from '../../ducks/paymentMethods.duck';
 import { handleCardSetup } from '../../ducks/stripe.duck';
-import { manageDisableScrolling, isScrollingDisabled } from '../../ducks/ui.duck';
+import {
+  manageDisableScrolling,
+  isScrollingDisabled,
+} from '../../ducks/ui.duck';
 
-import { H3, SavedCardDetails, Page, UserNav, LayoutSideNavigation } from '../../components';
+import {
+  H3,
+  SavedCardDetails,
+  Page,
+  UserNav,
+  LayoutSideNavigation,
+} from '../../components';
 
 import TopbarContainer from '../../containers/TopbarContainer/TopbarContainer';
 import FooterContainer from '../../containers/FooterContainer/FooterContainer';
 
 import PaymentMethodsForm from './PaymentMethodsForm/PaymentMethodsForm';
 
-import { createStripeSetupIntent, stripeCustomer } from './PaymentMethodsPage.duck.js';
+import {
+  createStripeSetupIntent,
+  stripeCustomer,
+} from './PaymentMethodsPage.duck.js';
 
 import css from './PaymentMethodsPage.module.css';
 
@@ -41,7 +63,7 @@ import css from './PaymentMethodsPage.module.css';
  * @param {boolean} props.stripeCustomerFetched - Whether the stripe customer is fetched
  * @returns {JSX.Element} Payment methods page component
  */
-const PaymentMethodsPageComponent = props => {
+const PaymentMethodsPageComponent = (props) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [cardState, setCardState] = useState(null);
   const intl = useIntl();
@@ -64,11 +86,14 @@ const PaymentMethodsPageComponent = props => {
     stripeCustomerFetched,
   } = props;
 
-  const getClientSecret = setupIntent => {
-    return setupIntent && setupIntent.attributes ? setupIntent.attributes.clientSecret : null;
+  const getClientSecret = (setupIntent) => {
+    return setupIntent && setupIntent.attributes
+      ? setupIntent.attributes.clientSecret
+      : null;
   };
   const getPaymentParams = (currentUser, formValues) => {
-    const { name, addressLine1, addressLine2, postal, state, city, country } = formValues;
+    const { name, addressLine1, addressLine2, postal, state, city, country } =
+      formValues;
     const addressMaybe =
       addressLine1 && postal
         ? {
@@ -97,14 +122,14 @@ const PaymentMethodsPageComponent = props => {
     return paymentParams;
   };
 
-  const handleSubmit = params => {
+  const handleSubmit = (params) => {
     setIsSubmitting(true);
     const ensuredCurrentUser = ensureCurrentUser(currentUser);
     const stripeCustomer = ensuredCurrentUser.stripeCustomer;
     const { stripe, card, formValues } = params;
 
     onCreateSetupIntent()
-      .then(setupIntent => {
+      .then((setupIntent) => {
         const stripeParams = {
           stripe,
           card,
@@ -114,7 +139,7 @@ const PaymentMethodsPageComponent = props => {
 
         return onHandleCardSetup(stripeParams);
       })
-      .then(result => {
+      .then((result) => {
         const newPaymentMethod = result.setupIntent.payment_method;
         // Note: stripe.handleCardSetup might return an error inside successful call (200), but those are rejected in thunk functions.
 
@@ -126,7 +151,7 @@ const PaymentMethodsPageComponent = props => {
         setIsSubmitting(false);
         setCardState('default');
       })
-      .catch(error => {
+      .catch((error) => {
         console.error(error);
         setIsSubmitting(false);
       });
@@ -145,7 +170,8 @@ const PaymentMethodsPageComponent = props => {
 
   const hasDefaultPaymentMethod =
     currentUser &&
-    ensureStripeCustomer(currentUser.stripeCustomer).attributes.stripeCustomerId &&
+    ensureStripeCustomer(currentUser.stripeCustomer).attributes
+      .stripeCustomerId &&
     ensurePaymentMethodCard(currentUser.stripeCustomer.defaultPaymentMethod).id;
 
   // Get first and last name of the current user and use it in the StripePaymentForm to autofill the name field
@@ -156,14 +182,21 @@ const PaymentMethodsPageComponent = props => {
   const initialValuesForStripePayment = { name: userName };
 
   const card = hasDefaultPaymentMethod
-    ? ensurePaymentMethodCard(currentUser.stripeCustomer.defaultPaymentMethod).attributes.card
+    ? ensurePaymentMethodCard(currentUser.stripeCustomer.defaultPaymentMethod)
+        .attributes.card
     : null;
 
   const showForm = cardState === 'replaceCard' || !hasDefaultPaymentMethod;
   const showCardDetails = !!hasDefaultPaymentMethod;
 
-  const showManageListingsLink = showCreateListingLinkForUser(config, currentUser);
-  const { showPayoutDetails, showPaymentMethods } = showPaymentDetailsForUser(config, currentUser);
+  const showManageListingsLink = showCreateListingLinkForUser(
+    config,
+    currentUser
+  );
+  const { showPayoutDetails, showPaymentMethods } = showPaymentDetailsForUser(
+    config,
+    currentUser
+  );
   const accountSettingsNavProps = {
     currentPage: 'PaymentMethodsPage',
     showPaymentMethods,
@@ -191,7 +224,7 @@ const PaymentMethodsPageComponent = props => {
         footer={<FooterContainer />}
       >
         <div className={css.content}>
-          <H3 as="h1">
+          <H3 as="h1" className={css.heading}>
             <FormattedMessage id="PaymentMethodsPage.heading" />
           </H3>
           {!stripeCustomerFetched ? null : (
@@ -228,7 +261,7 @@ const PaymentMethodsPageComponent = props => {
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   const { currentUser } = state.user;
 
   const {
@@ -253,22 +286,19 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   onManageDisableScrolling: (componentId, disableScrolling) =>
     dispatch(manageDisableScrolling(componentId, disableScrolling)),
   fetchStripeCustomer: () => dispatch(stripeCustomer()),
-  onHandleCardSetup: params => dispatch(handleCardSetup(params)),
-  onCreateSetupIntent: params => dispatch(createStripeSetupIntent(params)),
+  onHandleCardSetup: (params) => dispatch(handleCardSetup(params)),
+  onCreateSetupIntent: (params) => dispatch(createStripeSetupIntent(params)),
   onSavePaymentMethod: (stripeCustomer, newPaymentMethod) =>
     dispatch(savePaymentMethod(stripeCustomer, newPaymentMethod)),
-  onDeletePaymentMethod: params => dispatch(deletePaymentMethod(params)),
+  onDeletePaymentMethod: (params) => dispatch(deletePaymentMethod(params)),
 });
 
 const PaymentMethodsPage = compose(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
+  connect(mapStateToProps, mapDispatchToProps)
 )(PaymentMethodsPageComponent);
 
 export default PaymentMethodsPage;

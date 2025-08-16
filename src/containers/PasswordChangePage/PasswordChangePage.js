@@ -6,7 +6,10 @@ import { useConfiguration } from '../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { propTypes } from '../../util/types';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
-import { showCreateListingLinkForUser, showPaymentDetailsForUser } from '../../util/userHelpers';
+import {
+  showCreateListingLinkForUser,
+  showPaymentDetailsForUser,
+} from '../../util/userHelpers';
 
 import { Page, UserNav, H3, LayoutSideNavigation } from '../../components';
 
@@ -15,7 +18,11 @@ import FooterContainer from '../../containers/FooterContainer/FooterContainer';
 
 import PasswordChangeForm from './PasswordChangeForm/PasswordChangeForm';
 
-import { changePassword, changePasswordClear, resetPassword } from './PasswordChangePage.duck';
+import {
+  changePassword,
+  changePasswordClear,
+  resetPassword,
+} from './PasswordChangePage.duck';
 import css from './PasswordChangePage.module.css';
 
 /**
@@ -33,7 +40,7 @@ import css from './PasswordChangePage.module.css';
  * @param {propTypes.error} props.resetPasswordError - The reset password error
  * @returns {JSX.Element} Password change page component
  */
-export const PasswordChangePageComponent = props => {
+export const PasswordChangePageComponent = (props) => {
   const intl = useIntl();
   const config = useConfiguration();
   const {
@@ -67,8 +74,14 @@ export const PasswordChangePageComponent = props => {
 
   const title = intl.formatMessage({ id: 'PasswordChangePage.title' });
 
-  const showManageListingsLink = showCreateListingLinkForUser(config, currentUser);
-  const { showPayoutDetails, showPaymentMethods } = showPaymentDetailsForUser(config, currentUser);
+  const showManageListingsLink = showCreateListingLinkForUser(
+    config,
+    currentUser
+  );
+  const { showPayoutDetails, showPaymentMethods } = showPaymentDetailsForUser(
+    config,
+    currentUser
+  );
   const accountSettingsNavProps = {
     currentPage: 'PasswordChangePage',
     showPaymentMethods,
@@ -96,7 +109,7 @@ export const PasswordChangePageComponent = props => {
         footer={<FooterContainer />}
       >
         <div className={css.content}>
-          <H3 as="h1">
+          <H3 as="h1" className={css.heading}>
             <FormattedMessage id="PasswordChangePage.heading" />
           </H3>
           {changePasswordForm}
@@ -106,7 +119,7 @@ export const PasswordChangePageComponent = props => {
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   // Topbar needs user info.
   const {
     changePasswordError,
@@ -127,17 +140,14 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   onChange: () => dispatch(changePasswordClear()),
-  onSubmitChangePassword: values => dispatch(changePassword(values)),
-  onResetPassword: values => dispatch(resetPassword(values)),
+  onSubmitChangePassword: (values) => dispatch(changePassword(values)),
+  onResetPassword: (values) => dispatch(resetPassword(values)),
 });
 
 const PasswordChangePage = compose(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
+  connect(mapStateToProps, mapDispatchToProps)
 )(PasswordChangePageComponent);
 
 export default PasswordChangePage;

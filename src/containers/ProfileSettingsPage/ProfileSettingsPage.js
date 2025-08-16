@@ -97,16 +97,7 @@ export const ProfileSettingsPageComponent = (props) => {
   const { userFields, userTypes = [] } = config.user;
 
   const handleSubmit = (values, userType) => {
-    const {
-      firstName,
-      lastName,
-      displayName,
-      bio: rawBio,
-      pub_providerAddress,
-      apartmentUnit,
-      phoneNumber,
-      ...rest
-    } = values;
+    const { firstName, lastName, displayName, bio: rawBio, ...rest } = values;
 
     const displayNameMaybe = displayName
       ? { displayName: displayName.trim() }
@@ -121,12 +112,9 @@ export const ProfileSettingsPageComponent = (props) => {
       ...displayNameMaybe,
       bio,
       publicData: {
-        providerAddress: pub_providerAddress,
-        apartmentUnit: apartmentUnit?.trim() || null,
         ...pickUserFieldsData(rest, 'public', userType, userFields),
       },
       protectedData: {
-        phoneNumber: phoneNumber?.trim() || null,
         ...pickUserFieldsData(rest, 'protected', userType, userFields),
       },
       privateData: {
@@ -179,9 +167,6 @@ export const ProfileSettingsPageComponent = (props) => {
         ...displayNameMaybe,
         bio,
         profileImage: user.profileImage,
-        pub_providerAddress: publicData?.providerAddress,
-        apartmentUnit: publicData?.apartmentUnit,
-        phoneNumber: protectedData?.phoneNumber,
         ...initialValuesForUserFields(
           publicData,
           'public',

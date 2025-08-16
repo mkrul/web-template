@@ -7,7 +7,10 @@ import { useConfiguration } from '../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { propTypes } from '../../util/types';
 import { ensureCurrentUser } from '../../util/data';
-import { showCreateListingLinkForUser, showPaymentDetailsForUser } from '../../util/userHelpers';
+import {
+  showCreateListingLinkForUser,
+  showPaymentDetailsForUser,
+} from '../../util/userHelpers';
 
 import { sendVerificationEmail } from '../../ducks/user.duck';
 import { isScrollingDisabled } from '../../ducks/ui.duck';
@@ -44,7 +47,7 @@ import css from './ContactDetailsPage.module.css';
  * @param {propTypes.error} [props.resetPasswordError] - The reset password error
  * @returns {JSX.Element}
  */
-export const ContactDetailsPageComponent = props => {
+export const ContactDetailsPageComponent = (props) => {
   const config = useConfiguration();
   const intl = useIntl();
   const {
@@ -71,21 +74,41 @@ export const ContactDetailsPageComponent = props => {
   const userType = publicData?.userType;
   const protectedData = user.attributes.profile.protectedData || {};
   const currentPhoneNumber = protectedData.phoneNumber || '';
-  const userTypeConfig = userType && userTypes.find(config => config.userType === userType);
-  const isPhoneNumberIncluded = userTypeConfig?.defaultUserFields?.phoneNumber !== false;
+  const userTypeConfig =
+    userType && userTypes.find((config) => config.userType === userType);
+  const isPhoneNumberIncluded =
+    userTypeConfig?.defaultUserFields?.phoneNumber !== false;
   // ContactDetailsForm decides if it's allowed to show the input field.
   const phoneNumberMaybe =
-    isPhoneNumberIncluded && currentPhoneNumber ? { phoneNumber: currentPhoneNumber } : {};
+    isPhoneNumberIncluded && currentPhoneNumber
+      ? { phoneNumber: currentPhoneNumber }
+      : {};
 
-  const handleSubmit = values => {
+  const handleSubmit = (values) => {
     const phoneNumber = values.phoneNumber ? values.phoneNumber : null;
-    return onSubmitContactDetails({ ...values, phoneNumber, currentEmail, currentPhoneNumber });
+    const pub_providerAddress = values.pub_providerAddress || null;
+    const apartmentUnit = values.apartmentUnit?.trim() || null;
+    return onSubmitContactDetails({
+      ...values,
+      phoneNumber,
+      pub_providerAddress,
+      apartmentUnit,
+      currentEmail,
+      currentPhoneNumber,
+      currentAddress: publicData?.providerAddress,
+      currentApartmentUnit: publicData?.apartmentUnit,
+    });
   };
 
   const contactInfoForm = user.id ? (
     <ContactDetailsForm
       className={css.form}
-      initialValues={{ email: currentEmail, ...phoneNumberMaybe }}
+      initialValues={{
+        email: currentEmail,
+        ...phoneNumberMaybe,
+        pub_providerAddress: publicData?.providerAddress,
+        apartmentUnit: publicData?.apartmentUnit,
+      }}
       saveEmailError={saveEmailError}
       savePhoneNumberError={savePhoneNumberError}
       currentUser={currentUser}
@@ -105,8 +128,14 @@ export const ContactDetailsPageComponent = props => {
 
   const title = intl.formatMessage({ id: 'ContactDetailsPage.title' });
 
-  const showManageListingsLink = showCreateListingLinkForUser(config, currentUser);
-  const { showPayoutDetails, showPaymentMethods } = showPaymentDetailsForUser(config, currentUser);
+  const showManageListingsLink = showCreateListingLinkForUser(
+    config,
+    currentUser
+  );
+  const { showPayoutDetails, showPaymentMethods } = showPaymentDetailsForUser(
+    config,
+    currentUser
+  );
   const accountSettingsNavProps = {
     currentPage: 'ContactDetailsPage',
     showPaymentMethods,
@@ -134,7 +163,7 @@ export const ContactDetailsPageComponent = props => {
         footer={<FooterContainer />}
       >
         <div className={css.content}>
-          <H3 as="h1">
+          <H3 as="h1" className={css.heading}>
             <FormattedMessage id="ContactDetailsPage.heading" />
           </H3>
           {contactInfoForm}
@@ -144,9 +173,13 @@ export const ContactDetailsPageComponent = props => {
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   // Topbar needs user info.
-  const { currentUser, sendVerificationEmailInProgress, sendVerificationEmailError } = state.user;
+  const {
+    currentUser,
+    sendVerificationEmailInProgress,
+    sendVerificationEmailError,
+  } = state.user;
   const {
     saveEmailError,
     savePhoneNumberError,
@@ -169,18 +202,15 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => ({
+const mapDispatchToProps = (dispatch) => ({
   onChange: () => dispatch(saveContactDetailsClear()),
   onResendVerificationEmail: () => dispatch(sendVerificationEmail()),
-  onSubmitContactDetails: values => dispatch(saveContactDetails(values)),
-  onResetPassword: values => dispatch(resetPassword(values)),
+  onSubmitContactDetails: (values) => dispatch(saveContactDetails(values)),
+  onResetPassword: (values) => dispatch(resetPassword(values)),
 });
 
 const ContactDetailsPage = compose(
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
+  connect(mapStateToProps, mapDispatchToProps)
 )(ContactDetailsPageComponent);
 
 export default ContactDetailsPage;

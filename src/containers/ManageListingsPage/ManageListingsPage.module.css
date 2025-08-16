@@ -77,9 +77,21 @@
   }
 }
 
-.createListingParagraph,
+.createListingParagraph {
+  margin: 0 0 12px 0;
+
+  @media (--viewportMedium) {
+    margin: 0 0 8px 0;
+  }
+
+  @media (--viewportLarge) {
+    margin: 0 0 8px 0;
+  }
+}
+
 .headingNoListings {
   margin: 0 0 12px 0;
+  font-size: 20px;
 
   @media (--viewportMedium) {
     margin: 0 0 8px 0;
