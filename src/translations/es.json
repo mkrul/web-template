@@ -40,6 +40,8 @@
   "BookingDateRangeFilter.labelSelectedPopup": "{dates}",
   "BookingDatesForm.bookingEndTitle": "Fecha final",
   "BookingDatesForm.bookingStartTitle": "Fecha de inicio",
+  "BookingDatesForm.deliveryAddressLabel": "Dirección de entrega",
+  "BookingDatesForm.deliveryAddressPlaceholder": "Introduce la dirección de entrega",
   "BookingDatesForm.fetchLineItemsError": "Algo salió mal. Actualiza la página e inténtalo de nuevo.",
   "BookingDatesForm.ownListing": "Este anuncio es tuyo.",
   "BookingDatesForm.priceBreakdownTitle": "Desglose de la reserva",

@@ -86,3 +86,51 @@
     margin: 24px 0;
   }
 }
+
+.deliveryAddress {
+  width: calc(100% - 48px);
+  margin: 0 24px 6px 24px;
+
+  @media (--viewportMedium) {
+    width: 100%;
+    margin: 0 0 0 0;
+  }
+}
+
+.deliveryAddressWrapper {
+  margin-bottom: 2rem;
+}
+
+.deliveryAddress [class*="LocationAutocompleteInput_icon"] {
+  width: 0 !important;
+  min-width: 0 !important;
+  overflow: hidden !important;
+  visibility: hidden !important;
+}
+
+.deliveryAddress [class*="LocationAutocompleteInput_input"] {
+  pointer-events: auto !important;
+  user-select: auto !important;
+  -webkit-user-select: auto !important;
+  -moz-user-select: auto !important;
+  -ms-user-select: auto !important;
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.deliveryAddress [class*="LocationAutocompleteInput_root"] {
+  position: relative !important;
+  z-index: 1 !important;
+}
+
+.datePickerDisabledMessage {
+  color: var(--colorGrey600);
+  font-size: 14px;
+  margin: 0 24px 12px 24px;
+  text-align: center;
+  font-style: italic;
+
+  @media (--viewportMedium) {
+    margin: 0 0 12px 0;
+  }
+}

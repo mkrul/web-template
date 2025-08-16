@@ -32,6 +32,7 @@ import {
   FieldSelect,
   H6,
   IconSpinner,
+  FieldLocationAutocompleteInput,
 } from '../../../components';
 
 import EstimatedCustomerBreakdownMaybe from '../EstimatedCustomerBreakdownMaybe';
@@ -841,7 +842,39 @@ export const BookingDatesForm = (props) => {
         );
 
         const isDaily = lineItemUnitType === LINE_ITEM_DAY;
-        const submitDisabled = isPriceVariationsInUse && !isPublishedListing;
+
+        // Check if address is available from any source
+        const profile = currentUser?.attributes?.profile || {};
+        const urlParams = new URLSearchParams(window.location.search);
+        const addressFromUrl = urlParams.get('address');
+        const addressFromForm = values?.deliveryAddress;
+        let hasDeliveryAddress = false;
+
+        let deliveryAddress =
+          profile?.publicData?.deliveryAddress ||
+          addressFromForm ||
+          addressFromUrl;
+
+        try {
+          if (
+            !deliveryAddress &&
+            typeof window !== 'undefined' &&
+            window.sessionStorage
+          ) {
+            const remembered = window.sessionStorage.getItem(
+              'last_delivery_address'
+            );
+            deliveryAddress = remembered || deliveryAddress;
+          }
+        } catch (_) {}
+
+        hasDeliveryAddress = !!deliveryAddress;
+
+        const datePickerDisabled = !hasDeliveryAddress;
+
+        const submitDisabled =
+          (isPriceVariationsInUse && !isPublishedListing) ||
+          !hasDeliveryAddress;
 
         return (
           <Form
@@ -857,6 +890,47 @@ export const BookingDatesForm = (props) => {
                 disabled={!isPublishedListing}
               />
             ) : null}
+
+            <div className={css.deliveryAddressWrapper}>
+              <FieldLocationAutocompleteInput
+                className={css.deliveryAddress}
+                name="deliveryAddress"
+                label={intl.formatMessage({
+                  id: 'BookingDatesForm.deliveryAddressLabel',
+                })}
+                placeholder={intl.formatMessage({
+                  id: 'BookingDatesForm.deliveryAddressPlaceholder',
+                })}
+                format={(value) => {
+                  if (!value) return '';
+                  return typeof value === 'string'
+                    ? value
+                    : value?.selectedPlace?.address || '';
+                }}
+                parse={(value) => {
+                  if (!value) return null;
+                  if (typeof value === 'string') return value;
+                  return value?.selectedPlace?.address || value;
+                }}
+                onChange={(value) => {
+                  const address = value?.selectedPlace?.address || value;
+                  if (
+                    address &&
+                    typeof window !== 'undefined' &&
+                    window.sessionStorage
+                  ) {
+                    try {
+                      window.sessionStorage.setItem(
+                        'last_delivery_address',
+                        address
+                      );
+                    } catch (_) {}
+                  }
+                }}
+                disabled={false}
+                autoFocus={false}
+              />
+            </div>
 
             <FieldDateRangePicker
               className={css.bookingDates}
@@ -915,10 +989,12 @@ export const BookingDatesForm = (props) => {
               isBlockedBetween={isBlockedBetween(relevantTimeSlots, timeZone)}
               disabled={
                 fetchLineItemsInProgress ||
-                (priceVariants.length > 0 && !priceVariantName)
+                (priceVariants.length > 0 && !priceVariantName) ||
+                datePickerDisabled
               }
               showLabelAsDisabled={
-                priceVariants.length > 0 && !priceVariantName
+                (priceVariants.length > 0 && !priceVariantName) ||
+                datePickerDisabled
               }
               showPreviousMonthStepper={showPreviousMonthStepper(
                 currentMonth,
@@ -947,6 +1023,12 @@ export const BookingDatesForm = (props) => {
                   startDate: startDateFromValues,
                   endDate: endDateFromValues,
                 } = values || {};
+
+                console.log('=== Booking Dates Form Senpex Integration ===');
+                console.log('Form values:', values);
+                console.log('Current user:', currentUser);
+                console.log('Listing ID:', listingId);
+
                 const { startDate, endDate } = values
                   ? getStartAndEndOnTimeZone(
                       startDateFromValues,
@@ -955,6 +1037,11 @@ export const BookingDatesForm = (props) => {
                       timeZone
                     )
                   : {};
+
+                if (startDate && endDate) {
+                  console.log('Booking dates:', { startDate, endDate });
+                }
+
                 if (seatsEnabled) {
                   formApi.change('seats', 1);
                 }
@@ -985,11 +1072,14 @@ export const BookingDatesForm = (props) => {
                 const firstName = profile?.firstName;
                 const lastName = profile?.lastName;
                 const phone = profile?.protectedData?.phoneNumber;
-                // Preferred address: user's saved delivery address; fallback: address from URL search bar or last stored in session
+                // Preferred address: user's saved delivery address; fallback: form input, URL search bar, or last stored in session
                 const urlParams = new URLSearchParams(window.location.search);
                 const addressFromUrl = urlParams.get('address');
+                const addressFromForm = values?.deliveryAddress;
                 let address =
-                  profile?.publicData?.deliveryAddress || addressFromUrl;
+                  profile?.publicData?.deliveryAddress ||
+                  addressFromForm ||
+                  addressFromUrl;
                 try {
                   if (
                     !address &&
@@ -1002,6 +1092,14 @@ export const BookingDatesForm = (props) => {
                     address = remembered || address;
                   }
                 } catch (_) {}
+
+                console.log('User delivery info:', {
+                  firstName,
+                  lastName,
+                  phone,
+                  address,
+                });
+
                 const canQuote =
                   startDate &&
                   endDate &&
@@ -1012,18 +1110,26 @@ export const BookingDatesForm = (props) => {
                   !senpexQuote;
 
                 if (canQuote) {
+                  console.log(
+                    'All delivery info present, requesting Senpex quote'
+                  );
                   setSenpexQuoteError(null);
                   setSenpexQuoteInProgress(true);
                   const receiverName = `${firstName} ${lastName}`;
-                  senpexDropoffQuote({
+                  const quoteRequest = {
                     receiverName,
                     receiverPhone: phone,
                     deliveryAddress: address,
                     deliveryInstructions: '',
                     listingId,
                     pickupAddress: providerPickupAddress || undefined,
-                  })
+                  };
+
+                  console.log('Senpex quote request:', quoteRequest);
+
+                  senpexDropoffQuote(quoteRequest)
                     .then((q) => {
+                      console.log('Senpex quote received:', q);
                       setSenpexQuote(q);
                       setSenpexQuoteInProgress(false);
                       onHandleFetchLineItems({
@@ -1040,10 +1146,14 @@ export const BookingDatesForm = (props) => {
                       });
                     })
                     .catch((e) => {
+                      console.log('Senpex quote error:', e);
                       setSenpexQuoteInProgress(false);
                       setSenpexQuoteError('shipping-quote-failed');
                     });
+                } else {
+                  console.log('Missing delivery info, skipping Senpex quote');
                 }
+                console.log('==============================');
               }}
             />
 

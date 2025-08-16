@@ -40,6 +40,8 @@
   "BookingDateRangeFilter.labelSelectedPopup": "{dates}",
   "BookingDatesForm.bookingEndTitle": "Bis",
   "BookingDatesForm.bookingStartTitle": "Von",
+  "BookingDatesForm.deliveryAddressLabel": "Lieferadresse",
+  "BookingDatesForm.deliveryAddressPlaceholder": "Lieferadresse eingeben",
   "BookingDatesForm.fetchLineItemsError": "Hoppla! Etwas ist schiefgelaufen. Bitte aktualisiere die Seite und versuche es erneut.",
   "BookingDatesForm.ownListing": "Das ist dein eigener Eintrag.",
   "BookingDatesForm.priceBreakdownTitle": "Buchungsaufschlüsselung",
