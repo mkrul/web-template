@@ -324,9 +324,13 @@ class LocationAutocompleteInputImplementation extends Component {
       selectedPlace: null,
     });
 
-    this.setState({ fetchingPlaceDetails: true });
+    // Don't show spinner for delivery address (hideSpinner prop)
+    if (!this.props.hideSpinner) {
+      this.setState({ fetchingPlaceDetails: true });
+    }
 
-    this.getGeocoder()
+    const geocoder = this.getGeocoder();
+    geocoder
       .getPlaceDetails(prediction, currentLocationBoundsDistance)
       .then((place) => {
         if (!this._isMounted) {

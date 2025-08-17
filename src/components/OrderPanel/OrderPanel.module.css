@@ -42,7 +42,7 @@
 }
 
 .heading {
-  /* Font */
+  composes: marketplaceModalTitleStyles from global;
   color: var(--colorGrey700);
 
   /* Layout */

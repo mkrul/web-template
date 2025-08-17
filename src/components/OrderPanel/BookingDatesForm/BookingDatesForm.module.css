@@ -32,12 +32,15 @@
 }
 
 .priceBreakdownContainer {
-  padding: 0 24px;
-  margin-top: 24px;
+  /* Mobile margins to match other form elements */
+  width: calc(100vw - 48px);
+  margin: 24px 24px 0 24px;
+  padding: 0;
 
   @media (--viewportMedium) {
+    width: 100%;
+    margin: 40px 0 0 0;
     padding: 0;
-    margin-top: 40px;
   }
 }
 
@@ -90,8 +93,8 @@
 }
 
 .deliveryAddress {
-  width: calc(100% - 48px);
-  margin: 0 24px 6px 24px;
+  width: 100%;
+  margin: 0 0 6px 0;
 
   @media (--viewportMedium) {
     width: 100%;
@@ -99,8 +102,25 @@
   }
 }
 
-.deliveryAddressWrapper {
+.deliveryAddressSection {
   margin-bottom: 2rem;
+
+  /* Mobile margins to match FieldDateRangePicker */
+  width: calc(100vw - 48px);
+  margin: 0 24px 2rem 24px;
+
+  @media (--viewportMedium) {
+    width: 100%;
+    margin: 0 0 2rem 0;
+  }
+}
+
+.deliveryAddressSection label {
+  font-size: 16px;
+
+  @media (--viewportMedium) {
+    font-size: inherit;
+  }
 }
 
 .deliveryAddress [class*="LocationAutocompleteInput_icon"] {
@@ -123,6 +143,10 @@
 .deliveryAddress [class*="LocationAutocompleteInput_root"] {
   position: relative !important;
   z-index: 1 !important;
+}
+
+.deliveryAddress [class*="LocationAutocompleteInput_icon"] {
+  display: none !important;
 }
 
 .datePickerDisabledMessage {

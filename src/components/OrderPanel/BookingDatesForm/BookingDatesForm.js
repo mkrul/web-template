@@ -57,64 +57,33 @@ const MAX_DELIVERY_DISTANCE_METERS =
  * @returns {Object} - { isValid: boolean, distance: number, error: string }
  */
 const validateDeliveryDistance = async (pickupAddress, deliveryPlace) => {
-  console.log('🔍 [Distance Validation] Starting validation...');
-  console.log('🔍 [Distance Validation] Pickup address:', pickupAddress);
-  console.log('🔍 [Distance Validation] Delivery place:', deliveryPlace);
-
   if (!pickupAddress || !deliveryPlace?.origin) {
-    console.log('❌ [Distance Validation] Missing required data:', {
-      hasPickupAddress: !!pickupAddress,
-      hasDeliveryOrigin: !!deliveryPlace?.origin,
-      deliveryPlaceKeys: deliveryPlace ? Object.keys(deliveryPlace) : 'null',
-    });
     return { isValid: false, distance: null, error: 'missing-coordinates' };
   }
 
   try {
     // For pickup address, we need to geocode it to get coordinates
     const geocodePickupAddress = async (address) => {
-      console.log(
-        '🗺️ [Geocoding] Starting geocoding for pickup address:',
-        address
-      );
-
       // Try to use Google Maps Geocoding if available
       if (window.google && window.google.maps && window.google.maps.Geocoder) {
-        console.log('🗺️ [Geocoding] Google Maps Geocoder available');
         const geocoder = new window.google.maps.Geocoder();
         return new Promise((resolve, reject) => {
           geocoder.geocode({ address }, (results, status) => {
-            console.log('🗺️ [Geocoding] Geocoding result:', {
-              status,
-              resultsCount: results?.length,
-            });
             if (status === 'OK' && results[0]) {
               const location = results[0].geometry.location;
               const coords = { lat: location.lat(), lng: location.lng() };
-              console.log(
-                '✅ [Geocoding] Successfully geocoded pickup address:',
-                coords
-              );
               resolve(coords);
             } else {
-              console.error('❌ [Geocoding] Geocoding failed:', {
-                status,
-                results,
-              });
               reject(new Error(`Geocoding failed: ${status}`));
             }
           });
         });
       }
-      console.error('❌ [Geocoding] Google Maps Geocoder not available');
       throw new Error('Geocoding service not available');
     };
 
     const pickupCoords = await geocodePickupAddress(pickupAddress);
     const deliveryCoords = deliveryPlace.origin;
-
-    console.log('📍 [Coordinates] Pickup coordinates:', pickupCoords);
-    console.log('📍 [Coordinates] Delivery coordinates:', deliveryCoords);
 
     const distanceMeters = calculateDistanceBetweenPoints(
       pickupCoords,
@@ -122,20 +91,7 @@ const validateDeliveryDistance = async (pickupAddress, deliveryPlace) => {
     );
     const distanceMiles = distanceMeters / MILES_TO_METERS;
 
-    console.log('📏 [Distance] Calculated distance:', {
-      meters: distanceMeters,
-      miles: distanceMiles,
-      maxAllowedMiles: MAX_DELIVERY_DISTANCE_MILES,
-      maxAllowedMeters: MAX_DELIVERY_DISTANCE_METERS,
-    });
-
     const isValid = distanceMeters <= MAX_DELIVERY_DISTANCE_METERS;
-
-    console.log('✅ [Distance Validation] Result:', {
-      isValid,
-      distanceMiles: Math.round(distanceMiles * 100) / 100,
-      error: isValid ? null : 'distance-exceeded',
-    });
 
     return {
       isValid,
@@ -143,7 +99,7 @@ const validateDeliveryDistance = async (pickupAddress, deliveryPlace) => {
       error: isValid ? null : 'distance-exceeded',
     };
   } catch (error) {
-    console.error('❌ [Distance Validation] Error:', error);
+    console.error('Distance validation error:', error);
     return { isValid: false, distance: null, error: 'geocoding-failed' };
   }
 };
@@ -786,13 +742,6 @@ export const BookingDatesForm = (props) => {
   const [isValidatingDistance, setIsValidatingDistance] = useState(false);
   const currentUser = useSelector((state) => state.user.currentUser);
 
-  // Debug logging for pickup address
-  console.log(
-    '🏪 [BookingDatesForm] Provider pickup address:',
-    providerPickupAddress
-  );
-  console.log('👤 [BookingDatesForm] Current user:', currentUser?.id);
-
   const initialValuesMaybe =
     priceVariants.length > 1 && preselectedPriceVariant
       ? { initialValues: { priceVariantName: preselectedPriceVariant?.name } }
@@ -941,7 +890,8 @@ export const BookingDatesForm = (props) => {
           breakdownData &&
           lineItems &&
           !fetchLineItemsInProgress &&
-          !fetchLineItemsError;
+          !fetchLineItemsError &&
+          !distanceValidationError;
 
         const dateFormatOptions = {
           weekday: 'short',
@@ -1039,16 +989,6 @@ export const BookingDatesForm = (props) => {
           isValidatingDistance ||
           senpexQuoteError;
 
-        // Debug logging for validation state
-        console.log('🔍 [Validation State] Current state:', {
-          hasDeliveryAddress,
-          distanceValidationError,
-          isValidatingDistance,
-          isDeliveryAddressValid,
-          datePickerDisabled,
-          submitDisabled,
-        });
-
         return (
           <Form
             onSubmit={handleSubmit}
@@ -1064,7 +1004,7 @@ export const BookingDatesForm = (props) => {
               />
             ) : null}
 
-            <div className={css.deliveryAddressWrapper}>
+            <div className={css.deliveryAddressSection}>
               <FieldLocationAutocompleteInput
                 className={css.deliveryAddress}
                 name="deliveryAddress"
@@ -1074,32 +1014,10 @@ export const BookingDatesForm = (props) => {
                 placeholder={intl.formatMessage({
                   id: 'BookingDatesForm.deliveryAddressPlaceholder',
                 })}
+                hideSpinner={true}
                 onChange={async (value) => {
-                  console.log(
-                    '🔄 [Delivery Address] onChange triggered with value:',
-                    value
-                  );
-                  console.log('🔍 [Delivery Address] Value breakdown:', {
-                    hasSearch: !!value?.search,
-                    hasSelectedPlace: !!value?.selectedPlace,
-                    hasOrigin: !!value?.selectedPlace?.origin,
-                    searchValue: value?.search,
-                    selectedPlaceAddress: value?.selectedPlace?.address,
-                    originCoordinates: value?.selectedPlace?.origin,
-                  });
-
-                  // Add timestamp to track when this runs
-                  console.log(
-                    '⏰ [Delivery Address] onChange timestamp:',
-                    new Date().toISOString()
-                  );
-
                   const address =
                     value?.selectedPlace?.address || value?.search || value;
-                  console.log(
-                    '📍 [Delivery Address] Extracted address:',
-                    address
-                  );
 
                   if (
                     address &&
@@ -1111,42 +1029,11 @@ export const BookingDatesForm = (props) => {
                         'last_delivery_address',
                         address
                       );
-                      console.log(
-                        '💾 [Delivery Address] Saved to session storage'
-                      );
                     } catch (_) {}
                   }
 
                   // Validate distance ONLY when a place is selected from dropdown (not on every keystroke)
-                  console.log(
-                    '🔍 [Delivery Address] Checking validation conditions:',
-                    {
-                      hasSelectedPlace: !!value?.selectedPlace,
-                      hasProviderPickupAddress: !!providerPickupAddress,
-                      selectedPlaceKeys: value?.selectedPlace
-                        ? Object.keys(value.selectedPlace)
-                        : 'null',
-                      selectedPlaceOrigin: value?.selectedPlace?.origin,
-                    }
-                  );
-
-                  // Only validate when user has actually selected a place from dropdown
-                  // AND we have a pickup address to compare against
-                  console.log(
-                    '🎯 [Delivery Address] About to check validation condition:',
-                    {
-                      hasOrigin: !!value?.selectedPlace?.origin,
-                      hasPickupAddress: !!providerPickupAddress,
-                      willValidate: !!(
-                        value?.selectedPlace?.origin && providerPickupAddress
-                      ),
-                    }
-                  );
-
                   if (value?.selectedPlace?.origin && providerPickupAddress) {
-                    console.log(
-                      '✅ [Delivery Address] Place selected from dropdown - starting distance validation...'
-                    );
                     setIsValidatingDistance(true);
                     setDistanceValidationError(null);
 
@@ -1156,47 +1043,18 @@ export const BookingDatesForm = (props) => {
                         value.selectedPlace
                       );
 
-                      console.log(
-                        '📊 [Delivery Address] Validation result:',
-                        validation
-                      );
-
                       if (!validation.isValid) {
-                        console.log(
-                          '❌ [Delivery Address] Setting validation error:',
-                          validation.error
-                        );
                         setDistanceValidationError(validation.error);
                       } else {
-                        console.log(
-                          '✅ [Delivery Address] Clearing validation error'
-                        );
                         setDistanceValidationError(null);
                       }
                     } catch (error) {
-                      console.error(
-                        '❌ [Delivery Address] Distance validation failed:',
-                        error
-                      );
+                      console.error('Distance validation failed:', error);
                       setDistanceValidationError('validation-failed');
                     } finally {
-                      console.log(
-                        '🏁 [Delivery Address] Validation completed, setting loading to false'
-                      );
                       setIsValidatingDistance(false);
                     }
-                  } else if (
-                    value?.selectedPlace &&
-                    !value?.selectedPlace?.origin
-                  ) {
-                    console.log(
-                      '⚠️ [Delivery Address] Place selected but no origin coordinates - skipping validation'
-                    );
-                    setDistanceValidationError(null);
                   } else {
-                    console.log(
-                      '🔄 [Delivery Address] No place selected or no pickup address - clearing validation error'
-                    );
                     // Clear validation error if no selected place or no pickup address
                     setDistanceValidationError(null);
                   }
@@ -1416,12 +1274,6 @@ export const BookingDatesForm = (props) => {
                 }
               }}
             />
-
-            {isValidatingDistance && (
-              <div className={css.loadingBreakdown}>
-                <IconSpinner rootClassName={css.spinner} />
-              </div>
-            )}
 
             {distanceValidationError && (
               <div className={css.sideBarError}>
