@@ -1022,20 +1022,6 @@ export const BookingDatesForm = (props) => {
 
                 const fullValues = formApi?.getState?.().values || {};
 
-                console.log('=== Booking Dates Form Senpex Integration ===');
-                console.log('Date values:', dateValues);
-                console.log('Form values keys:', Object.keys(fullValues || {}));
-                console.log(
-                  'Delivery address raw:',
-                  fullValues?.deliveryAddress
-                );
-                console.log(
-                  'Delivery address type:',
-                  typeof fullValues?.deliveryAddress
-                );
-                console.log('Current user:', currentUser);
-                console.log('Listing ID:', listingId);
-
                 const { startDate, endDate } = dateValues
                   ? getStartAndEndOnTimeZone(
                       startDateFromValues,
@@ -1046,7 +1032,7 @@ export const BookingDatesForm = (props) => {
                   : {};
 
                 if (startDate && endDate) {
-                  console.log('Booking dates:', { startDate, endDate });
+                  // Booking dates are available
                 }
 
                 if (seatsEnabled) {
@@ -1086,13 +1072,7 @@ export const BookingDatesForm = (props) => {
                   fullValues?.deliveryAddress?.selectedPlace?.address ||
                   fullValues?.deliveryAddress?.search ||
                   fullValues?.deliveryAddress;
-                console.log('Address extraction debug:', {
-                  deliveryAddressRaw: fullValues?.deliveryAddress,
-                  selectedPlaceAddress:
-                    fullValues?.deliveryAddress?.selectedPlace?.address,
-                  searchValue: fullValues?.deliveryAddress?.search,
-                  finalAddressFromForm: addressFromForm,
-                });
+
                 let address =
                   profile?.publicData?.deliveryAddress ||
                   addressFromForm ||
@@ -1110,13 +1090,6 @@ export const BookingDatesForm = (props) => {
                   }
                 } catch (_) {}
 
-                console.log('User delivery info:', {
-                  firstName,
-                  lastName,
-                  phone,
-                  address,
-                });
-
                 const canQuote =
                   startDate &&
                   endDate &&
@@ -1127,9 +1100,6 @@ export const BookingDatesForm = (props) => {
                   !senpexQuote;
 
                 if (canQuote) {
-                  console.log(
-                    'All delivery info present, requesting Senpex quote'
-                  );
                   setSenpexQuoteError(null);
                   setSenpexQuoteInProgress(true);
                   const receiverName = `${firstName} ${lastName}`;
@@ -1142,11 +1112,8 @@ export const BookingDatesForm = (props) => {
                     pickupAddress: providerPickupAddress || undefined,
                   };
 
-                  console.log('Senpex quote request:', quoteRequest);
-
                   senpexDropoffQuote(quoteRequest)
                     .then((q) => {
-                      console.log('Senpex quote received:', q);
                       setSenpexQuote(q);
                       setSenpexQuoteInProgress(false);
                       onHandleFetchLineItems({
@@ -1163,15 +1130,12 @@ export const BookingDatesForm = (props) => {
                       });
                     })
                     .catch((e) => {
-                      console.log('Senpex quote error:', e);
                       setSenpexQuoteInProgress(false);
                       setSenpexQuoteError('shipping-quote-failed');
                     });
                 } else {
-                  console.log('Missing delivery info, skipping Senpex quote');
                   setSenpexQuoteError('missing-delivery-info');
                 }
-                console.log('==============================');
               }}
             />
 
