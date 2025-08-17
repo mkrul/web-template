@@ -136,3 +136,35 @@
     margin: 0 0 12px 0;
   }
 }
+
+.distanceValidationSpinner {
+  display: flex;
+  align-items: center;
+  margin: 12px 24px;
+  color: var(--colorGrey600);
+  font-size: 14px;
+
+  @media (--viewportMedium) {
+    margin: 12px 0;
+  }
+}
+
+.distanceValidationSpinner .spinner {
+  margin-right: 8px;
+  width: 16px;
+  height: 16px;
+}
+
+.distanceError {
+  color: var(--colorFail);
+  font-size: 14px;
+  margin: 12px 24px;
+  padding: 12px;
+  background-color: var(--colorFailLight);
+  border: 1px solid var(--colorFail);
+  border-radius: 4px;
+
+  @media (--viewportMedium) {
+    margin: 12px 0;
+  }
+}
