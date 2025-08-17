@@ -608,44 +608,46 @@ const OrderPanel = (props) => {
           </p>
         ) : null}
       </ModalInMobile>
-      <div className={css.openOrderForm}>
-        <PriceMaybe
-          price={price}
-          publicData={publicData}
-          validListingTypes={validListingTypes}
-          intl={intl}
-          marketplaceCurrency={marketplaceCurrency}
-          showCurrencyMismatch
-        />
+      {!isOrderOpen ? (
+        <div className={css.openOrderForm}>
+          <PriceMaybe
+            price={price}
+            publicData={publicData}
+            validListingTypes={validListingTypes}
+            intl={intl}
+            marketplaceCurrency={marketplaceCurrency}
+            showCurrencyMismatch
+          />
 
-        {isClosed ? (
-          <div className={css.closedListingButton}>
-            <FormattedMessage id="OrderPanel.closedListingButtonText" />
-          </div>
-        ) : (
-          <PrimaryButton
-            onClick={handleSubmit(
-              isOwnListing,
-              isClosed,
-              showInquiryForm,
-              onSubmit,
-              history,
-              location
-            )}
-            disabled={isOutOfStock}
-          >
-            {isBooking ? (
-              <FormattedMessage id="OrderPanel.ctaButtonMessageBooking" />
-            ) : isOutOfStock ? (
-              <FormattedMessage id="OrderPanel.ctaButtonMessageNoStock" />
-            ) : isPurchase ? (
-              <FormattedMessage id="OrderPanel.ctaButtonMessagePurchase" />
-            ) : (
-              <FormattedMessage id="OrderPanel.ctaButtonMessageInquiry" />
-            )}
-          </PrimaryButton>
-        )}
-      </div>
+          {isClosed ? (
+            <div className={css.closedListingButton}>
+              <FormattedMessage id="OrderPanel.closedListingButtonText" />
+            </div>
+          ) : (
+            <PrimaryButton
+              onClick={handleSubmit(
+                isOwnListing,
+                isClosed,
+                showInquiryForm,
+                onSubmit,
+                history,
+                location
+              )}
+              disabled={isOutOfStock}
+            >
+              {isBooking ? (
+                <FormattedMessage id="OrderPanel.ctaButtonMessageBooking" />
+              ) : isOutOfStock ? (
+                <FormattedMessage id="OrderPanel.ctaButtonMessageNoStock" />
+              ) : isPurchase ? (
+                <FormattedMessage id="OrderPanel.ctaButtonMessagePurchase" />
+              ) : (
+                <FormattedMessage id="OrderPanel.ctaButtonMessageInquiry" />
+              )}
+            </PrimaryButton>
+          )}
+        </div>
+      ) : null}
     </div>
   );
 };

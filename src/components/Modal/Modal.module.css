@@ -16,7 +16,6 @@
 
     /* Additional styles for the modal window, dimming the background and positioning the modal */
     min-height: 100vh;
-    overflow: auto;
     -webkit-overflow-scrolling: touch;
 
     @media (--viewportMedium) {
