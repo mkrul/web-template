@@ -26,6 +26,11 @@
       background-color: rgba(0, 0, 0, 0.4);
       background-image: none;
     }
+
+    @media (--viewportSmall) and (max-width: 767px) {
+      overflow: hidden;
+      display: block;
+    }
   }
 
   & .container {
