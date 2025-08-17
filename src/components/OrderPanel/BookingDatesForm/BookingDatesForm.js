@@ -1204,23 +1204,6 @@ export const BookingDatesForm = (props) => {
                 disabled={false}
                 autoFocus={false}
               />
-
-              {isValidatingDistance && (
-                <div className={css.distanceValidationSpinner}>
-                  <IconSpinner rootClassName={css.spinner} />
-                  <span>Checking delivery distance...</span>
-                </div>
-              )}
-
-              {distanceValidationError && (
-                <div className={css.distanceError}>
-                  {distanceValidationError === 'distance-exceeded'
-                    ? 'The delivery address you have entered is more than 100 miles from the pickup location. Please enter a different address or contact support.'
-                    : distanceValidationError === 'geocoding-failed'
-                      ? 'Unable to verify delivery distance. Please try a different address or contact support.'
-                      : 'Unable to validate delivery distance. Please try again or contact support.'}
-                </div>
-              )}
             </div>
 
             <FieldDateRangePicker
@@ -1433,6 +1416,22 @@ export const BookingDatesForm = (props) => {
                 }
               }}
             />
+
+            {isValidatingDistance && (
+              <div className={css.loadingBreakdown}>
+                <IconSpinner rootClassName={css.spinner} />
+              </div>
+            )}
+
+            {distanceValidationError && (
+              <div className={css.sideBarError}>
+                {distanceValidationError === 'distance-exceeded'
+                  ? 'The delivery address you have entered is more than 100 miles from the pickup location. Please enter a different address or contact support.'
+                  : distanceValidationError === 'geocoding-failed'
+                    ? 'Unable to verify delivery distance. Please try a different address or contact support.'
+                    : 'Unable to validate delivery distance. Please try again or contact support.'}
+              </div>
+            )}
 
             {seatsEnabled ? (
               <FieldSelect
