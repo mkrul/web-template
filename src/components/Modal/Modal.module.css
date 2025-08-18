@@ -27,7 +27,8 @@
     }
 
     @media (--viewportSmall) and (max-width: 767px) {
-      overflow: hidden;
+      overflow-y: auto;
+      overflow-x: hidden;
       display: block;
     }
   }

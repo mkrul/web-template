@@ -114,7 +114,7 @@
 
 .headingContainer {
   margin-top: 29px;
-  margin-bottom: 34px;
+  margin-bottom: 10px;
   padding: 0 24px;
 
   @media (--viewportMedium) {
@@ -133,11 +133,12 @@
   /* Layout */
   width: 100%;
   margin-top: 0;
-  margin-bottom: 7px;
+  margin-bottom: 0;
+  font-size: 22px;
 
   @media (--viewportMedium) {
     margin-top: 0;
-    margin-bottom: 8px;
+    margin-bottom: 0;
   }
 }
 
@@ -146,6 +147,8 @@
 }
 
 .detailsHeadingMobile {
+  font-size: 18px;
+
   @media (--viewportLarge) {
     display: none;
   }
