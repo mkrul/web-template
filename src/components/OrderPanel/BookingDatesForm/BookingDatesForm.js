@@ -1278,10 +1278,16 @@ export const BookingDatesForm = (props) => {
             {distanceValidationError && (
               <div className={css.sideBarError}>
                 {distanceValidationError === 'distance-exceeded'
-                  ? 'The delivery address you have entered is more than 100 miles from the pickup location. Please enter a different address or contact support.'
+                  ? intl.formatMessage({
+                      id: 'BookingDatesForm.distanceExceededError',
+                    })
                   : distanceValidationError === 'geocoding-failed'
-                    ? 'Unable to verify delivery distance. Please try a different address or contact support.'
-                    : 'Unable to validate delivery distance. Please try again or contact support.'}
+                    ? intl.formatMessage({
+                        id: 'BookingDatesForm.geocodingFailedError',
+                      })
+                    : intl.formatMessage({
+                        id: 'BookingDatesForm.validationFailedError',
+                      })}
               </div>
             )}
 
@@ -1332,8 +1338,13 @@ export const BookingDatesForm = (props) => {
                   </div>
                 ) : senpexQuoteError ? (
                   <div className={css.sideBarError}>
-                    Unable to calculate shipping at this time. Please try again
-                    later or contact support.
+                    {senpexQuoteError === 'shipping-quote-failed'
+                      ? intl.formatMessage({
+                          id: 'BookingDatesForm.shippingQuoteFailedError',
+                        })
+                      : intl.formatMessage({
+                          id: 'BookingDatesForm.missingDeliveryInfoError',
+                        })}
                   </div>
                 ) : (
                   <EstimatedCustomerBreakdownMaybe
