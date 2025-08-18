@@ -50,3 +50,20 @@ export const buildSenpexQuoteRequest = ({
     ],
   };
 };
+
+export const hasSenpexShipping = (transaction) => {
+  const hasToken = !!transaction?.attributes?.protectedData?.senpexQuote?.token;
+  console.log('hasSenpexShipping check:', {
+    transactionId: transaction?.id?.uuid,
+    hasProtectedData: !!transaction?.attributes?.protectedData,
+    hasSenpexQuote: !!transaction?.attributes?.protectedData?.senpexQuote,
+    hasToken,
+    tokenValue: transaction?.attributes?.protectedData?.senpexQuote?.token,
+    deliveryMethod: transaction?.attributes?.protectedData?.deliveryMethod,
+  });
+  return hasToken;
+};
+
+export const getSenpexOrderId = (transaction) => {
+  return transaction?.attributes?.protectedData?.senpexOrderId;
+};

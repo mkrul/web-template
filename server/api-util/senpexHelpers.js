@@ -84,6 +84,93 @@ const parseSenpexQuoteResponse = (response) => {
   };
 };
 
+const buildSenpexOrderDataFromTransaction = (transaction) => {
+  console.log('Building Senpex order data from transaction:', {
+    transactionId: transaction?.id?.uuid,
+    processName: transaction?.attributes?.processName,
+    lastTransition: transaction?.attributes?.lastTransition,
+    hasProtectedData: !!transaction?.attributes?.protectedData,
+    protectedDataKeys: transaction?.attributes?.protectedData
+      ? Object.keys(transaction.attributes.protectedData)
+      : [],
+    deliveryMethod: transaction?.attributes?.protectedData?.deliveryMethod,
+    hasSenpexQuote: !!transaction?.attributes?.protectedData?.senpexQuote,
+    senpexQuoteKeys: transaction?.attributes?.protectedData?.senpexQuote
+      ? Object.keys(transaction.attributes.protectedData.senpexQuote)
+      : [],
+    senpexQuoteToken:
+      transaction?.attributes?.protectedData?.senpexQuote?.token,
+    customer: transaction?.customer?.attributes,
+    provider: transaction?.provider?.attributes,
+    listing: transaction?.listing?.attributes,
+    booking: transaction?.booking?.attributes,
+  });
+
+  // Extract relevant data from transaction
+  const customer = transaction?.customer?.attributes;
+  const provider = transaction?.provider?.attributes;
+  const listing = transaction?.listing?.attributes;
+  const booking = transaction?.booking?.attributes;
+  const protectedData = transaction?.attributes?.protectedData;
+
+  // Extract Senpex quote data that should have been stored during checkout
+  const senpexQuote = protectedData?.senpexQuote;
+
+  if (!senpexQuote?.token) {
+    console.warn(
+      'No Senpex quote token found in transaction protected data. This transaction may not have used Senpex shipping.'
+    );
+    throw new Error(
+      'No Senpex quote token found in transaction protected data. Quote must be created first during checkout.'
+    );
+  }
+
+  // Validate token hasn't expired (tokens expire in 60 minutes)
+  const tokenCreatedAt = senpexQuote.createdAt
+    ? new Date(senpexQuote.createdAt)
+    : null;
+  const now = new Date();
+  const tokenAgeMinutes = tokenCreatedAt
+    ? (now - tokenCreatedAt) / (1000 * 60)
+    : null;
+
+  if (tokenAgeMinutes && tokenAgeMinutes > 55) {
+    console.warn(
+      `Senpex token is ${Math.round(tokenAgeMinutes)} minutes old and may have expired (60min limit)`
+    );
+  }
+
+  // Build order data structure for Senpex API
+  const orderData = {
+    email: customer?.email || provider?.email,
+    api_token: senpexQuote.token,
+    tip_amount: 0,
+    sender_name: provider?.profile?.displayName || provider?.profile?.firstName,
+    sender_cell: provider?.profile?.protectedData?.phoneNumber,
+    sender_desc: `Order for listing: ${listing?.title || 'Unknown listing'}`,
+    order_desc:
+      protectedData?.deliveryInstructions ||
+      booking?.attributes?.description ||
+      '',
+    routes: [
+      {
+        rec_name:
+          customer?.profile?.displayName || customer?.profile?.firstName,
+        rec_phone: customer?.profile?.protectedData?.phoneNumber,
+        address: protectedData?.deliveryAddress || customer?.profile?.address,
+        description: protectedData?.deliveryInstructions || '',
+      },
+    ],
+    snpx_user_email: 1,
+    snpx_order_email: 1,
+    snpx_order_not: 1,
+    search_courier: 1,
+  };
+
+  console.log('Generated Senpex order data:', orderData);
+  return orderData;
+};
+
 module.exports = {
   TRANSPORT_TYPES,
   PACKAGE_SIZES,
@@ -91,4 +178,5 @@ module.exports = {
   getPackageSizeForWeight,
   buildSenpexQuoteRequest,
   parseSenpexQuoteResponse,
+  buildSenpexOrderDataFromTransaction,
 };

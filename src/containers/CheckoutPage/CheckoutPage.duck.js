@@ -233,7 +233,7 @@ export const initiateOrder =
     const bookingParamsMaybe = bookingDates || {};
 
     // Parameters only for client app's server
-    const senpexQuote = orderParams && orderParams.senpexQuote;
+    const senpexQuote = orderParams?.protectedData?.senpexQuote;
     const senpexPriceMaybe =
       senpexQuote && typeof senpexQuote.price === 'number'
         ? { senpexShippingPriceInSubunits: Math.round(senpexQuote.price * 100) }
@@ -464,7 +464,7 @@ export const speculateTransaction =
     const bookingParamsMaybe = bookingDates || {};
 
     // Parameters only for client app's server
-    const senpexQuote2 = orderParams && orderParams.senpexQuote;
+    const senpexQuote2 = orderParams?.protectedData?.senpexQuote;
     const senpexPriceMaybe2 =
       senpexQuote2 && typeof senpexQuote2.price === 'number'
         ? {

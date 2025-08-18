@@ -172,6 +172,7 @@
   composes: h3 from global;
   display: block;
   margin-bottom: 0;
+  font-size: 22px;
 }
 
 .listingTitleMobile {

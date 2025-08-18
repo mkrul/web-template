@@ -135,6 +135,9 @@ const getOrderParams = (
       ...deliveryMethodMaybe,
       ...shippingDetails,
       ...priceVariantMaybe,
+      ...(pageData?.orderData?.senpexQuote
+        ? { senpexQuote: pageData.orderData.senpexQuote }
+        : {}),
     },
   };
 
@@ -156,9 +159,6 @@ const getOrderParams = (
     ...priceVariantNameMaybe,
     ...protectedDataMaybe,
     ...optionalPaymentParams,
-    ...(pageData?.orderData?.senpexQuote
-      ? { senpexQuote: pageData.orderData.senpexQuote }
-      : {}),
   };
   return orderParams;
 };
@@ -701,6 +701,16 @@ export const CheckoutPageWithPayment = (props) => {
                       );
 
                       console.log('Order params for speculation:', orderParams);
+                      console.log('Protected data includes senpexQuote:', {
+                        hasProtectedData: !!orderParams.protectedData,
+                        hasSenpexQuote:
+                          !!orderParams.protectedData?.senpexQuote,
+                        senpexQuoteToken:
+                          orderParams.protectedData?.senpexQuote?.token,
+                        protectedDataKeys: orderParams.protectedData
+                          ? Object.keys(orderParams.protectedData)
+                          : [],
+                      });
                       fetchSpeculatedTransactionIfNeeded(
                         orderParams,
                         updated,
