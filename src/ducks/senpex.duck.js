@@ -215,6 +215,24 @@ export const createSenpexOrderForBooking = (transaction) => (dispatch) => {
     timestamp: new Date().toISOString(),
   });
 
+  console.log('Full transaction object for Senpex order creation:', {
+    transactionId: transaction?.id?.uuid,
+    hasCustomer: !!transaction?.customer,
+    hasProvider: !!transaction?.provider,
+    hasListing: !!transaction?.listing,
+    hasBooking: !!transaction?.booking,
+    customerId: transaction?.customer?.id?.uuid,
+    providerId: transaction?.provider?.id?.uuid,
+    listingId: transaction?.listing?.id?.uuid,
+    bookingId: transaction?.booking?.id?.uuid,
+    protectedDataKeys: transaction?.attributes?.protectedData ? Object.keys(transaction.attributes.protectedData) : [],
+    hasSenpexQuote: !!transaction?.attributes?.protectedData?.senpexQuote,
+    senpexQuoteToken: transaction?.attributes?.protectedData?.senpexQuote?.token,
+    deliveryMethod: transaction?.attributes?.protectedData?.deliveryMethod,
+    transactionKeys: Object.keys(transaction || {}),
+    attributesKeys: transaction?.attributes ? Object.keys(transaction.attributes) : [],
+  });
+
   // Call server endpoint to create actual Senpex order
   return api
     .request('/api/shipping/senpex/create-order-from-booking', {

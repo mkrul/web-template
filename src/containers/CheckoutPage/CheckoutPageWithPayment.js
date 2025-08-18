@@ -15,7 +15,7 @@ import {
 
 // Import shared components
 import { H3, H4, NamedLink, OrderBreakdown, Page } from '../../components';
-import SenpexShippingForm from './SenpexShippingForm';
+
 import { senpexDropoffQuote } from '../../util/api';
 
 import {
@@ -689,90 +689,6 @@ export const CheckoutPageWithPayment = (props) => {
             {errorMessages.retrievePaymentIntentErrorMessage}
             {errorMessages.paymentExpiredMessage}
             {senpexErrorMessage}
-
-            {(() => {
-              const showSenpex =
-                orderData?.deliveryMethod === 'senpex-shipping' ||
-                listing?.attributes?.publicData?.senpexShipping ||
-                orderData?.senpexQuote ||
-                orderData?.deliveryAddress; // Show if delivery address is present (indicates intent for delivery)
-              console.log('Senpex form visibility check:', {
-                orderDataDeliveryMethod: orderData?.deliveryMethod,
-                listingSenpexEnabled:
-                  listing?.attributes?.publicData?.senpexShipping,
-                hasSenpexQuote: !!orderData?.senpexQuote,
-                hasDeliveryAddress: !!orderData?.deliveryAddress,
-                showSenpex,
-                orderDataKeys: orderData ? Object.keys(orderData) : [],
-                listingPublicDataKeys: listing?.attributes?.publicData
-                  ? Object.keys(listing.attributes.publicData)
-                  : [],
-              });
-              return showSenpex;
-            })() ? (
-              <div className={css.senpexSection}>
-                <SenpexShippingForm
-                  listing={listing}
-                  orderData={orderData}
-                  disabled={submitting}
-                  quoteInProgress={false}
-                  quote={orderData?.senpexQuote}
-                  currentUser={currentUser}
-                  onGetQuote={async (payload) => {
-                    console.log('=== Checkout Page Senpex Quote ===');
-                    console.log('Quote payload:', payload);
-
-                    try {
-                      const quote = await senpexDropoffQuote(payload);
-                      console.log('Checkout Senpex quote received:', quote);
-
-                      const updated = {
-                        ...pageData,
-                        orderData: {
-                          ...pageData.orderData,
-                          deliveryMethod: 'senpex-shipping',
-                          senpexQuote: quote,
-                          senpexShippingPriceInSubunits: Math.round(
-                            (quote?.price || 0) * 100
-                          ),
-                        },
-                      };
-
-                      console.log('Updated page data:', updated);
-                      setPageData(updated);
-
-                      const orderParams = getOrderParams(
-                        updated,
-                        {},
-                        {},
-                        config
-                      );
-
-                      console.log('Order params for speculation:', orderParams);
-                      console.log('Protected data includes senpexQuote:', {
-                        hasProtectedData: !!orderParams.protectedData,
-                        hasSenpexQuote:
-                          !!orderParams.protectedData?.senpexQuote,
-                        senpexQuoteToken:
-                          orderParams.protectedData?.senpexQuote?.token,
-                        protectedDataKeys: orderParams.protectedData
-                          ? Object.keys(orderParams.protectedData)
-                          : [],
-                      });
-                      fetchSpeculatedTransactionIfNeeded(
-                        orderParams,
-                        updated,
-                        props.fetchSpeculatedTransaction
-                      );
-                    } catch (e) {
-                      console.log('Checkout Senpex quote error:', e);
-                    }
-                    console.log('==============================');
-                  }}
-                  intl={intl}
-                />
-              </div>
-            ) : null}
 
             {showPaymentForm ? (
               <StripePaymentForm

@@ -69,16 +69,12 @@ export const hasSenpexShipping = (transaction) => {
   // 3. We have Senpex shipping price in protected data
   // 4. We have Senpex quote object (even if token is missing)
   // 5. We have a Senpex shipping fee line item
-  // 6. The listing has Senpex shipping enabled
-  const listingHasSenpexEnabled =
-    transaction?.listing?.attributes?.publicData?.senpexShipping;
   const shouldHaveSenpexShipping =
     deliveryMethod === 'senpex-shipping' ||
     deliveryMethod === 'senpex' ||
     transaction?.attributes?.protectedData?.senpexShippingPriceInSubunits ||
     transaction?.attributes?.protectedData?.senpexQuote ||
-    hasSenpexShippingLineItem ||
-    listingHasSenpexEnabled;
+    hasSenpexShippingLineItem;
 
   const hasToken = shouldHaveSenpexShipping && hasSenpexQuote;
 
@@ -92,7 +88,6 @@ export const hasSenpexShipping = (transaction) => {
     shouldHaveSenpexShipping,
     hasSenpexShippingLineItem,
     lineItemCodes: lineItems.map((item) => item.code),
-    listingHasSenpexEnabled,
     listingPublicDataKeys: transaction?.listing?.attributes?.publicData
       ? Object.keys(transaction.listing.attributes.publicData)
       : [],

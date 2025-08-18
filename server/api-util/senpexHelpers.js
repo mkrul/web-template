@@ -100,10 +100,26 @@ const buildSenpexOrderDataFromTransaction = (transaction) => {
       : [],
     senpexQuoteToken:
       transaction?.attributes?.protectedData?.senpexQuote?.token,
-    customer: transaction?.customer?.attributes,
-    provider: transaction?.provider?.attributes,
-    listing: transaction?.listing?.attributes,
-    booking: transaction?.booking?.attributes,
+    hasCustomer: !!transaction?.customer,
+    hasProvider: !!transaction?.provider,
+    hasListing: !!transaction?.listing,
+    hasBooking: !!transaction?.booking,
+    customerId: transaction?.customer?.id?.uuid,
+    providerId: transaction?.provider?.id?.uuid,
+    listingId: transaction?.listing?.id?.uuid,
+    bookingId: transaction?.booking?.id?.uuid,
+    transactionKeys: Object.keys(transaction || {}),
+    attributesKeys: transaction?.attributes
+      ? Object.keys(transaction.attributes)
+      : [],
+    customerKeys: transaction?.customer
+      ? Object.keys(transaction.customer)
+      : [],
+    providerKeys: transaction?.provider
+      ? Object.keys(transaction.provider)
+      : [],
+    listingKeys: transaction?.listing ? Object.keys(transaction.listing) : [],
+    bookingKeys: transaction?.booking ? Object.keys(transaction.booking) : [],
   });
 
   // Extract relevant data from transaction
@@ -112,6 +128,19 @@ const buildSenpexOrderDataFromTransaction = (transaction) => {
   const listing = transaction?.listing?.attributes;
   const booking = transaction?.booking?.attributes;
   const protectedData = transaction?.attributes?.protectedData;
+
+  console.log('Extracted data from transaction:', {
+    hasCustomerData: !!customer,
+    hasProviderData: !!provider,
+    hasListingData: !!listing,
+    hasBookingData: !!booking,
+    hasProtectedData: !!protectedData,
+    customerEmail: customer?.email,
+    providerEmail: provider?.email,
+    providerDisplayName: provider?.profile?.displayName,
+    listingTitle: listing?.title,
+    deliveryAddress: protectedData?.deliveryAddress,
+  });
 
   // Extract Senpex quote data that should have been stored during checkout
   const senpexQuote = protectedData?.senpexQuote;

@@ -139,3 +139,18 @@
     padding-bottom: 21px;
   }
 }
+
+.shippingFeeInfo {
+  composes: marketplaceTinyFontStyles from global;
+  flex-shrink: 0;
+  margin: 0;
+  color: var(--colorGrey300);
+  line-height: 1.3;
+  padding-top: 15px;
+  padding-bottom: 4px;
+
+  @media (--viewportMedium) {
+    padding-top: 15px;
+    padding-bottom: 4px;
+  }
+}

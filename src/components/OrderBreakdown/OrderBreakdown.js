@@ -33,7 +33,7 @@ import LineItemUnknownItemsMaybe from './LineItemUnknownItemsMaybe';
 
 import css from './OrderBreakdown.module.css';
 
-export const OrderBreakdownComponent = props => {
+export const OrderBreakdownComponent = (props) => {
   const {
     rootClassName,
     className,
@@ -50,9 +50,11 @@ export const OrderBreakdownComponent = props => {
   const isProvider = userRole === 'provider';
   const allLineItems = transaction.attributes.lineItems || [];
   // We'll show only line-items that are specific for the current userRole (customer vs provider)
-  const lineItems = allLineItems.filter(lineItem => lineItem.includeFor.includes(userRole));
+  const lineItems = allLineItems.filter((lineItem) =>
+    lineItem.includeFor.includes(userRole)
+  );
   const unitLineItem = lineItems.find(
-    item => LISTING_UNIT_TYPES.includes(item.code) && !item.reversal
+    (item) => LISTING_UNIT_TYPES.includes(item.code) && !item.reversal
   );
   // Line-item code that matches with base unit: day, night, hour, fixed, item
   const lineItemUnitType = unitLineItem?.code;
@@ -60,10 +62,20 @@ export const OrderBreakdownComponent = props => {
     ? DATE_TYPE_DATETIME
     : DATE_TYPE_DATE;
 
-  const hasCommissionLineItem = lineItems.find(item => {
-    const hasCustomerCommission = isCustomer && item.code === LINE_ITEM_CUSTOMER_COMMISSION;
-    const hasProviderCommission = isProvider && item.code === LINE_ITEM_PROVIDER_COMMISSION;
+  const hasCommissionLineItem = lineItems.find((item) => {
+    const hasCustomerCommission =
+      isCustomer && item.code === LINE_ITEM_CUSTOMER_COMMISSION;
+    const hasProviderCommission =
+      isProvider && item.code === LINE_ITEM_PROVIDER_COMMISSION;
     return (hasCustomerCommission || hasProviderCommission) && !item.reversal;
+  });
+
+  const hasShippingFeeLineItem = lineItems.find((item) => {
+    return (
+      (item.code === 'line-item/shipping-fee' ||
+        item.code === 'line-item/senpex-shipping-fee') &&
+      !item.reversal
+    );
   });
 
   const classes = classNames(rootClassName || css.root, className);
@@ -113,10 +125,18 @@ export const OrderBreakdownComponent = props => {
         timeZone={timeZone}
       />
 
-      <LineItemBasePriceMaybe lineItems={lineItems} code={lineItemUnitType} intl={intl} />
+      <LineItemBasePriceMaybe
+        lineItems={lineItems}
+        code={lineItemUnitType}
+        intl={intl}
+      />
       <LineItemShippingFeeMaybe lineItems={lineItems} intl={intl} />
       <LineItemPickupFeeMaybe lineItems={lineItems} intl={intl} />
-      <LineItemUnknownItemsMaybe lineItems={lineItems} isProvider={isProvider} intl={intl} />
+      <LineItemUnknownItemsMaybe
+        lineItems={lineItems}
+        isProvider={isProvider}
+        intl={intl}
+      />
 
       <LineItemSubTotalMaybe
         lineItems={lineItems}
@@ -125,7 +145,11 @@ export const OrderBreakdownComponent = props => {
         intl={intl}
         marketplaceCurrency={currency}
       />
-      <LineItemRefundMaybe lineItems={lineItems} intl={intl} marketplaceCurrency={currency} />
+      <LineItemRefundMaybe
+        lineItems={lineItems}
+        intl={intl}
+        marketplaceCurrency={currency}
+      />
 
       <LineItemCustomerCommissionMaybe
         lineItems={lineItems}
@@ -153,7 +177,17 @@ export const OrderBreakdownComponent = props => {
         intl={intl}
       />
 
-      <LineItemTotalPrice transaction={transaction} isProvider={isProvider} intl={intl} />
+      <LineItemTotalPrice
+        transaction={transaction}
+        isProvider={isProvider}
+        intl={intl}
+      />
+
+      {hasShippingFeeLineItem ? (
+        <span className={css.shippingFeeInfo}>
+          <FormattedMessage id="OrderBreakdown.shippingEstimateDisclaimer" />
+        </span>
+      ) : null}
 
       {hasCommissionLineItem ? (
         <span className={css.feeInfo}>
@@ -180,7 +214,7 @@ export const OrderBreakdownComponent = props => {
  * @param {DATE_TYPE_DATE | DATE_TYPE_TIME | DATE_TYPE_DATETIME} props.dateType
  * @returns {JSX.Element} the order breakdown component
  */
-const OrderBreakdown = props => {
+const OrderBreakdown = (props) => {
   const intl = useIntl();
   return <OrderBreakdownComponent intl={intl} {...props} />;
 };
