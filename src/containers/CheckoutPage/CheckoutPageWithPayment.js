@@ -539,13 +539,30 @@ export const CheckoutPageWithPayment = (props) => {
 
   // Allow showing page when currentUser is still being downloaded,
   // but show payment form only when user info is loaded.
+  // Validate that Senpex shipping has a quote if required
+  const listingRequiresSenpex = listing?.attributes?.publicData?.senpexShipping;
+  const orderDataHasSenpex = orderData?.deliveryMethod === 'senpex-shipping';
+  const hasDeliveryIntent =
+    orderData?.deliveryAddress || orderData?.senpexQuote;
+  const requiresSenpexQuote =
+    listingRequiresSenpex || orderDataHasSenpex || hasDeliveryIntent;
+
+  const senpexValidationError =
+    requiresSenpexQuote && !orderData?.senpexQuote?.token
+      ? {
+          message: 'Senpex shipping quote is missing or expired',
+          type: 'senpex_quote_missing',
+        }
+      : null;
+
   const showPaymentForm = !!(
     currentUser &&
     !listingNotFound &&
     !initiateOrderError &&
     !speculateTransactionError &&
     !retrievePaymentIntentError &&
-    !isPaymentExpired
+    !isPaymentExpired &&
+    !senpexValidationError
   );
 
   const firstImage = listing?.images?.length > 0 ? listing.images[0] : null;
@@ -567,6 +584,16 @@ export const CheckoutPageWithPayment = (props) => {
     speculateTransactionError,
     listingLink
   );
+
+  // Add Senpex validation error message
+  const senpexErrorMessage = senpexValidationError ? (
+    <p className={css.error}>
+      <FormattedMessage
+        id="CheckoutPage.senpexQuoteRequiredError"
+        defaultMessage="Senpex shipping quote is required but missing or expired. Please get a new quote before proceeding."
+      />
+    </p>
+  ) : null;
 
   const txTransitions = existingTransaction?.attributes?.transitions || [];
   const hasInquireTransition = txTransitions.find(
@@ -661,8 +688,28 @@ export const CheckoutPageWithPayment = (props) => {
             {errorMessages.speculateErrorMessage}
             {errorMessages.retrievePaymentIntentErrorMessage}
             {errorMessages.paymentExpiredMessage}
+            {senpexErrorMessage}
 
-            {orderData?.deliveryMethod === 'senpex-shipping' ? (
+            {(() => {
+              const showSenpex =
+                orderData?.deliveryMethod === 'senpex-shipping' ||
+                listing?.attributes?.publicData?.senpexShipping ||
+                orderData?.senpexQuote ||
+                orderData?.deliveryAddress; // Show if delivery address is present (indicates intent for delivery)
+              console.log('Senpex form visibility check:', {
+                orderDataDeliveryMethod: orderData?.deliveryMethod,
+                listingSenpexEnabled:
+                  listing?.attributes?.publicData?.senpexShipping,
+                hasSenpexQuote: !!orderData?.senpexQuote,
+                hasDeliveryAddress: !!orderData?.deliveryAddress,
+                showSenpex,
+                orderDataKeys: orderData ? Object.keys(orderData) : [],
+                listingPublicDataKeys: listing?.attributes?.publicData
+                  ? Object.keys(listing.attributes.publicData)
+                  : [],
+              });
+              return showSenpex;
+            })() ? (
               <div className={css.senpexSection}>
                 <SenpexShippingForm
                   listing={listing}
@@ -683,6 +730,7 @@ export const CheckoutPageWithPayment = (props) => {
                         ...pageData,
                         orderData: {
                           ...pageData.orderData,
+                          deliveryMethod: 'senpex-shipping',
                           senpexQuote: quote,
                           senpexShippingPriceInSubunits: Math.round(
                             (quote?.price || 0) * 100

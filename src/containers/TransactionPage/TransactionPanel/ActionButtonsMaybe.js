@@ -29,7 +29,7 @@ const ActionButtonsMaybe = props => {
   const primaryButton = primaryButtonProps ? (
     <PrimaryButton
       inProgress={primaryButtonProps.inProgress}
-      disabled={buttonsDisabled}
+      disabled={buttonsDisabled || !primaryButtonProps.onAction}
       onClick={primaryButtonProps.onAction}
     >
       {primaryButtonProps.buttonText}
@@ -42,7 +42,7 @@ const ActionButtonsMaybe = props => {
   const secondaryButton = secondaryButtonProps ? (
     <SecondaryButton
       inProgress={secondaryButtonProps?.inProgress}
-      disabled={buttonsDisabled}
+      disabled={buttonsDisabled || !secondaryButtonProps.onAction}
       onClick={secondaryButtonProps.onAction}
     >
       {secondaryButtonProps.buttonText}

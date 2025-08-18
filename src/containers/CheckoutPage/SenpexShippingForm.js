@@ -2,13 +2,7 @@ import React, { useState } from 'react';
 import { FormattedMessage } from 'react-intl';
 import PropTypes from 'prop-types';
 import { intlShape } from '../../util/reactIntl';
-import {
-  Form,
-  FieldTextInput,
-  FieldPhoneNumberInput,
-  PrimaryButton,
-  IconSpinner,
-} from '../../components';
+import { PrimaryButton, IconSpinner } from '../../components';
 import { propTypes as sdkPropTypes } from '../../util/types';
 
 const SenpexShippingForm = ({
@@ -51,15 +45,6 @@ const SenpexShippingForm = ({
     }
   };
 
-  const handleSubmit = (values) => {
-    if (onSubmit) {
-      onSubmit({
-        ...values,
-        senpexQuote: quote,
-      });
-    }
-  };
-
   const isFormValid =
     formValues.receiverName &&
     formValues.receiverPhone &&
@@ -74,60 +59,80 @@ const SenpexShippingForm = ({
         />
       </h3>
 
-      <Form onSubmit={handleSubmit} disabled={disabled}>
-        <FieldTextInput
-          id="receiverName"
-          name="receiverName"
-          type="text"
-          label={
+      <div className="SenpexForm">
+        <div className="formField">
+          <label htmlFor="receiverName">
             <FormattedMessage
               id="SenpexShippingForm.receiverNameLabel"
               defaultMessage="Receiver name"
             />
-          }
-          onChange={(value) => handleFieldChange('receiverName', value)}
-          required
-        />
+          </label>
+          <input
+            id="receiverName"
+            name="receiverName"
+            type="text"
+            value={formValues.receiverName}
+            onChange={(e) => handleFieldChange('receiverName', e.target.value)}
+            required
+            disabled={disabled}
+          />
+        </div>
 
-        <FieldPhoneNumberInput
-          id="receiverPhone"
-          name="receiverPhone"
-          label={
+        <div className="formField">
+          <label htmlFor="receiverPhone">
             <FormattedMessage
               id="SenpexShippingForm.receiverPhoneLabel"
               defaultMessage="Receiver phone"
             />
-          }
-          onChange={(value) => handleFieldChange('receiverPhone', value)}
-          required
-        />
+          </label>
+          <input
+            id="receiverPhone"
+            name="receiverPhone"
+            type="tel"
+            value={formValues.receiverPhone}
+            onChange={(e) => handleFieldChange('receiverPhone', e.target.value)}
+            required
+            disabled={disabled}
+          />
+        </div>
 
-        <FieldTextInput
-          id="deliveryAddress"
-          name="deliveryAddress"
-          type="text"
-          label={
+        <div className="formField">
+          <label htmlFor="deliveryAddress">
             <FormattedMessage
               id="SenpexShippingForm.deliveryAddressLabel"
               defaultMessage="Delivery address"
             />
-          }
-          onChange={(value) => handleFieldChange('deliveryAddress', value)}
-          required
-        />
+          </label>
+          <input
+            id="deliveryAddress"
+            name="deliveryAddress"
+            type="text"
+            value={formValues.deliveryAddress}
+            onChange={(e) =>
+              handleFieldChange('deliveryAddress', e.target.value)
+            }
+            required
+            disabled={disabled}
+          />
+        </div>
 
-        <FieldTextInput
-          id="deliveryInstructions"
-          name="deliveryInstructions"
-          type="textarea"
-          label={
+        <div className="formField">
+          <label htmlFor="deliveryInstructions">
             <FormattedMessage
               id="SenpexShippingForm.deliveryInstructionsLabel"
               defaultMessage="Delivery instructions (optional)"
             />
-          }
-          onChange={(value) => handleFieldChange('deliveryInstructions', value)}
-        />
+          </label>
+          <textarea
+            id="deliveryInstructions"
+            name="deliveryInstructions"
+            value={formValues.deliveryInstructions}
+            onChange={(e) =>
+              handleFieldChange('deliveryInstructions', e.target.value)
+            }
+            disabled={disabled}
+          />
+        </div>
 
         <PrimaryButton
           type="button"
@@ -169,7 +174,7 @@ const SenpexShippingForm = ({
             </p>
           </div>
         )}
-      </Form>
+      </div>
     </div>
   );
 };

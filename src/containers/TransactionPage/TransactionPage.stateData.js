@@ -39,7 +39,7 @@ export const stateDataShape = shape({
 
 // Transitions are following process.edn format: "transition/my-transtion-name"
 // This extracts the 'my-transtion-name' string if namespace exists
-const getTransitionKey = transitionName => {
+const getTransitionKey = (transitionName) => {
   const [nameSpace, transitionKey] = transitionName.split('/');
   return transitionKey || transitionName;
 };
@@ -56,8 +56,79 @@ const getActionButtonPropsMaybe = (params, onlyForRole = 'both') => {
     actionButtonTranslationId,
     actionButtonTranslationErrorId,
     intl,
+    transaction,
   } = params;
   const transitionKey = getTransitionKey(transitionName);
+
+  // Validate Senpex shipping for accept transition
+  let senpexValidationError = null;
+  if (
+    transitionName === 'transition/accept' &&
+    transactionRole === 'provider'
+  ) {
+    const deliveryMethod =
+      transaction?.attributes?.protectedData?.deliveryMethod;
+    const hasSenpexQuote =
+      !!transaction?.attributes?.protectedData?.senpexQuote?.token;
+
+    // Check if there are line items with Senpex shipping fee
+    const lineItems = transaction?.attributes?.lineItems || [];
+    const hasSenpexShippingLineItem = lineItems.some(
+      (item) => item.code === 'line-item/senpex-shipping-fee'
+    );
+
+    console.log('Senpex validation check:', {
+      transitionName,
+      transactionRole,
+      deliveryMethod,
+      hasSenpexQuote,
+      transactionId: transaction?.id?.uuid,
+      protectedDataKeys: transaction?.attributes?.protectedData
+        ? Object.keys(transaction.attributes.protectedData)
+        : [],
+      fullProtectedData: transaction?.attributes?.protectedData,
+      senpexShippingPriceInSubunits:
+        transaction?.attributes?.protectedData?.senpexShippingPriceInSubunits,
+      hasSenpexQuoteObject:
+        !!transaction?.attributes?.protectedData?.senpexQuote,
+      hasSenpexShippingLineItem,
+      lineItemCodes: lineItems.map((item) => item.code),
+      listingHasSenpexEnabled:
+        transaction?.listing?.attributes?.publicData?.senpexShipping,
+      listingPublicDataKeys: transaction?.listing?.attributes?.publicData
+        ? Object.keys(transaction.listing.attributes.publicData)
+        : [],
+    });
+
+    // Check if this transaction should have Senpex shipping but doesn't have a quote
+    // This includes cases where:
+    // 1. deliveryMethod is 'senpex-shipping' (correct value from line items)
+    // 2. deliveryMethod is 'senpex' (legacy value)
+    // 3. We have Senpex shipping price in protected data
+    // 4. We have Senpex quote object (even if token is missing)
+    // 5. We have a Senpex shipping fee line item
+    // 6. The listing has Senpex shipping enabled
+    const listingHasSenpexEnabled =
+      transaction?.listing?.attributes?.publicData?.senpexShipping;
+    const shouldHaveSenpexShipping =
+      deliveryMethod === 'senpex-shipping' ||
+      deliveryMethod === 'senpex' ||
+      transaction?.attributes?.protectedData?.senpexShippingPriceInSubunits ||
+      transaction?.attributes?.protectedData?.senpexQuote ||
+      hasSenpexShippingLineItem ||
+      listingHasSenpexEnabled;
+
+    if (shouldHaveSenpexShipping && !hasSenpexQuote) {
+      console.log(
+        'Senpex validation failed: transaction should have Senpex shipping but no quote found'
+      );
+      senpexValidationError = {
+        type: 'error',
+        name: 'senpex_validation_error',
+        message: 'Senpex shipping quote is required but not available',
+      };
+    }
+  }
 
   const actionButtonTrId =
     actionButtonTranslationId ||
@@ -69,10 +140,12 @@ const getActionButtonPropsMaybe = (params, onlyForRole = 'both') => {
   return onlyForRole === 'both' || onlyForRole === transactionRole
     ? {
         inProgress,
-        error: transitionError,
-        onAction,
+        error: senpexValidationError || transitionError,
+        onAction: senpexValidationError ? null : onAction,
         buttonText: intl.formatMessage({ id: actionButtonTrId }),
-        errorText: intl.formatMessage({ id: actionButtonTrErrorId }),
+        errorText: senpexValidationError
+          ? intl.formatMessage({ id: 'TransactionPage.senpex.shipping.error' })
+          : intl.formatMessage({ id: actionButtonTrErrorId }),
       }
     : {};
 };
@@ -90,7 +163,9 @@ export const getStateData = (params, process) => {
     onOpenReviewModal,
   } = params;
   const isCustomer = transactionRole === 'customer';
-  const processName = resolveLatestProcessName(transaction?.attributes?.processName);
+  const processName = resolveLatestProcessName(
+    transaction?.attributes?.processName
+  );
 
   const getActionButtonProps = (transitionName, forRole, extra = {}) =>
     getActionButtonPropsMaybe(
@@ -102,6 +177,7 @@ export const getStateData = (params, process) => {
         inProgress: transitionInProgress === transitionName,
         transitionError,
         onAction: () => onTransition(transaction?.id, transitionName, {}),
+        transaction,
         ...extra,
       },
       forRole
@@ -115,6 +191,7 @@ export const getStateData = (params, process) => {
     inProgress: sendReviewInProgress,
     transitionError: sendReviewError,
     onAction: onOpenReviewModal,
+    transaction,
     actionButtonTranslationId: 'TransactionPage.leaveReview.actionButton',
     actionButtonTranslationErrorId: 'TransactionPage.leaveReview.actionError',
   });

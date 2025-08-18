@@ -1136,6 +1136,7 @@
   "TransactionPage.default-booking.provider.reviewed.title": "Die Buchung von {customerName} wurde abgeschlossen.",
   "TransactionPage.default-booking.provider.transition-accept.actionButton": "Anfrage annehmen",
   "TransactionPage.default-booking.provider.transition-accept.actionError": "Hoppla, Fehler beim Annehmen. Bitte erneut versuchen.",
+  "TransactionPage.senpex.shipping.error": "Anfrage kann nicht angenommen werden: Senpex-Versandkostenangebot fehlt. Die Buchung erfordert Senpex-Lieferung, aber das Versandkostenangebot ist nicht verfügbar. Bitte kontaktieren Sie den Support.",
   "TransactionPage.default-booking.provider.transition-decline.actionButton": "Anfrage ablehnen",
   "TransactionPage.default-booking.provider.transition-decline.actionError": "Hoppla, Fehler beim Ablehnen. Bitte erneut versuchen.",
   "TransactionPage.default-inquiry.customer.free-inquiry.title": "Du hast eine Anfrage gesendet.",

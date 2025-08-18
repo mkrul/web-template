@@ -1,10 +1,16 @@
 import React from 'react';
 import { FormattedMessage } from '../../util/reactIntl';
 import { types as sdkTypes } from '../../util/sdkLoader';
-import { createResourceLocatorString, findRouteByRouteName } from '../../util/routes';
+import {
+  createResourceLocatorString,
+  findRouteByRouteName,
+} from '../../util/routes';
 import { convertMoneyToNumber, formatMoney } from '../../util/currency';
 import { timestampToDate } from '../../util/dates';
-import { hasPermissionToInitiateTransactions, isUserAuthorized } from '../../util/userHelpers';
+import {
+  hasPermissionToInitiateTransactions,
+  isUserAuthorized,
+} from '../../util/userHelpers';
 import {
   NO_ACCESS_PAGE_INITIATE_TRANSACTIONS,
   NO_ACCESS_PAGE_USER_PENDING_APPROVAL,
@@ -48,7 +54,7 @@ export const priceData = (price, marketplaceCurrency, intl) => {
  * @param {Money} price
  * @returns {Money|null}
  */
-export const priceForSchemaMaybe = price => {
+export const priceForSchemaMaybe = (price) => {
   try {
     const schemaPrice = convertMoneyToNumber(price);
     return {
@@ -68,7 +74,7 @@ export const priceForSchemaMaybe = price => {
  * @returns label for the selected value
  */
 export const categoryLabel = (categories, value) => {
-  const cat = categories.find(c => c.key === value);
+  const cat = categories.find((c) => c.key === value);
   return cat ? cat.label : value;
 };
 
@@ -82,25 +88,25 @@ export const categoryLabel = (categories, value) => {
  */
 export const listingImages = (listing, variantName) =>
   (listing.images || [])
-    .map(image => {
+    .map((image) => {
       const variants = image.attributes.variants;
       const variant = variants ? variants[variantName] : null;
 
       // deprecated
       // for backwards combatility only
       const sizes = image.attributes.sizes;
-      const size = sizes ? sizes.find(i => i.name === variantName) : null;
+      const size = sizes ? sizes.find((i) => i.name === variantName) : null;
 
       return variant || size;
     })
-    .filter(variant => variant != null);
+    .filter((variant) => variant != null);
 
 /**
  * Callback for the "contact" button on ListingPage to open inquiry modal.
  *
  * @param {Object} parameters all the info needed to open inquiry modal.
  */
-export const handleContactUser = parameters => () => {
+export const handleContactUser = (parameters) => () => {
   const {
     history,
     params,
@@ -113,22 +119,37 @@ export const handleContactUser = parameters => () => {
   } = parameters;
 
   if (!currentUser) {
-    const state = { from: `${location.pathname}${location.search}${location.hash}` };
+    const state = {
+      from: `${location.pathname}${location.search}${location.hash}`,
+    };
 
     // We need to log in before showing the modal, but first we need to ensure
     // that modal does open when user is redirected back to this listingpage
-    callSetInitialValues(setInitialValues, { inquiryModalOpenForListingId: params.id });
+    callSetInitialValues(setInitialValues, {
+      inquiryModalOpenForListingId: params.id,
+    });
 
     // signup and return back to listingPage.
-    history.push(createResourceLocatorString('SignupPage', routes, {}, {}), state);
+    history.push(
+      createResourceLocatorString('SignupPage', routes, {}, {}),
+      state
+    );
   } else if (!isUserAuthorized(currentUser)) {
     // A user in pending-approval state can't contact the author (the same applies for a banned user)
-    const pathParams = { missingAccessRight: NO_ACCESS_PAGE_USER_PENDING_APPROVAL };
-    history.push(createResourceLocatorString('NoAccessPage', routes, pathParams, {}));
+    const pathParams = {
+      missingAccessRight: NO_ACCESS_PAGE_USER_PENDING_APPROVAL,
+    };
+    history.push(
+      createResourceLocatorString('NoAccessPage', routes, pathParams, {})
+    );
   } else if (!hasPermissionToInitiateTransactions(currentUser)) {
     // A user in pending-approval state can't contact the author (the same applies for a banned user)
-    const pathParams = { missingAccessRight: NO_ACCESS_PAGE_INITIATE_TRANSACTIONS };
-    history.push(createResourceLocatorString('NoAccessPage', routes, pathParams, {}));
+    const pathParams = {
+      missingAccessRight: NO_ACCESS_PAGE_INITIATE_TRANSACTIONS,
+    };
+    history.push(
+      createResourceLocatorString('NoAccessPage', routes, pathParams, {})
+    );
   } else {
     setInquiryModalOpen(true);
   }
@@ -140,19 +161,33 @@ export const handleContactUser = parameters => () => {
  *
  * @param {Object} parameters all the info needed to create inquiry.
  */
-export const handleSubmitInquiry = parameters => values => {
-  const { history, params, getListing, onSendInquiry, routes, setInquiryModalOpen } = parameters;
+export const handleSubmitInquiry = (parameters) => (values) => {
+  const {
+    history,
+    params,
+    getListing,
+    onSendInquiry,
+    routes,
+    setInquiryModalOpen,
+  } = parameters;
 
   const listingId = new UUID(params.id);
   const listing = getListing(listingId);
   const { message } = values;
 
   onSendInquiry(listing, message.trim())
-    .then(txId => {
+    .then((txId) => {
       setInquiryModalOpen(false);
 
       // Redirect to OrderDetailsPage
-      history.push(createResourceLocatorString('OrderDetailsPage', routes, { id: txId.uuid }, {}));
+      history.push(
+        createResourceLocatorString(
+          'OrderDetailsPage',
+          routes,
+          { id: txId.uuid },
+          {}
+        )
+      );
     })
     .catch(() => {
       // Ignore, error handling in duck file
@@ -164,7 +199,7 @@ export const handleSubmitInquiry = parameters => values => {
  *
  * @param {Object} parameters all the info needed to redirect user to CheckoutPage.
  */
-export const handleSubmit = parameters => values => {
+export const handleSubmit = (parameters) => (values) => {
   const {
     history,
     params,
@@ -187,6 +222,9 @@ export const handleSubmit = parameters => values => {
     quantity: quantityRaw,
     seats: seatsRaw,
     deliveryMethod,
+    senpexQuote,
+    senpexShippingPriceInSubunits,
+    deliveryAddress,
     ...otherOrderData
   } = values;
 
@@ -198,13 +236,13 @@ export const handleSubmit = parameters => values => {
         },
       }
     : bookingStartTime && bookingEndTime
-    ? {
-        bookingDates: {
-          bookingStart: timestampToDate(bookingStartTime),
-          bookingEnd: timestampToDate(bookingEndTime),
-        },
-      }
-    : {};
+      ? {
+          bookingDates: {
+            bookingStart: timestampToDate(bookingStartTime),
+            bookingEnd: timestampToDate(bookingEndTime),
+          },
+        }
+      : {};
   // priceVariantName is relevant for bookings
   const priceVariantNameMaybe = priceVariantName ? { priceVariantName } : {};
   const quantity = Number.parseInt(quantityRaw, 10);
@@ -212,17 +250,39 @@ export const handleSubmit = parameters => values => {
   const seats = Number.parseInt(seatsRaw, 10);
   const seatsMaybe = Number.isInteger(seats) ? { seats } : {};
   const deliveryMethodMaybe = deliveryMethod ? { deliveryMethod } : {};
+  const senpexQuoteMaybe = senpexQuote ? { senpexQuote } : {};
+  const senpexShippingPriceMaybe = senpexShippingPriceInSubunits
+    ? { senpexShippingPriceInSubunits }
+    : {};
+  const deliveryAddressMaybe = deliveryAddress ? { deliveryAddress } : {};
+
+  const orderData = {
+    ...bookingMaybe,
+    ...priceVariantNameMaybe,
+    ...quantityMaybe,
+    ...seatsMaybe,
+    ...deliveryMethodMaybe,
+    ...senpexQuoteMaybe,
+    ...senpexShippingPriceMaybe,
+    ...deliveryAddressMaybe,
+    ...otherOrderData,
+  };
+
+  console.log(
+    'ListingPage handleSubmit - orderData being passed to checkout:',
+    {
+      hasDeliveryMethod: !!deliveryMethod,
+      deliveryMethod,
+      hasSenpexQuote: !!senpexQuote,
+      senpexQuoteToken: senpexQuote?.token,
+      hasDeliveryAddress: !!deliveryAddress,
+      orderDataKeys: Object.keys(orderData),
+    }
+  );
 
   const initialValues = {
     listing,
-    orderData: {
-      ...bookingMaybe,
-      ...priceVariantNameMaybe,
-      ...quantityMaybe,
-      ...seatsMaybe,
-      ...deliveryMethodMaybe,
-      ...otherOrderData,
-    },
+    orderData,
     confirmPaymentError: null,
   };
 
@@ -251,7 +311,7 @@ export const handleSubmit = parameters => values => {
  * Create fallback views for the ListingPage: LoadingPage and ErrorPage.
  * The PlainPage is just a helper for them.
  */
-const PlainPage = props => {
+const PlainPage = (props) => {
   const { title, topbar, scrollingDisabled, children } = props;
   return (
     <Page title={title} scrollingDisabled={scrollingDisabled}>
@@ -262,7 +322,7 @@ const PlainPage = props => {
   );
 };
 
-export const ErrorPage = props => {
+export const ErrorPage = (props) => {
   const { topbar, scrollingDisabled, invalidListing, intl } = props;
   return (
     <PlainPage
@@ -283,7 +343,7 @@ export const ErrorPage = props => {
   );
 };
 
-export const LoadingPage = props => {
+export const LoadingPage = (props) => {
   const { topbar, scrollingDisabled, intl } = props;
   return (
     <PlainPage

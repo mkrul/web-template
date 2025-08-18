@@ -502,6 +502,8 @@ const calculateLineItems =
       seats,
       deliveryMethod,
       senpexShippingPriceInSubunits,
+      senpexQuote,
+      deliveryAddress,
     } = formValues?.values || {};
 
     const priceVariantMaybe = priceVariantName ? { priceVariantName } : {};
@@ -516,7 +518,19 @@ const calculateLineItems =
       ...(Number.isInteger(senpexShippingPriceInSubunits)
         ? { senpexShippingPriceInSubunits }
         : {}),
+      ...(senpexQuote ? { senpexQuote } : {}),
+      ...(deliveryAddress ? { deliveryAddress } : {}),
     };
+
+    console.log('BookingDatesForm calculateLineItems orderData:', {
+      hasDeliveryMethod: !!deliveryMethod,
+      deliveryMethod,
+      hasSenpexQuote: !!senpexQuote,
+      senpexQuoteToken: senpexQuote?.token,
+      senpexShippingPriceInSubunits,
+      hasDeliveryAddress: !!deliveryAddress,
+      orderDataKeys: Object.keys(orderData),
+    });
 
     if (startDate && endDate && !fetchLineItemsInProgress) {
       onFetchTransactionLineItems({
@@ -744,10 +758,20 @@ export const BookingDatesForm = (props) => {
 
   const initialValuesMaybe =
     priceVariants.length > 1 && preselectedPriceVariant
-      ? { initialValues: { priceVariantName: preselectedPriceVariant?.name } }
+      ? {
+          initialValues: {
+            priceVariantName: preselectedPriceVariant?.name,
+            deliveryMethod: 'senpex-shipping', // Always default to Senpex shipping
+          },
+        }
       : priceVariants.length === 1
-        ? { initialValues: { priceVariantName: priceVariants?.[0]?.name } }
-        : {};
+        ? {
+            initialValues: {
+              priceVariantName: priceVariants?.[0]?.name,
+              deliveryMethod: 'senpex-shipping', // Always default to Senpex shipping
+            },
+          }
+        : { initialValues: { deliveryMethod: 'senpex-shipping' } }; // Always default to Senpex shipping
 
   const allTimeSlots = getAllTimeSlots(monthlyTimeSlots);
   const monthId = monthIdString(currentMonth);
@@ -862,6 +886,7 @@ export const BookingDatesForm = (props) => {
           form: formApi,
           invalid,
         } = formRenderProps;
+
         const { startDate, endDate } = values?.bookingDates
           ? values.bookingDates
           : {};
@@ -991,7 +1016,17 @@ export const BookingDatesForm = (props) => {
 
         return (
           <Form
-            onSubmit={handleSubmit}
+            onSubmit={(values) => {
+              console.log('BookingDatesForm onSubmit - form values:', {
+                hasDeliveryMethod: !!values.deliveryMethod,
+                deliveryMethod: values.deliveryMethod,
+                hasSenpexQuote: !!values.senpexQuote,
+                senpexQuoteToken: values.senpexQuote?.token,
+                hasDeliveryAddress: !!values.deliveryAddress,
+                formValueKeys: Object.keys(values),
+              });
+              handleSubmit(values);
+            }}
             className={classes}
             enforcePagePreloadFor="CheckoutPage"
           >
@@ -1174,9 +1209,9 @@ export const BookingDatesForm = (props) => {
                 if (seatsEnabled) {
                   formApi.change('seats', 1);
                 }
-                const deliveryMethodMaybe = senpexQuote
-                  ? { deliveryMethod: 'senpex-shipping' }
-                  : {};
+                const deliveryMethodMaybe = {
+                  deliveryMethod: 'senpex-shipping',
+                }; // Always use Senpex shipping
                 const senpexPriceMaybe = senpexQuote?.price
                   ? {
                       senpexShippingPriceInSubunits: Math.round(
@@ -1191,8 +1226,10 @@ export const BookingDatesForm = (props) => {
                     startDate,
                     endDate,
                     seats: seatsEnabled ? 1 : undefined,
+                    deliveryAddress: fullValues?.deliveryAddress,
                     ...deliveryMethodMaybe,
                     ...senpexPriceMaybe,
+                    ...(senpexQuote ? { senpexQuote } : {}),
                   },
                 });
 
@@ -1252,13 +1289,38 @@ export const BookingDatesForm = (props) => {
                     .then((q) => {
                       setSenpexQuote(q);
                       setSenpexQuoteInProgress(false);
+
+                      // Update form values with Senpex data to persist to checkout
+                      console.log(
+                        'BookingDatesForm auto-quote success, updating form values:',
+                        {
+                          deliveryMethod: 'senpex-shipping',
+                          senpexQuoteToken: q?.token,
+                          senpexQuotePrice: q?.price,
+                          senpexShippingPriceInSubunits: Math.round(
+                            (q?.price || 0) * 100
+                          ),
+                        }
+                      );
+
+                      formApi.batch(() => {
+                        formApi.change('deliveryMethod', 'senpex-shipping');
+                        formApi.change('senpexQuote', q);
+                        formApi.change(
+                          'senpexShippingPriceInSubunits',
+                          Math.round((q?.price || 0) * 100)
+                        );
+                      });
+
                       onHandleFetchLineItems({
                         values: {
                           priceVariantName,
                           startDate,
                           endDate,
                           seats: seatsEnabled ? 1 : undefined,
+                          deliveryAddress: address,
                           deliveryMethod: 'senpex-shipping',
+                          senpexQuote: q,
                           senpexShippingPriceInSubunits: Math.round(
                             (q?.price || 0) * 100
                           ),

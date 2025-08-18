@@ -234,6 +234,17 @@ export const initiateOrder =
 
     // Parameters only for client app's server
     const senpexQuote = orderParams?.protectedData?.senpexQuote;
+
+    // Validate Senpex shipping requirements
+    if (deliveryMethod === 'senpex-shipping' && !senpexQuote?.token) {
+      const error = new Error(
+        'Senpex shipping requires a valid quote with token'
+      );
+      error.type = 'senpex-quote-required';
+      error.status = 400;
+      throw error;
+    }
+
     const senpexPriceMaybe =
       senpexQuote && typeof senpexQuote.price === 'number'
         ? { senpexShippingPriceInSubunits: Math.round(senpexQuote.price * 100) }
@@ -465,6 +476,17 @@ export const speculateTransaction =
 
     // Parameters only for client app's server
     const senpexQuote2 = orderParams?.protectedData?.senpexQuote;
+
+    // Validate Senpex shipping requirements
+    if (deliveryMethod === 'senpex-shipping' && !senpexQuote2?.token) {
+      const error = new Error(
+        'Senpex shipping requires a valid quote with token'
+      );
+      error.type = 'senpex-quote-required';
+      error.status = 400;
+      throw error;
+    }
+
     const senpexPriceMaybe2 =
       senpexQuote2 && typeof senpexQuote2.price === 'number'
         ? {

@@ -7,7 +7,10 @@ import classNames from 'classnames';
 import { useConfiguration } from '../../context/configurationContext';
 import { useRouteConfiguration } from '../../context/routeConfigurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
-import { createResourceLocatorString, findRouteByRouteName } from '../../util/routes';
+import {
+  createResourceLocatorString,
+  findRouteByRouteName,
+} from '../../util/routes';
 import { LISTING_UNIT_TYPES, propTypes } from '../../util/types';
 import { timestampToDate } from '../../util/dates';
 import { createSlug } from '../../util/urlHelpers';
@@ -21,7 +24,10 @@ import {
 } from '../../transactions/transaction';
 
 import { getMarketplaceEntities } from '../../ducks/marketplaceData.duck';
-import { isScrollingDisabled, manageDisableScrolling } from '../../ducks/ui.duck';
+import {
+  isScrollingDisabled,
+  manageDisableScrolling,
+} from '../../ducks/ui.duck';
 import { initializeCardPaymentData } from '../../ducks/stripe.duck.js';
 
 import {
@@ -54,25 +60,25 @@ import {
   fetchTransactionLineItems,
 } from './TransactionPage.duck';
 import css from './TransactionPage.module.css';
-import { getCurrentUserTypeRoles, hasPermissionToViewData } from '../../util/userHelpers.js';
+import {
+  getCurrentUserTypeRoles,
+  hasPermissionToViewData,
+} from '../../util/userHelpers.js';
 
 // Submit dispute and close the review modal
-const onDisputeOrder = (
-  currentTransactionId,
-  transitionName,
-  onTransition,
-  setDisputeSubmitted
-) => values => {
-  const { disputeReason } = values;
-  const params = disputeReason ? { protectedData: { disputeReason } } : {};
-  onTransition(currentTransactionId, transitionName, params)
-    .then(r => {
-      return setDisputeSubmitted(true);
-    })
-    .catch(e => {
-      // Do nothing.
-    });
-};
+const onDisputeOrder =
+  (currentTransactionId, transitionName, onTransition, setDisputeSubmitted) =>
+  (values) => {
+    const { disputeReason } = values;
+    const params = disputeReason ? { protectedData: { disputeReason } } : {};
+    onTransition(currentTransactionId, transitionName, params)
+      .then((r) => {
+        return setDisputeSubmitted(true);
+      })
+      .catch((e) => {
+        // Do nothing.
+      });
+  };
 
 /**
  * TransactionPage handles data loading for Sale and Order views to transaction pages in Inbox.
@@ -121,7 +127,7 @@ const onDisputeOrder = (
  * @param {Array<propTypes.transition>} props.nextTransitions - The next transitions
  * @returns {JSX.Element}
  */
-export const TransactionPageComponent = props => {
+export const TransactionPageComponent = (props) => {
   const [isDisputeModalOpen, setDisputeModalOpen] = useState(false);
   const [disputeSubmitted, setDisputeSubmitted] = useState(false);
   const [isReviewModalOpen, setReviewModalOpen] = useState(false);
@@ -167,7 +173,9 @@ export const TransactionPageComponent = props => {
   const isProviderRole = transactionRole === PROVIDER;
   const isCustomerRole = transactionRole === CUSTOMER;
 
-  const processName = resolveLatestProcessName(transaction?.attributes?.processName);
+  const processName = resolveLatestProcessName(
+    transaction?.attributes?.processName
+  );
   let process = null;
   try {
     process = processName ? getProcess(processName) : null;
@@ -175,13 +183,21 @@ export const TransactionPageComponent = props => {
     // Process was not recognized!
   }
 
-  const isTxOnPaymentPending = tx => {
-    return process ? process.getState(tx) === process.states.PENDING_PAYMENT : null;
+  const isTxOnPaymentPending = (tx) => {
+    return process
+      ? process.getState(tx) === process.states.PENDING_PAYMENT
+      : null;
   };
 
-  const redirectToCheckoutPageWithInitialValues = (initialValues, currentListing) => {
+  const redirectToCheckoutPageWithInitialValues = (
+    initialValues,
+    currentListing
+  ) => {
     // Customize checkout page state with current listing and selected bookingDates
-    const { setInitialValues } = findRouteByRouteName('CheckoutPage', routeConfiguration);
+    const { setInitialValues } = findRouteByRouteName(
+      'CheckoutPage',
+      routeConfiguration
+    );
     callSetInitialValues(setInitialValues, initialValues);
 
     // Clear previous Stripe errors from store if there is any
@@ -192,7 +208,10 @@ export const TransactionPageComponent = props => {
       createResourceLocatorString(
         'CheckoutPage',
         routeConfiguration,
-        { id: currentListing.id.uuid, slug: createSlug(currentListing.attributes.title) },
+        {
+          id: currentListing.id.uuid,
+          slug: createSlug(currentListing.attributes.title),
+        },
         {}
       )
     );
@@ -226,7 +245,7 @@ export const TransactionPageComponent = props => {
   }
 
   // Customer can create a booking, if the tx is in "inquiry" state.
-  const handleSubmitOrderRequest = values => {
+  const handleSubmitOrderRequest = (values) => {
     const {
       bookingDates,
       bookingStartTime,
@@ -235,6 +254,9 @@ export const TransactionPageComponent = props => {
       quantity: quantityRaw,
       seats: seatsRaw,
       deliveryMethod,
+      senpexQuote,
+      senpexShippingPriceInSubunits,
+      deliveryAddress,
       ...otherOrderData
     } = values;
 
@@ -246,13 +268,13 @@ export const TransactionPageComponent = props => {
           },
         }
       : bookingStartTime && bookingEndTime
-      ? {
-          bookingDates: {
-            bookingStart: timestampToDate(bookingStartTime),
-            bookingEnd: timestampToDate(bookingEndTime),
-          },
-        }
-      : {};
+        ? {
+            bookingDates: {
+              bookingStart: timestampToDate(bookingStartTime),
+              bookingEnd: timestampToDate(bookingEndTime),
+            },
+          }
+        : {};
 
     // priceVariantName is relevant for bookings
     const priceVariantNameMaybe = priceVariantName ? { priceVariantName } : {};
@@ -261,6 +283,11 @@ export const TransactionPageComponent = props => {
     const seats = Number.parseInt(seatsRaw, 10);
     const seatsMaybe = Number.isInteger(seats) ? { seats } : {};
     const deliveryMethodMaybe = deliveryMethod ? { deliveryMethod } : {};
+    const senpexQuoteMaybe = senpexQuote ? { senpexQuote } : {};
+    const senpexShippingPriceMaybe = senpexShippingPriceInSubunits
+      ? { senpexShippingPriceInSubunits }
+      : {};
+    const deliveryAddressMaybe = deliveryAddress ? { deliveryAddress } : {};
 
     const initialValues = {
       listing,
@@ -272,6 +299,9 @@ export const TransactionPageComponent = props => {
         ...quantityMaybe,
         ...seatsMaybe,
         ...deliveryMethodMaybe,
+        ...senpexQuoteMaybe,
+        ...senpexShippingPriceMaybe,
+        ...deliveryAddressMaybe,
         ...otherOrderData,
       },
       confirmPaymentError: null,
@@ -287,7 +317,7 @@ export const TransactionPageComponent = props => {
   };
 
   // Submit review and close the review modal
-  const onSubmitReview = values => {
+  const onSubmitReview = (values) => {
     const { reviewRating, reviewContent } = values;
     const rating = Number.parseInt(reviewRating, 10);
     const { states, transitions } = process;
@@ -310,11 +340,11 @@ export const TransactionPageComponent = props => {
     const params = { reviewRating: rating, reviewContent };
 
     onSendReview(transaction, transitionOptions, params, config)
-      .then(r => {
+      .then((r) => {
         setReviewModalOpen(false);
         setReviewSubmitted(true);
       })
-      .catch(e => {
+      .catch((e) => {
         // Do nothing.
       });
   };
@@ -328,7 +358,9 @@ export const TransactionPageComponent = props => {
     id: 'TransactionPage.deletedListing',
   });
   const listingDeleted = listing?.attributes?.deleted;
-  const listingTitle = listingDeleted ? deletedListingTitle : listing?.attributes?.title;
+  const listingTitle = listingDeleted
+    ? deletedListingTitle
+    : listing?.attributes?.title;
 
   // Redirect users with someone else's direct link to their own inbox/sales or inbox/orders page.
   const isDataAvailable =
@@ -341,28 +373,35 @@ export const TransactionPageComponent = props => {
     transaction.provider &&
     !fetchTransactionError;
 
-  const isOwnSale = isDataAvailable && isProviderRole && currentUser.id.uuid === provider?.id?.uuid;
+  const isOwnSale =
+    isDataAvailable &&
+    isProviderRole &&
+    currentUser.id.uuid === provider?.id?.uuid;
   const isOwnOrder =
-    isDataAvailable && isCustomerRole && currentUser.id.uuid === customer?.id?.uuid;
+    isDataAvailable &&
+    isCustomerRole &&
+    currentUser.id.uuid === customer?.id?.uuid;
 
-  const {
-    customer: isCustomerUserTypeRole,
-    provider: isProviderUserTypeRole,
-  } = getCurrentUserTypeRoles(config, currentUser);
+  const { customer: isCustomerUserTypeRole, provider: isProviderUserTypeRole } =
+    getCurrentUserTypeRoles(config, currentUser);
 
   if (isDataAvailable && isProviderRole && !isOwnSale) {
     // If the user's user type does not have a provider role set, redirect
     // to 'orders' inbox tab. Otherwise, redirect to 'sales' tab.
     const tab = !isProviderUserTypeRole ? 'orders' : 'sales';
     // eslint-disable-next-line no-console
-    console.error('Tried to access a sale that was not owned by the current user');
+    console.error(
+      'Tried to access a sale that was not owned by the current user'
+    );
     return <NamedRedirect name="InboxPage" params={{ tab }} />;
   } else if (isDataAvailable && isCustomerRole && !isOwnOrder) {
     // If the user's user type does not have a customer role set, redirect
     // to 'sales' inbox tab. Otherwise, redirect to 'orders' tab.
     const tab = !isCustomerUserTypeRole ? 'sales' : 'orders';
     // eslint-disable-next-line no-console
-    console.error('Tried to access an order that was not owned by the current user');
+    console.error(
+      'Tried to access an order that was not owned by the current user'
+    );
     return <NamedRedirect name="InboxPage" params={{ tab }} />;
   }
 
@@ -422,24 +461,26 @@ export const TransactionPageComponent = props => {
   const hasLineItems = transaction?.attributes?.lineItems?.length > 0;
   const unitLineItem = hasLineItems
     ? transaction.attributes?.lineItems?.find(
-        item => LISTING_UNIT_TYPES.includes(item.code) && !item.reversal
+        (item) => LISTING_UNIT_TYPES.includes(item.code) && !item.reversal
       )
     : null;
 
   const formatLineItemUnitType = (transaction, listing) => {
     // unitType should always be saved to transaction's protected data
-    const unitTypeInProtectedData = transaction?.attributes?.protectedData?.unitType;
+    const unitTypeInProtectedData =
+      transaction?.attributes?.protectedData?.unitType;
     // If unitType is not found (old or mutated data), we check listing's publicData
     // Note: this might have changed over time
-    const unitTypeInListingPublicData = listing?.attributes?.publicData?.unitType;
+    const unitTypeInListingPublicData =
+      listing?.attributes?.publicData?.unitType;
     return `line-item/${unitTypeInProtectedData || unitTypeInListingPublicData}`;
   };
 
   const lineItemUnitType = unitLineItem
     ? unitLineItem.code
     : isDataAvailable
-    ? formatLineItemUnitType(transaction, listing)
-    : null;
+      ? formatLineItemUnitType(transaction, listing)
+      : null;
 
   const timeZone = listing?.attributes?.availabilityPlan?.timezone;
 
@@ -498,7 +539,8 @@ export const TransactionPageComponent = props => {
           intl={intl}
           currentUser={currentUser}
           hasOlderMessages={
-            totalMessagePages > oldestMessagePageFetched && !fetchMessagesInProgress
+            totalMessagePages > oldestMessagePageFetched &&
+            !fetchMessagesInProgress
           }
           onOpenReviewModal={onOpenReviewModal}
           onShowOlderMessages={() => onShowMoreMessages(transaction.id, config)}
@@ -523,7 +565,10 @@ export const TransactionPageComponent = props => {
               ) : (
                 <NamedLink
                   name="ListingPage"
-                  params={{ id: listing.id?.uuid, slug: createSlug(listingTitle) }}
+                  params={{
+                    id: listing.id?.uuid,
+                    slug: createSlug(listingTitle),
+                  }}
                 >
                   {listingTitle}
                 </NamedLink>
@@ -536,7 +581,9 @@ export const TransactionPageComponent = props => {
           {...restOfProps}
           validListingTypes={config.listing.listingTypes}
           marketplaceCurrency={config.currency}
-          dayCountAvailableForBooking={config.stripe.dayCountAvailableForBooking}
+          dayCountAvailableForBooking={
+            config.stripe.dayCountAvailableForBooking
+          }
           marketplaceName={config.marketplaceName}
         />
       }
@@ -547,10 +594,16 @@ export const TransactionPageComponent = props => {
 
   return (
     <Page
-      title={intl.formatMessage({ id: 'TransactionPage.schemaTitle' }, { title: listingTitle })}
+      title={intl.formatMessage(
+        { id: 'TransactionPage.schemaTitle' },
+        { title: listingTitle }
+      )}
       scrollingDisabled={scrollingDisabled}
     >
-      <LayoutSingleColumn topbar={<TopbarContainer />} footer={<FooterContainer />}>
+      <LayoutSingleColumn
+        topbar={<TopbarContainer />}
+        footer={<FooterContainer />}
+      >
         <div className={css.root}>{panel}</div>
         <ReviewModal
           id="ReviewOrderModal"
@@ -577,7 +630,9 @@ export const TransactionPageComponent = props => {
               setDisputeSubmitted
             )}
             disputeSubmitted={disputeSubmitted}
-            disputeInProgress={transitionInProgress === process.transitions.DISPUTE}
+            disputeInProgress={
+              transitionInProgress === process.transitions.DISPUTE
+            }
             disputeError={transitionError}
           />
         ) : null}
@@ -586,7 +641,7 @@ export const TransactionPageComponent = props => {
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   const {
     fetchTransactionError,
     transitionInProgress,
@@ -612,7 +667,10 @@ const mapStateToProps = state => {
   } = state.TransactionPage;
   const { currentUser } = state.user;
 
-  const transactions = getMarketplaceEntities(state, transactionRef ? [transactionRef] : []);
+  const transactions = getMarketplaceEntities(
+    state,
+    transactionRef ? [transactionRef] : []
+  );
   const transaction = transactions.length > 0 ? transactions[0] : null;
 
   return {
@@ -642,17 +700,20 @@ const mapStateToProps = state => {
   };
 };
 
-const mapDispatchToProps = dispatch => {
+const mapDispatchToProps = (dispatch) => {
   return {
     onTransition: (txId, transitionName, params) =>
       dispatch(makeTransition(txId, transitionName, params)),
-    onShowMoreMessages: (txId, config) => dispatch(fetchMoreMessages(txId, config)),
-    onSendMessage: (txId, message, config) => dispatch(sendMessage(txId, message, config)),
+    onShowMoreMessages: (txId, config) =>
+      dispatch(fetchMoreMessages(txId, config)),
+    onSendMessage: (txId, message, config) =>
+      dispatch(sendMessage(txId, message, config)),
     onManageDisableScrolling: (componentId, disableScrolling) =>
       dispatch(manageDisableScrolling(componentId, disableScrolling)),
     onSendReview: (tx, transitionOptions, params, config) =>
       dispatch(sendReview(tx, transitionOptions, params, config)),
-    callSetInitialValues: (setInitialValues, values) => dispatch(setInitialValues(values)),
+    callSetInitialValues: (setInitialValues, values) =>
+      dispatch(setInitialValues(values)),
     onInitializeCardPaymentData: () => dispatch(initializeCardPaymentData()),
     onFetchTransactionLineItems: (orderData, listingId, isOwnListing) =>
       dispatch(fetchTransactionLineItems(orderData, listingId, isOwnListing)), // for OrderPanel
@@ -663,10 +724,7 @@ const mapDispatchToProps = dispatch => {
 
 const TransactionPage = compose(
   withRouter,
-  connect(
-    mapStateToProps,
-    mapDispatchToProps
-  )
+  connect(mapStateToProps, mapDispatchToProps)
 )(TransactionPageComponent);
 
 export default TransactionPage;

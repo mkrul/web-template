@@ -1136,6 +1136,7 @@
   "TransactionPage.default-booking.provider.reviewed.title": "La reserva de {customerName} ha sido completada.",
   "TransactionPage.default-booking.provider.transition-accept.actionButton": "Aceptar solicitud",
   "TransactionPage.default-booking.provider.transition-accept.actionError": "No se pudo aceptar la solicitud. Por favor, inténtalo de nuevo.",
+  "TransactionPage.senpex.shipping.error": "No se puede aceptar la solicitud: Falta la cotización de envío Senpex. La reserva requiere entrega Senpex pero la cotización de envío no está disponible. Por favor contacte soporte.",
   "TransactionPage.default-booking.provider.transition-decline.actionButton": "Rechazar solicitud",
   "TransactionPage.default-booking.provider.transition-decline.actionError": "No se pudo rechazar la solicitud. Por favor, inténtalo de nuevo.",
   "TransactionPage.default-inquiry.customer.free-inquiry.title": "Enviaste una consulta.",

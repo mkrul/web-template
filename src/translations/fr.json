@@ -1136,6 +1136,7 @@
   "TransactionPage.default-booking.provider.reviewed.title": "La réservation de {customerName} a été effectuée.",
   "TransactionPage.default-booking.provider.transition-accept.actionButton": "Accepter demande",
   "TransactionPage.default-booking.provider.transition-accept.actionError": "Oups, impossible d'accepter. Veuillez réessayer.",
+  "TransactionPage.senpex.shipping.error": "Impossible d'accepter la demande : La cotisation d'expédition Senpex est manquante. La réservation nécessite une livraison Senpex mais la cotisation d'expédition n'est pas disponible. Veuillez contacter le support.",
   "TransactionPage.default-booking.provider.transition-decline.actionButton": "Refuser la demande de contact",
   "TransactionPage.default-booking.provider.transition-decline.actionError": "Oups, impossible de refuser. Veuillez réessayer.",
   "TransactionPage.default-inquiry.customer.free-inquiry.title": "Vous avez envoyé une demande.",
