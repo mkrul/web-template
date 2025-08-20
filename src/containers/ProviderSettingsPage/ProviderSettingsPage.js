@@ -13,9 +13,18 @@ import {
 } from '../../util/userHelpers';
 
 import { sendVerificationEmail } from '../../ducks/user.duck';
-import { isScrollingDisabled, manageDisableScrolling } from '../../ducks/ui.duck';
+import {
+  isScrollingDisabled,
+  manageDisableScrolling,
+} from '../../ducks/ui.duck';
 
-import { H3, Page, UserNav, LayoutSideNavigation } from '../../components';
+import {
+  H3,
+  Notification,
+  Page,
+  UserNav,
+  LayoutSideNavigation,
+} from '../../components';
 
 import TopbarContainer from '../../containers/TopbarContainer/TopbarContainer';
 import FooterContainer from '../../containers/FooterContainer/FooterContainer';
@@ -34,7 +43,7 @@ export const ProviderSettingsPageComponent = (props) => {
   const intl = useIntl();
   const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
   const [pendingFormValues, setPendingFormValues] = useState(null);
-  
+
   const {
     saveProviderSettingsError,
     saveProviderSettingsInProgress,
@@ -168,11 +177,19 @@ export const ProviderSettingsPageComponent = (props) => {
     return null;
   };
 
+  // Debug logging for initial values
+  const initialAddressValue = formatAddressForForm(publicData?.providerAddress);
+  console.log('ProviderSettings initial values:', {
+    addressData: publicData?.providerAddress,
+    formattedAddress: initialAddressValue,
+    apartmentUnit: publicData?.apartmentUnit,
+  });
+
   const providerSettingsForm = user.id ? (
     <ProviderSettingsForm
       className={css.form}
       initialValues={{
-        pub_providerAddress: formatAddressForForm(publicData?.providerAddress),
+        pub_providerAddress: initialAddressValue,
         apartmentUnit: publicData?.apartmentUnit,
       }}
       saveProviderSettingsError={saveProviderSettingsError}
@@ -228,14 +245,14 @@ export const ProviderSettingsPageComponent = (props) => {
             <FormattedMessage id="ProviderSettingsPage.heading" />
           </H3>
           {providerSettingsChanged && (
-            <div className={css.successMessage}>
+            <Notification type="success" onClose={onChange}>
               <FormattedMessage id="ProviderSettingsForm.listingsUpdatedSuccess" />
-            </div>
+            </Notification>
           )}
           {providerSettingsForm}
         </div>
       </LayoutSideNavigation>
-      
+
       <ProviderAddressConfirmationModal
         id="ProviderAddressConfirmationModal"
         isOpen={isConfirmationModalOpen}

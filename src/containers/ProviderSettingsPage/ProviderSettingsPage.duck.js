@@ -148,9 +148,19 @@ export const saveProviderSettings = (params) => (dispatch, getState, sdk) => {
       );
       dispatch(currentUserShowSuccess(mergedUser));
 
-      // If address changed, update all provider's listings
-      if (addressChanged && pub_providerAddress?.selectedPlace) {
-        return updateProviderListings(dispatch, sdk, pub_providerAddress);
+      // Update all provider's listings if address or apartment unit changed
+      if (
+        (addressChanged && pub_providerAddress?.selectedPlace) ||
+        apartmentChanged
+      ) {
+        return updateProviderListings(
+          dispatch,
+          sdk,
+          pub_providerAddress,
+          apartmentUnit,
+          addressChanged,
+          apartmentChanged
+        );
       }
 
       dispatch(saveProviderSettingsSuccess());
@@ -160,11 +170,15 @@ export const saveProviderSettings = (params) => (dispatch, getState, sdk) => {
     });
 };
 
-// Helper function to update all provider's listings with new address
-const updateProviderListings = (dispatch, sdk, providerAddress) => {
-  const { selectedPlace } = providerAddress;
-  const { address, origin } = selectedPlace;
-
+// Helper function to update all provider's listings with new address and/or apartment unit
+const updateProviderListings = (
+  dispatch,
+  sdk,
+  providerAddress,
+  apartmentUnit,
+  addressChanged,
+  apartmentChanged
+) => {
   // Fetch all provider's listings
   return sdk.ownListings
     .query({
@@ -174,28 +188,47 @@ const updateProviderListings = (dispatch, sdk, providerAddress) => {
     })
     .then((response) => {
       const listings = response.data.data;
-      
+
       if (listings.length === 0) {
         dispatch(saveProviderSettingsSuccess());
         return;
       }
 
-      // Update each listing with the new provider address
+      // Update each listing with the new provider address and/or apartment unit
       const updatePromises = listings.map((listing) => {
         const listingId = listing.id;
-        
+
         // Prepare update data for the listing
         const updateData = {
           id: listingId,
-          geolocation: origin,
           publicData: {
             ...listing.attributes.publicData,
-            location: { 
-              address, 
-              building: listing.attributes.publicData?.location?.building || '' 
-            },
           },
         };
+
+        // Update geolocation if address changed
+        if (addressChanged && providerAddress?.selectedPlace?.origin) {
+          updateData.geolocation = providerAddress.selectedPlace.origin;
+        }
+
+        // Update location data if address or apartment unit changed
+        if (addressChanged || apartmentChanged) {
+          const currentLocation = listing.attributes.publicData?.location || {};
+          updateData.publicData.location = {
+            ...currentLocation,
+          };
+
+          // Update address if address changed
+          if (addressChanged && providerAddress?.selectedPlace?.address) {
+            updateData.publicData.location.address =
+              providerAddress.selectedPlace.address;
+          }
+
+          // Update building (apartment unit) if apartment unit changed
+          if (apartmentChanged) {
+            updateData.publicData.location.building = apartmentUnit || '';
+          }
+        }
 
         return sdk.ownListings
           .update(updateData, { expand: true, include: ['images'] })
@@ -210,11 +243,17 @@ const updateProviderListings = (dispatch, sdk, providerAddress) => {
     })
     .then((results) => {
       // Log results for debugging
-      const successful = results.filter(r => r.status === 'fulfilled' && r.value).length;
-      const failed = results.filter(r => r.status === 'rejected' || !r.value).length;
-      
-      console.log(`ProviderSettings: Updated ${successful} listings, ${failed} failed`);
-      
+      const successful = results.filter(
+        (r) => r.status === 'fulfilled' && r.value
+      ).length;
+      const failed = results.filter(
+        (r) => r.status === 'rejected' || !r.value
+      ).length;
+
+      console.log(
+        `ProviderSettings: Updated ${successful} listings, ${failed} failed`
+      );
+
       dispatch(saveProviderSettingsSuccess());
     })
     .catch((error) => {

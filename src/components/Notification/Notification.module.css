@@ -1,0 +1,90 @@
+@import '../../styles/customMediaQueries.css';
+
+.notification {
+  margin: 0 0 24px 0;
+  padding: 12px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  line-height: 1.4;
+  display: flex;
+  align-items: flex-start;
+}
+
+.content {
+  display: flex;
+  align-items: flex-start;
+  width: 100%;
+  gap: 8px;
+}
+
+.message {
+  flex: 1;
+  color: inherit;
+}
+
+.icon {
+  flex-shrink: 0;
+  width: 20px;
+  height: 20px;
+  margin-top: 1px;
+}
+
+.closeButton {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  opacity: 0.7;
+  transition: opacity 0.2s ease;
+}
+
+.closeButton:hover {
+  opacity: 1;
+}
+
+.closeIcon {
+  width: 12px;
+  height: 12px;
+}
+
+.success {
+  background-color: var(--colorSuccessLight);
+  color: var(--colorSuccessDark);
+  border: 1px solid var(--colorSuccess);
+}
+
+.error {
+  background-color: var(--colorFailLight);
+  color: var(--colorFail);
+  border: 1px solid var(--colorFail);
+}
+
+.warning {
+  background-color: var(--colorAttentionLight);
+  color: var(--colorAttention);
+  border: 1px solid var(--colorAttention);
+}
+
+.info {
+  background-color: var(--colorInfoLight);
+  color: var(--colorInfo);
+  border: 1px solid var(--colorInfo);
+}
+
+@media (--viewportMedium) {
+  .notification {
+    padding: 16px 20px;
+    font-size: 16px;
+  }
+
+  .icon {
+    width: 24px;
+    height: 24px;
+  }
+
+  .closeIcon {
+    width: 16px;
+    height: 16px;
+  }
+}

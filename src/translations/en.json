@@ -169,7 +169,7 @@
   "ProviderSettingsForm.providerInfoHeading": "Provider Settings",
   "ProviderSettingsForm.providerInfoDescription": "If you are listing your own crates on the marketplace, this is the address that our shipping provider will use to determine where to pick up and return your crates. We will never share this information with renters or other third parties.",
   "ProviderSettingsForm.addressUpdateNotice": "Note: When you update your provider address, all of your listings will automatically be updated to use this new address.",
-  "ProviderSettingsForm.listingsUpdatedSuccess": "Your provider address and all listings have been updated successfully.",
+  "ProviderSettingsForm.listingsUpdatedSuccess": "Your address and all listings have been updated successfully.",
   "ProviderAddressConfirmationModal.close": "Close",
   "ProviderAddressConfirmationModal.title": "Update Provider Address",
   "ProviderAddressConfirmationModal.message": "By updating your provider address, this will update all of your active crate listings to use the new address. Are you sure you want to proceed?",
