@@ -772,7 +772,14 @@ export const fetchTransaction =
       })
       .then((response) => {
         const listingFields = config?.listing?.listingFields;
-        const sanitizeConfig = { listingFields };
+        const state = getState();
+        const currentUser = state.user?.currentUser;
+        const listing = response.data.data?.listing?.data;
+        const isOwnListing =
+          currentUser &&
+          listing?.relationships?.author?.data?.id?.uuid ===
+            currentUser.id.uuid;
+        const sanitizeConfig = { listingFields, redactLocation: !isOwnListing };
 
         dispatch(addMarketplaceEntities(response, sanitizeConfig));
         dispatch(fetchTransactionSuccess(response));

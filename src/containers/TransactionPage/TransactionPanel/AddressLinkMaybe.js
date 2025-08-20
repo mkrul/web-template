@@ -31,7 +31,7 @@ const AddressLinkMaybe = (props) => {
       : address;
 
   const classes = classNames(rootClassName || css.address, className);
-  return showAddress && hrefToExternalMap ? (
+  return showAddress && hrefToExternalMap && (address || building) ? (
     <p className={classes}>
       {fullAddress} <br />
       <span className={css.viewOnGoogleMapsWrapper}>

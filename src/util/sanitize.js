@@ -19,15 +19,16 @@ const ESCAPE_TEXT_REPLACEMENTS = {
 
 // An example how you could sanitize text content.
 // This swaps some coding related characters to less dangerous ones
-const sanitizeText = str =>
+const sanitizeText = (str) =>
   str == null
     ? str
     : typeof str === 'string'
-    ? str.replace(ESCAPE_TEXT_REGEXP, ch => ESCAPE_TEXT_REPLACEMENTS[ch])
-    : '';
+      ? str.replace(ESCAPE_TEXT_REGEXP, (ch) => ESCAPE_TEXT_REPLACEMENTS[ch])
+      : '';
 
 // Enum and multi-enum work with predefined option configuration
-const sanitizeEnum = (str, options) => (options.map(o => `${o.option}`).includes(str) ? str : null);
+const sanitizeEnum = (str, options) =>
+  options.map((o) => `${o.option}`).includes(str) ? str : null;
 const sanitizeMultiEnum = (arr, options) =>
   Array.isArray(arr)
     ? arr.reduce((ret, value) => {
@@ -35,10 +36,12 @@ const sanitizeMultiEnum = (arr, options) =>
         return enumValue ? [...ret, enumValue] : ret;
       }, [])
     : [];
-const sanitizeLong = lng => (lng == null || typeof lng === 'number' ? lng : null);
-const sanitizeBoolean = bool => (bool == null || typeof bool === 'boolean' ? bool : null);
+const sanitizeLong = (lng) =>
+  lng == null || typeof lng === 'number' ? lng : null;
+const sanitizeBoolean = (bool) =>
+  bool == null || typeof bool === 'boolean' ? bool : null;
 
-const sanitizeYoutubeVideoUrl = url => {
+const sanitizeYoutubeVideoUrl = (url) => {
   const sanitizedUrl = sanitizeUrl(url);
   const videoID = extractYouTubeID(sanitizedUrl);
   return videoID ? `https://www.youtube.com/watch?v=${videoID}` : null;
@@ -49,7 +52,8 @@ const sanitizeYoutubeVideoUrl = url => {
 // <sanitizeUrl>
 const INVALID_PROTOCOL_REGEXP = /^([^\w]*)(javascript|data|vbscript)/im;
 const HTML_ENTITIES_REGEXP = /&#(\w+)(^\w|;)?/g;
-const CTRL_CHARACTERS_REGEXP = /[\u0000-\u001F\u007F-\u009F\u2000-\u200D\uFEFF]/gim;
+const CTRL_CHARACTERS_REGEXP =
+  /[\u0000-\u001F\u007F-\u009F\u2000-\u200D\uFEFF]/gim;
 const URL_SCHEME_REGEXP = /^([^:]+):/gm;
 const RELATIVE_FIRST_CHARACTERS = ['.', '/'];
 
@@ -103,15 +107,24 @@ export function sanitizeUrl(url) {
 export const sanitizeUser = (entity, config = {}) => {
   const { attributes, ...restEntity } = entity || {};
   const { profile, ...restAttributes } = attributes || {};
-  const { bio, displayName, abbreviatedName, publicData = {}, metadata = {}, ...restProfile } =
-    profile || {};
+  const {
+    bio,
+    displayName,
+    abbreviatedName,
+    publicData = {},
+    metadata = {},
+    ...restProfile
+  } = profile || {};
 
-  const sanitizePublicData = publicData => {
+  const sanitizePublicData = (publicData) => {
     // TODO: If you add public data, you should probably sanitize it here.
-    const sanitizedConfiguredPublicData = sanitizeConfiguredPublicData(publicData, config);
+    const sanitizedConfiguredPublicData = sanitizeConfiguredPublicData(
+      publicData,
+      config
+    );
     return publicData ? { publicData: sanitizedConfiguredPublicData } : {};
   };
-  const sanitizeMetadata = metadata => {
+  const sanitizeMetadata = (metadata) => {
     // TODO: If you add user-generated metadata through Integration API,
     // you should probably sanitize it here.
     return metadata ? { metadata } : {};
@@ -129,7 +142,9 @@ export const sanitizeUser = (entity, config = {}) => {
         },
       }
     : {};
-  const attributesMaybe = attributes ? { attributes: { ...profileMaybe, ...restAttributes } } : {};
+  const attributesMaybe = attributes
+    ? { attributes: { ...profileMaybe, ...restAttributes } }
+    : {};
 
   return { ...attributesMaybe, ...restEntity };
 };
@@ -146,16 +161,16 @@ const sanitizedExtendedDataFields = (value, config) => {
     schemaType === 'text'
       ? sanitizeText(value)
       : schemaType === 'enum'
-      ? sanitizeEnum(value, enumOptions)
-      : schemaType === 'multi-enum'
-      ? sanitizeMultiEnum(value, enumOptions)
-      : schemaType === 'long'
-      ? sanitizeLong(value)
-      : schemaType === 'boolean'
-      ? sanitizeBoolean(value)
-      : schemaType === 'youtubeVideoUrl'
-      ? sanitizeYoutubeVideoUrl(value)
-      : null;
+        ? sanitizeEnum(value, enumOptions)
+        : schemaType === 'multi-enum'
+          ? sanitizeMultiEnum(value, enumOptions)
+          : schemaType === 'long'
+            ? sanitizeLong(value)
+            : schemaType === 'boolean'
+              ? sanitizeBoolean(value)
+              : schemaType === 'youtubeVideoUrl'
+                ? sanitizeYoutubeVideoUrl(value)
+                : null;
 
   return sanitized;
 };
@@ -176,24 +191,57 @@ const sanitizeConfiguredPublicData = (publicData, config = {}) => {
   const publicDataObj = publicData || {};
   return Object.entries(publicDataObj).reduce((sanitized, entry) => {
     const [key, value] = entry;
-    const foundListingFieldConfig = config?.listingFields?.find(d => d.key === key);
-    const foundUserFieldConfig = config?.userFields?.find(d => d.key === key);
-    const knownKeysWithString = ['listingType', 'transactionProcessAlias', 'unitType', 'userType'];
+    const foundListingFieldConfig = config?.listingFields?.find(
+      (d) => d.key === key
+    );
+    const foundUserFieldConfig = config?.userFields?.find((d) => d.key === key);
+    const knownKeysWithString = [
+      'listingType',
+      'transactionProcessAlias',
+      'unitType',
+      'userType',
+    ];
     const sanitizedValue = knownKeysWithString.includes(key)
       ? sanitizeText(value)
       : foundListingFieldConfig
-      ? sanitizedExtendedDataFields(value, foundListingFieldConfig)
-      : foundUserFieldConfig
-      ? sanitizedExtendedDataFields(value, foundUserFieldConfig)
-      : typeof value === 'string'
-      ? sanitizeText(value)
-      : value;
+        ? sanitizedExtendedDataFields(value, foundListingFieldConfig)
+        : foundUserFieldConfig
+          ? sanitizedExtendedDataFields(value, foundUserFieldConfig)
+          : typeof value === 'string'
+            ? sanitizeText(value)
+            : value;
 
     return {
       ...sanitized,
       [key]: sanitizedValue,
     };
   }, {});
+};
+
+/**
+ * Helper function to ensure complete location data redaction for non-owners
+ * This provides defense-in-depth even if API accidentally returns location data
+ */
+const enforceLocationPrivacy = (entity, config = {}) => {
+  if (!config?.redactLocation) {
+    return entity;
+  }
+
+  const { attributes, ...restEntity } = entity;
+  if (!attributes) {
+    return entity;
+  }
+
+  const { geolocation, publicData, ...restAttributes } = attributes;
+  const { location, ...restPublicData } = publicData || {};
+
+  return {
+    ...restEntity,
+    attributes: {
+      ...restAttributes,
+      publicData: restPublicData,
+    },
+  };
 };
 
 /**
@@ -205,22 +253,32 @@ const sanitizeConfiguredPublicData = (publicData, config = {}) => {
  */
 export const sanitizeListing = (entity, config = {}) => {
   const { attributes, ...restEntity } = entity;
-  const { title, description, publicData, ...restAttributes } = attributes || {};
+  const { title, description, publicData, geolocation, ...restAttributes } =
+    attributes || {};
 
-  const sanitizeLocation = location => {
+  const sanitizeLocation = (location) => {
     const { address, building } = location || {};
     return { address: sanitizeText(address), building: sanitizeText(building) };
   };
 
-  const sanitizePublicData = publicData => {
-    // Here's an example how you could sanitize location and rules from publicData:
-    // TODO: If you add public data, you should probably sanitize it here.
+  const sanitizePublicData = (publicData) => {
     const { location, ...restPublicData } = publicData || {};
-    const locationMaybe = location ? { location: sanitizeLocation(location) } : {};
-    const sanitizedConfiguredPublicData = sanitizeConfiguredPublicData(restPublicData, config);
+    const locationMaybe =
+      location && !config?.redactLocation
+        ? { location: sanitizeLocation(location) }
+        : {};
+    const sanitizedConfiguredPublicData = sanitizeConfiguredPublicData(
+      restPublicData,
+      config
+    );
 
-    return publicData ? { publicData: { ...locationMaybe, ...sanitizedConfiguredPublicData } } : {};
+    return publicData
+      ? { publicData: { ...locationMaybe, ...sanitizedConfiguredPublicData } }
+      : {};
   };
+
+  const geolocationMaybe =
+    !config?.redactLocation && geolocation ? { geolocation } : {};
 
   const attributesMaybe = attributes
     ? {
@@ -228,12 +286,16 @@ export const sanitizeListing = (entity, config = {}) => {
           title: sanitizeText(title),
           description: sanitizeText(description),
           ...sanitizePublicData(publicData),
+          ...geolocationMaybe,
           ...restAttributes,
         },
       }
     : {};
 
-  return { ...attributesMaybe, ...restEntity };
+  const sanitizedEntity = { ...attributesMaybe, ...restEntity };
+
+  // Apply defense-in-depth location privacy enforcement
+  return enforceLocationPrivacy(sanitizedEntity, config);
 };
 
 /**

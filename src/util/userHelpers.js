@@ -283,3 +283,44 @@ export const getCurrentUserTypeRoles = (config, currentUser) => {
     }
   );
 };
+
+/**
+ * Check if the current user should be allowed to see listing location/address data
+ * This enforces privacy by only allowing:
+ * 1. Listing owners to see their own listing's address
+ * 2. Transaction participants to see address in transaction context
+ * @param {Object} currentUser API entity
+ * @param {Object} listing API entity
+ * @param {Object} transaction API entity (optional - for transaction context)
+ * @returns {Boolean} true if user should see location data
+ */
+export const shouldShowListingLocation = (
+  currentUser,
+  listing,
+  transaction = null
+) => {
+  if (!currentUser || !listing) {
+    return false;
+  }
+
+  // Check if user is the listing owner
+  const isListingOwner =
+    listing?.relationships?.author?.data?.id?.uuid === currentUser.id?.uuid ||
+    listing?.author?.id?.uuid === currentUser.id?.uuid;
+
+  if (isListingOwner) {
+    return true;
+  }
+
+  // In transaction context, both customer and provider should see address
+  if (transaction) {
+    const isTransactionParticipant =
+      transaction.customer?.id?.uuid === currentUser.id?.uuid ||
+      transaction.provider?.id?.uuid === currentUser.id?.uuid;
+
+    return isTransactionParticipant;
+  }
+
+  // Default: don't show address to non-owners outside transaction context
+  return false;
+};

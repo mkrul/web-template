@@ -438,7 +438,7 @@ export const searchListings =
             : 'n/a'
         );
         const listingFields = config?.listing?.listingFields;
-        const sanitizeConfig = { listingFields };
+        const sanitizeConfig = { listingFields, redactLocation: true };
 
         dispatch(addMarketplaceEntities(response, sanitizeConfig));
         dispatch(searchListingsSuccess(response));
@@ -545,7 +545,6 @@ export const loadData =
         include: ['author', 'images'],
         'fields.listing': [
           'title',
-          'geolocation',
           'price',
           'deleted',
           'state',

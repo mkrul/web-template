@@ -231,7 +231,7 @@ const LocationOrShippingDetails = (props) => {
     ? `${listingLocation.building}, ${listingLocation.address}`
     : listingLocation?.address
       ? listingLocation.address
-      : intl.formatMessage({ id: 'StripePaymentForm.locationUnknown' });
+      : intl.formatMessage({ id: 'StripePaymentForm.pickupLocationUnknown' });
 
   return askShippingDetails ? (
     <ShippingDetails intl={intl} formApi={formApi} locale={locale} />

@@ -714,7 +714,9 @@ export function requestShowListing(actionPayload, config) {
       .show({ ...actionPayload, ...queryParams })
       .then((response) => {
         // EditListingPage fetches new listing data, which also needs to be added to global data
-        dispatch(addMarketplaceEntities(response));
+        const listingFields = config?.listing?.listingFields;
+        const sanitizeConfig = { listingFields, redactLocation: false };
+        dispatch(addMarketplaceEntities(response, sanitizeConfig));
         // In case of success, we'll clear state.EditListingPage (user will be redirected away)
         dispatch(showListingsSuccess(response));
         return response;
