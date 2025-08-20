@@ -1,0 +1,58 @@
+@import '../../../styles/customMediaQueries.css';
+
+.root {
+  composes: marketplaceModalBaseStyles from global;
+  padding-top: 70px;
+
+  @media (--viewportMedium) {
+    flex-basis: 567px;
+  }
+}
+
+.modalContent {
+  flex-grow: 1;
+}
+
+/* Icon of the modal */
+.modalIcon {
+  composes: marketplaceModalIconStyles from global;
+}
+
+/* Title of the modal */
+.modalTitle {
+  composes: marketplaceModalTitleStyles from global;
+}
+
+/* Paragraph for the Modal */
+.modalMessage {
+  composes: marketplaceModalParagraphStyles from global;
+}
+
+.modalButtons {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 24px;
+
+  @media (--viewportMedium) {
+    flex-direction: row;
+    gap: 16px;
+    margin-top: 36px;
+  }
+}
+
+.cancelButton {
+  @media (--viewportMedium) {
+    flex: 1;
+  }
+}
+
+.confirmButton {
+  background-color: var(--colorAttention);
+  color: var(--colorWhite);
+  border: 1px solid var(--colorAttention);
+
+  @media (--viewportMedium) {
+    flex: 1;
+  }
+}

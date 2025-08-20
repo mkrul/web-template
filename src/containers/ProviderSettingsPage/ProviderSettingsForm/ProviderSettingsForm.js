@@ -138,6 +138,10 @@ class ProviderSettingsFormComponent extends Component {
                 <FormattedMessage id="ProviderSettingsForm.providerInfoDescription" />
               </p>
 
+              <p className={`${authCss.modalHelperText} ${css.disclaimerText}`}>
+                <FormattedMessage id="ProviderSettingsForm.addressUpdateNotice" />
+              </p>
+
               <div className={css.bottomWrapper}>
                 {genericError}
                 <PrimaryButton

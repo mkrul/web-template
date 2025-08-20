@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { compose } from 'redux';
 import { connect } from 'react-redux';
 
@@ -13,7 +13,7 @@ import {
 } from '../../util/userHelpers';
 
 import { sendVerificationEmail } from '../../ducks/user.duck';
-import { isScrollingDisabled } from '../../ducks/ui.duck';
+import { isScrollingDisabled, manageDisableScrolling } from '../../ducks/ui.duck';
 
 import { H3, Page, UserNav, LayoutSideNavigation } from '../../components';
 
@@ -21,6 +21,7 @@ import TopbarContainer from '../../containers/TopbarContainer/TopbarContainer';
 import FooterContainer from '../../containers/FooterContainer/FooterContainer';
 
 import ProviderSettingsForm from './ProviderSettingsForm/ProviderSettingsForm';
+import ProviderAddressConfirmationModal from './ProviderAddressConfirmationModal/ProviderAddressConfirmationModal';
 
 import {
   saveProviderSettings,
@@ -31,6 +32,9 @@ import css from './ProviderSettingsPage.module.css';
 export const ProviderSettingsPageComponent = (props) => {
   const config = useConfiguration();
   const intl = useIntl();
+  const [isConfirmationModalOpen, setIsConfirmationModalOpen] = useState(false);
+  const [pendingFormValues, setPendingFormValues] = useState(null);
+  
   const {
     saveProviderSettingsError,
     saveProviderSettingsInProgress,
@@ -39,6 +43,7 @@ export const ProviderSettingsPageComponent = (props) => {
     onChange,
     scrollingDisabled,
     onSubmitProviderSettings,
+    onManageDisableScrolling,
   } = props;
 
   // Guard against undefined currentUser
@@ -97,13 +102,46 @@ export const ProviderSettingsPageComponent = (props) => {
     const pub_providerAddress = values.pub_providerAddress || null;
     const apartmentUnit = values.apartmentUnit?.trim() || null;
 
-    onSubmitProviderSettings({
-      ...values,
-      pub_providerAddress,
-      apartmentUnit,
-      currentProviderAddress: publicData?.providerAddress,
-      currentApartmentUnit: publicData?.apartmentUnit,
-    });
+    // Check if address has changed
+    const currentAddressSearch =
+      publicData?.providerAddress?.search || publicData?.providerAddress || '';
+    const newAddressSearch = pub_providerAddress?.search || '';
+    const addressChanged = newAddressSearch !== currentAddressSearch;
+    const apartmentChanged = apartmentUnit !== publicData?.apartmentUnit;
+
+    // If address or apartment changed, show confirmation modal
+    if (addressChanged || apartmentChanged) {
+      setPendingFormValues({
+        ...values,
+        pub_providerAddress,
+        apartmentUnit,
+        currentProviderAddress: publicData?.providerAddress,
+        currentApartmentUnit: publicData?.apartmentUnit,
+      });
+      setIsConfirmationModalOpen(true);
+    } else {
+      // No changes, submit directly
+      onSubmitProviderSettings({
+        ...values,
+        pub_providerAddress,
+        apartmentUnit,
+        currentProviderAddress: publicData?.providerAddress,
+        currentApartmentUnit: publicData?.apartmentUnit,
+      });
+    }
+  };
+
+  const handleConfirmUpdate = () => {
+    if (pendingFormValues) {
+      onSubmitProviderSettings(pendingFormValues);
+      setIsConfirmationModalOpen(false);
+      setPendingFormValues(null);
+    }
+  };
+
+  const handleCloseModal = () => {
+    setIsConfirmationModalOpen(false);
+    setPendingFormValues(null);
   };
 
   // Ensure address data is properly formatted for LocationAutocompleteInput
@@ -189,9 +227,23 @@ export const ProviderSettingsPageComponent = (props) => {
           <H3 as="h1" className={css.heading}>
             <FormattedMessage id="ProviderSettingsPage.heading" />
           </H3>
+          {providerSettingsChanged && (
+            <div className={css.successMessage}>
+              <FormattedMessage id="ProviderSettingsForm.listingsUpdatedSuccess" />
+            </div>
+          )}
           {providerSettingsForm}
         </div>
       </LayoutSideNavigation>
+      
+      <ProviderAddressConfirmationModal
+        id="ProviderAddressConfirmationModal"
+        isOpen={isConfirmationModalOpen}
+        onCloseModal={handleCloseModal}
+        onManageDisableScrolling={onManageDisableScrolling}
+        onConfirmUpdate={handleConfirmUpdate}
+        updateInProgress={saveProviderSettingsInProgress}
+      />
     </Page>
   );
 };
@@ -215,6 +267,8 @@ const mapStateToProps = (state) => {
 const mapDispatchToProps = (dispatch) => ({
   onChange: () => dispatch(saveProviderSettingsClear()),
   onSubmitProviderSettings: (values) => dispatch(saveProviderSettings(values)),
+  onManageDisableScrolling: (componentId, disableScrolling) =>
+    dispatch(manageDisableScrolling(componentId, disableScrolling)),
 });
 
 const ProviderSettingsPage = compose(

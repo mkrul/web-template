@@ -147,9 +147,79 @@ export const saveProviderSettings = (params) => (dispatch, getState, sdk) => {
         mergedUser
       );
       dispatch(currentUserShowSuccess(mergedUser));
+
+      // If address changed, update all provider's listings
+      if (addressChanged && pub_providerAddress?.selectedPlace) {
+        return updateProviderListings(dispatch, sdk, pub_providerAddress);
+      }
+
       dispatch(saveProviderSettingsSuccess());
     })
     .catch((e) => {
       dispatch(saveProviderSettingsError(storableError(e)));
+    });
+};
+
+// Helper function to update all provider's listings with new address
+const updateProviderListings = (dispatch, sdk, providerAddress) => {
+  const { selectedPlace } = providerAddress;
+  const { address, origin } = selectedPlace;
+
+  // Fetch all provider's listings
+  return sdk.ownListings
+    .query({
+      states: ['published', 'draft'],
+      perPage: 100, // Adjust based on expected number of listings
+      include: ['images'],
+    })
+    .then((response) => {
+      const listings = response.data.data;
+      
+      if (listings.length === 0) {
+        dispatch(saveProviderSettingsSuccess());
+        return;
+      }
+
+      // Update each listing with the new provider address
+      const updatePromises = listings.map((listing) => {
+        const listingId = listing.id;
+        
+        // Prepare update data for the listing
+        const updateData = {
+          id: listingId,
+          geolocation: origin,
+          publicData: {
+            ...listing.attributes.publicData,
+            location: { 
+              address, 
+              building: listing.attributes.publicData?.location?.building || '' 
+            },
+          },
+        };
+
+        return sdk.ownListings
+          .update(updateData, { expand: true, include: ['images'] })
+          .catch((error) => {
+            console.error(`Failed to update listing ${listingId.uuid}:`, error);
+            // Continue with other updates even if one fails
+            return null;
+          });
+      });
+
+      return Promise.allSettled(updatePromises);
+    })
+    .then((results) => {
+      // Log results for debugging
+      const successful = results.filter(r => r.status === 'fulfilled' && r.value).length;
+      const failed = results.filter(r => r.status === 'rejected' || !r.value).length;
+      
+      console.log(`ProviderSettings: Updated ${successful} listings, ${failed} failed`);
+      
+      dispatch(saveProviderSettingsSuccess());
+    })
+    .catch((error) => {
+      console.error('ProviderSettings: Failed to update listings:', error);
+      // Still mark provider settings as successful since the main update worked
+      dispatch(saveProviderSettingsSuccess());
     });
 };
