@@ -502,11 +502,6 @@ export const TransactionPageComponent = (props) => {
       }
     : {};
 
-  // The location of the booking can be shown if fuzzy location
-  const showBookingLocation =
-    isBookingProcess(stateData.processName) &&
-    process?.hasPassedState(process?.states?.ACCEPTED, transaction);
-
   // TransactionPanel is presentational component
   // that currently handles showing everything inside layout's main view area.
   const panel = isDataAvailable ? (
@@ -529,7 +524,6 @@ export const TransactionPageComponent = (props) => {
       onOpenDisputeModal={onOpenDisputeModal}
       stateData={stateData}
       transactionRole={transactionRole}
-      showBookingLocation={showBookingLocation}
       hasViewingRights={hasViewingRights}
       activityFeed={
         <ActivityFeed
