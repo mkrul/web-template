@@ -86,17 +86,11 @@ export const ContactDetailsPageComponent = (props) => {
 
   const handleSubmit = (values) => {
     const phoneNumber = values.phoneNumber ? values.phoneNumber : null;
-    const pub_providerAddress = values.pub_providerAddress || null;
-    const apartmentUnit = values.apartmentUnit?.trim() || null;
     return onSubmitContactDetails({
       ...values,
       phoneNumber,
-      pub_providerAddress,
-      apartmentUnit,
       currentEmail,
       currentPhoneNumber,
-      currentAddress: publicData?.providerAddress,
-      currentApartmentUnit: publicData?.apartmentUnit,
     });
   };
 
@@ -106,8 +100,6 @@ export const ContactDetailsPageComponent = (props) => {
       initialValues={{
         email: currentEmail,
         ...phoneNumberMaybe,
-        pub_providerAddress: publicData?.providerAddress,
-        apartmentUnit: publicData?.apartmentUnit,
       }}
       saveEmailError={saveEmailError}
       savePhoneNumberError={savePhoneNumberError}

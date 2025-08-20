@@ -31,7 +31,9 @@ const scrollToTab = (currentPage, scrollLeft, setScrollLeft) => {
     const maxScrollDistance = parent.scrollWidth - parentRect.width;
 
     const hasParentScrolled = parent.scrollLeft > 0;
-    const scrollPositionCurrent = hasParentScrolled ? parent.scrollLeft : scrollLeft;
+    const scrollPositionCurrent = hasParentScrolled
+      ? parent.scrollLeft
+      : scrollLeft;
 
     const tabRect = el.getBoundingClientRect();
     const diffLeftBetweenTabAndParent = tabRect.left - parentRect.left;
@@ -44,7 +46,10 @@ const scrollToTab = (currentPage, scrollLeft, setScrollLeft) => {
 
     const needsSmoothScroll = scrollPositionCurrent !== scrollPositionNew;
 
-    if (parent.scrollTo && (!hasParentScrolled || (hasParentScrolled && needsSmoothScroll))) {
+    if (
+      parent.scrollTo &&
+      (!hasParentScrolled || (hasParentScrolled && needsSmoothScroll))
+    ) {
       // Ensure that smooth scroll animation uses old position as starting point after navigation.
       parent.scrollTo({ left: scrollPositionCurrent });
       // Scroll to new position
@@ -66,7 +71,7 @@ const scrollToTab = (currentPage, scrollLeft, setScrollLeft) => {
  * @param {boolean?} props.accountSettingsNavProps.showPayoutDetails
  * @returns {JSX.Element} Side nav with navigation to different account settings
  */
-const LayoutWrapperAccountSettingsSideNav = props => {
+const LayoutWrapperAccountSettingsSideNav = (props) => {
   const [mounted, setMounted] = useState(false);
   const [scrollLeft, setScrollLeft] = useGlobalState('scrollLeft');
   const { accountSettingsNavProps } = props;
@@ -80,7 +85,8 @@ const LayoutWrapperAccountSettingsSideNav = props => {
       const { currentPage } = accountSettingsNavProps;
       const hasMatchMedia = typeof window !== 'undefined' && window?.matchMedia;
       const hasHorizontalTabLayout = hasMatchMedia
-        ? window.matchMedia(`(max-width: ${MAX_HORIZONTAL_NAV_SCREEN_WIDTH}px)`)?.matches
+        ? window.matchMedia(`(max-width: ${MAX_HORIZONTAL_NAV_SCREEN_WIDTH}px)`)
+            ?.matches
         : true;
 
       // Check if scrollToTab call is needed (tab is not visible on mobile)
@@ -90,11 +96,14 @@ const LayoutWrapperAccountSettingsSideNav = props => {
     }
   }, [mounted]);
 
-  const { currentPage, showPaymentMethods, showPayoutDetails } = accountSettingsNavProps;
+  const { currentPage, showPaymentMethods, showPayoutDetails } =
+    accountSettingsNavProps;
   const payoutDetailsMaybe = showPayoutDetails
     ? [
         {
-          text: <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.paymentsTabTitle" />,
+          text: (
+            <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.paymentsTabTitle" />
+          ),
           selected: currentPage === 'StripePayoutPage',
           id: 'StripePayoutPageTab',
           linkProps: {
@@ -121,7 +130,9 @@ const LayoutWrapperAccountSettingsSideNav = props => {
 
   const tabs = [
     {
-      text: <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.contactDetailsTabTitle" />,
+      text: (
+        <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.contactDetailsTabTitle" />
+      ),
       selected: currentPage === 'ContactDetailsPage',
       id: 'ContactDetailsPageTab',
       linkProps: {
@@ -129,18 +140,32 @@ const LayoutWrapperAccountSettingsSideNav = props => {
       },
     },
     {
-      text: <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.passwordTabTitle" />,
+      text: (
+        <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.passwordTabTitle" />
+      ),
       selected: currentPage === 'PasswordChangePage',
       id: 'PasswordChangePageTab',
       linkProps: {
         name: 'PasswordChangePage',
       },
     },
+    {
+      text: (
+        <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.providerSettingsTabTitle" />
+      ),
+      selected: currentPage === 'ProviderSettingsPage',
+      id: 'ProviderSettingsPageTab',
+      linkProps: {
+        name: 'ProviderSettingsPage',
+      },
+    },
     ...payoutDetailsMaybe,
     ...paymentMethodsMaybe,
   ];
 
-  return <TabNav rootClassName={css.tabs} tabRootClassName={css.tab} tabs={tabs} />;
+  return (
+    <TabNav rootClassName={css.tabs} tabRootClassName={css.tab} tabs={tabs} />
+  );
 };
 
 export default LayoutWrapperAccountSettingsSideNav;

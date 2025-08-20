@@ -39,65 +39,7 @@
   }
 }
 
-.contactInfoSection {
-  margin-top: 32px;
-  margin-bottom: 46px;
-  padding-top: 6px;
 
-  @media (--viewportMedium) {
-    margin-bottom: 56px;
-    padding-top: 0;
-  }
-}
-
-.contactInfoTitle {
-  margin-top: 0;
-  margin-bottom: 12px;
-  font-size: 20px;
-
-  @media (--viewportMedium) {
-    margin-bottom: 16px;
-  }
-}
-
-.contactInfoDescription {
-  margin-top: 0;
-  margin-bottom: 24px;
-  color: var(--colorGrey700);
-  font-size: 14px;
-  line-height: 1.4;
-
-  @media (--viewportMedium) {
-    margin-bottom: 32px;
-    font-size: 16px;
-  }
-}
-
-.homeAddressWrapper {
-  margin-top: 12px;
-  margin-bottom: 12px;
-
-  @media (--viewportMedium) {
-    margin-top: 24px;
-    margin-bottom: 24px;
-  }
-}
-
-.homeAddress {
-  margin-top: 0;
-}
-
-.homeAddress :global(.LocationAutocompleteInput_icon__f-F0V) {
-  display: none;
-}
-
-.apartmentUnit {
-  margin-top: 20px;
-
-  @media (--viewportMedium) {
-    margin-top: 24px;
-  }
-}
 
 .confirmChangesSection {
   flex-grow: 1;

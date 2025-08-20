@@ -1,0 +1,55 @@
+@import '../../../styles/customMediaQueries.css';
+
+.root {
+  /* Styles for the form root */
+}
+
+.providerInfoSection {
+  margin: 0 0 24px 0;
+
+  @media (--viewportMedium) {
+    margin: 0 0 24px 0;
+  }
+}
+
+
+
+.homeAddressWrapper {
+  margin: 0 0 24px 0;
+}
+
+.homeAddress {
+  margin: 0;
+}
+
+.homeAddress :global(.LocationAutocompleteInput_icon__f-F0V) {
+  display: none;
+}
+
+.apartmentUnit {
+  margin: 0 0 24px 0;
+}
+
+.bottomWrapper {
+  margin: 48px 0 0 0;
+}
+
+.error {
+  display: block;
+  margin: 0 0 24px 0;
+  color: var(--failColor);
+}
+
+.disclaimerText {
+  margin-bottom: 24px;
+  text-align: left;
+  font-size: 13.5px;
+  line-height: 1.3;
+  padding-top: 0;
+}
+
+@media (--viewportMedium) {
+  .bottomWrapper {
+    margin: 48px 0 0 0;
+  }
+}

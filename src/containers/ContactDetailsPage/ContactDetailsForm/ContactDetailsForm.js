@@ -24,7 +24,6 @@ import {
   PrimaryButton,
   FieldTextInput,
   H4,
-  FieldLocationAutocompleteInput,
 } from '../../../components';
 
 import css from './ContactDetailsForm.module.css';
@@ -384,20 +383,11 @@ class ContactDetailsFormComponent extends Component {
           const submittedOnce = Object.keys(this.submittedValues).length > 0;
           const pristineSinceLastSubmit =
             submittedOnce && isEqual(values, this.submittedValues);
-          // Check if address fields have changed
-          const currentAddress =
-            currentUser?.attributes?.profile?.publicData?.providerAddress;
-          const currentApartmentUnit =
-            currentUser?.attributes?.profile?.publicData?.apartmentUnit;
-          const addressChanged =
-            values.pub_providerAddress !== currentAddress ||
-            values.apartmentUnit !== currentApartmentUnit;
-
           const submitDisabled =
             invalid ||
             pristineSinceLastSubmit ||
             inProgress ||
-            !(emailChanged || phoneNumberChanged || addressChanged);
+            !(emailChanged || phoneNumberChanged);
 
           return (
             <Form
@@ -426,40 +416,6 @@ class ContactDetailsFormComponent extends Component {
                   formId={formId}
                   userTypeConfig={userTypeConfig}
                   intl={intl}
-                />
-              </div>
-
-              <div className={css.contactInfoSection}>
-                <H4 as="h3" className={css.contactInfoTitle}>
-                  <FormattedMessage id="ContactDetailsForm.contactInfoHeading" />
-                </H4>
-                <p className={css.contactInfoDescription}>
-                  <FormattedMessage id="ContactDetailsForm.contactInfoDescription" />
-                </p>
-                <div className={css.homeAddressWrapper}>
-                  <FieldLocationAutocompleteInput
-                    className={css.homeAddress}
-                    name="pub_providerAddress"
-                    label={intl.formatMessage({
-                      id: 'ContactDetailsForm.homeAddressLabel',
-                    })}
-                    placeholder={intl.formatMessage({
-                      id: 'ContactDetailsForm.homeAddressPlaceholder',
-                    })}
-                  />
-                </div>
-
-                <FieldTextInput
-                  className={css.apartmentUnit}
-                  type="text"
-                  id="apartmentUnit"
-                  name="apartmentUnit"
-                  label={intl.formatMessage({
-                    id: 'ContactDetailsForm.apartmentUnitLabel',
-                  })}
-                  placeholder={intl.formatMessage({
-                    id: 'ContactDetailsForm.apartmentUnitPlaceholder',
-                  })}
                 />
               </div>
 
