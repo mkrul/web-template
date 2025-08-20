@@ -95,11 +95,11 @@ export default function reducer(state = initialState, action = {}) {
         currentUser: {
           ...state.currentUser,
           attributes: {
-            ...state.currentUser.attributes,
+            ...state.currentUser?.attributes,
             profile: {
-              ...state.currentUser.attributes.profile,
+              ...state.currentUser?.attributes?.profile,
               publicData: {
-                ...state.currentUser.attributes.profile.publicData,
+                ...state.currentUser?.attributes?.profile?.publicData,
                 deliveryAddress: action.payload.address,
               },
             },
@@ -457,7 +457,7 @@ export const fetchCurrentUser = (options) => (dispatch, getState, sdk) => {
           dispatch(fetchCurrentUserNotifications());
         }
 
-        if (!currentUser.attributes.emailVerified) {
+        if (!currentUser?.attributes?.emailVerified) {
           dispatch(fetchCurrentUserHasOrders());
         }
       }

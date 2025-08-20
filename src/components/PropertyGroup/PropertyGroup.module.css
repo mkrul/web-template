@@ -45,16 +45,19 @@
 
 .selectedLabel,
 .notSelectedLabel {
+  font-size: 16px;
   composes: marketplaceBodyFontStyles from global;
   line-height: 24px;
   margin: 0;
 }
 
 .selectedLabel {
+  font-size: 16px;
   font-weight: var(--fontWeightSemiBold);
 }
 
 .notSelectedLabel {
+  font-size: 16px;
   color: var(--colorGrey300);
   position: relative;
   text-decoration: line-through;

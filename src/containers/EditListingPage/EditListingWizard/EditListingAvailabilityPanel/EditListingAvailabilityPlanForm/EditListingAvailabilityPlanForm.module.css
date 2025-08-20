@@ -66,6 +66,39 @@
 .timeZoneField {
   width: 100%;
 }
+
+.selectAllContainer {
+  padding-left: 30px;
+  padding-right: 30px;
+  margin-bottom: 16px;
+
+  @media (--viewportSmall) {
+    padding-left: 60px;
+    padding-right: 60px;
+  }
+}
+
+.selectAllContainer :global(.FieldCheckbox_checkboxWrapper__*) {
+  height: 40px;
+  margin-top: -4px;
+  margin-right: 12px;
+
+  @media (--viewportMedium) {
+    height: 32px;
+    margin-top: -2px;
+  }
+}
+
+.selectAllContainer :global(.FieldCheckbox_root__*) svg {
+  width: 18px;
+  height: 18px;
+
+  @media (--viewportMedium) {
+    width: 16px;
+    height: 16px;
+  }
+}
+
 .week {
   display: flex;
   flex-direction: column;

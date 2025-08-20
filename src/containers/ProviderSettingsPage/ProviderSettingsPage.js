@@ -41,8 +41,57 @@ export const ProviderSettingsPageComponent = (props) => {
     onSubmitProviderSettings,
   } = props;
 
+  // Guard against undefined currentUser
+  if (!currentUser) {
+    console.log('ProviderSettings: currentUser is null/undefined');
+    return (
+      <Page title="Provider Settings" scrollingDisabled={scrollingDisabled}>
+        <LayoutSideNavigation
+          topbar={<TopbarContainer />}
+          sideNav={null}
+          useAccountSettingsNav
+          accountSettingsNavProps={{ currentPage: 'ProviderSettingsPage' }}
+          footer={<FooterContainer />}
+        >
+          <div className={css.content}>
+            <H3 as="h1" className={css.heading}>
+              <FormattedMessage id="ProviderSettingsPage.heading" />
+            </H3>
+            <div>Loading user data...</div>
+          </div>
+        </LayoutSideNavigation>
+      </Page>
+    );
+  }
+
   const user = ensureCurrentUser(currentUser);
+  console.log('ProviderSettings: User object after ensureCurrentUser:', user);
+
+  // Additional guard to ensure user has the expected structure
+  if (!user?.attributes?.profile) {
+    console.log('ProviderSettings: user.attributes.profile is missing:', user);
+    return (
+      <Page title="Provider Settings" scrollingDisabled={scrollingDisabled}>
+        <LayoutSideNavigation
+          topbar={<TopbarContainer />}
+          sideNav={null}
+          useAccountSettingsNav
+          accountSettingsNavProps={{ currentPage: 'ProviderSettingsPage' }}
+          footer={<FooterContainer />}
+        >
+          <div className={css.content}>
+            <H3 as="h1" className={css.heading}>
+              <FormattedMessage id="ProviderSettingsPage.heading" />
+            </H3>
+            <div>Loading user profile data...</div>
+          </div>
+        </LayoutSideNavigation>
+      </Page>
+    );
+  }
+
   const publicData = user.attributes.profile.publicData || {};
+  console.log('ProviderSettings: publicData:', publicData);
 
   const handleSubmit = (values) => {
     const pub_providerAddress = values.pub_providerAddress || null;
@@ -57,11 +106,35 @@ export const ProviderSettingsPageComponent = (props) => {
     });
   };
 
+  // Ensure address data is properly formatted for LocationAutocompleteInput
+  const formatAddressForForm = (addressData) => {
+    if (!addressData) return null;
+
+    // If the address data already has the correct structure, use it as is
+    if (addressData.search && addressData.selectedPlace) {
+      return addressData;
+    }
+
+    // If it's just a string, create a basic structure
+    if (typeof addressData === 'string') {
+      return {
+        search: addressData,
+        predictions: [],
+        selectedPlace: {
+          address: addressData,
+          origin: null, // Will need to be validated again if user changes
+        },
+      };
+    }
+
+    return null;
+  };
+
   const providerSettingsForm = user.id ? (
     <ProviderSettingsForm
       className={css.form}
       initialValues={{
-        pub_providerAddress: publicData?.providerAddress,
+        pub_providerAddress: formatAddressForForm(publicData?.providerAddress),
         apartmentUnit: publicData?.apartmentUnit,
       }}
       saveProviderSettingsError={saveProviderSettingsError}
@@ -71,7 +144,9 @@ export const ProviderSettingsPageComponent = (props) => {
       inProgress={saveProviderSettingsInProgress}
       ready={providerSettingsChanged}
     />
-  ) : null;
+  ) : (
+    <div>Loading user data...</div>
+  );
 
   const title = intl.formatMessage({ id: 'ProviderSettingsPage.title' });
 

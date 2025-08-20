@@ -38,6 +38,7 @@
 .label {
   width: 27px;
   cursor: pointer;
+  font-size: 16px;
 }
 
 .star {

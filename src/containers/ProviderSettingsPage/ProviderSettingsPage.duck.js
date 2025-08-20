@@ -1,4 +1,4 @@
-import { updatedEntities, denormalisedEntities } from '../../util/data';
+import { denormalisedResponseEntities } from '../../util/data';
 import { storableError } from '../../util/errors';
 import { currentUserShowSuccess } from '../../ducks/user.duck';
 
@@ -39,6 +39,7 @@ export default function providerSettingsPageReducer(
         ...state,
         saveProviderSettingsInProgress: false,
         providerSettingsChanged: true,
+        saveProviderSettingsError: null,
       };
     case SAVE_PROVIDER_SETTINGS_ERROR:
       return {
@@ -89,7 +90,10 @@ export const saveProviderSettings = (params) => (dispatch, getState, sdk) => {
   } = params;
 
   // Only update if address fields have changed
-  const addressChanged = pub_providerAddress !== currentProviderAddress;
+  const currentAddressSearch =
+    currentProviderAddress?.search || currentProviderAddress || '';
+  const newAddressSearch = pub_providerAddress?.search || '';
+  const addressChanged = newAddressSearch !== currentAddressSearch;
   const apartmentChanged = apartmentUnit !== currentApartmentUnit;
 
   if (!addressChanged && !apartmentChanged) {
@@ -111,12 +115,39 @@ export const saveProviderSettings = (params) => (dispatch, getState, sdk) => {
   return sdk.currentUser
     .updateProfile(bodyParams)
     .then((response) => {
-      dispatch(saveProviderSettingsSuccess());
-
-      const entities = denormalisedEntities(response.data);
+      const entities = denormalisedResponseEntities(response);
+      if (entities.length !== 1) {
+        throw new Error(
+          'Expected a resource in the sdk.currentUser.updateProfile response'
+        );
+      }
       const currentUser = entities[0];
-      const { id, type, attributes } = currentUser;
-      dispatch(currentUserShowSuccess({ id, type, attributes }));
+
+      // Get the current user state to preserve existing profile data
+      const state = getState();
+      const existingUser = state.user.currentUser;
+
+      // Merge the updated profile data with existing data
+      const mergedUser = {
+        ...currentUser,
+        attributes: {
+          ...currentUser.attributes,
+          profile: {
+            ...currentUser.attributes?.profile,
+            publicData: {
+              ...existingUser?.attributes?.profile?.publicData,
+              ...currentUser.attributes?.profile?.publicData,
+            },
+          },
+        },
+      };
+
+      console.log(
+        'ProviderSettings: Dispatching currentUserShowSuccess with merged user:',
+        mergedUser
+      );
+      dispatch(currentUserShowSuccess(mergedUser));
+      dispatch(saveProviderSettingsSuccess());
     })
     .catch((e) => {
       dispatch(saveProviderSettingsError(storableError(e)));

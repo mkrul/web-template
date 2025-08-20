@@ -184,6 +184,8 @@
   composes: marketplaceModalBaseStyles from global;
   min-height: 100vh;
   height: 100%;
+  overflow-y: auto;
+  overflow-x: hidden;
 
   padding-left: 0;
   padding-right: 0;
@@ -194,6 +196,8 @@
     flex-basis: 576px;
     min-height: auto;
     height: auto;
+    max-height: 90vh;
+    overflow-y: auto;
   }
 }
 
@@ -203,5 +207,6 @@
 
 .infoText {
   margin-top: 0;
+  font-size: 16px;
   margin-bottom: 24px;
 }

@@ -161,6 +161,7 @@
 }
 
 .selectedLabel {
+  font-size: 16px;
   composes: label from global;
 }
 .selectedValue {

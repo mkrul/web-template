@@ -11,6 +11,11 @@ import {
 } from '../../../util/reactIntl';
 import { propTypes } from '../../../util/types';
 import { ensureCurrentUser } from '../../../util/data';
+import {
+  autocompleteSearchRequired,
+  autocompletePlaceSelected,
+  composeValidators,
+} from '../../../util/validators';
 
 import {
   Form,
@@ -53,16 +58,28 @@ class ProviderSettingsFormComponent extends Component {
             return null;
           }
 
-          const currentAddress =
-            currentUser?.attributes?.profile?.publicData?.providerAddress;
-          const currentApartmentUnit =
-            currentUser?.attributes?.profile?.publicData?.apartmentUnit;
+          const addressRequiredMessage = intl.formatMessage({
+            id: 'ProviderSettingsForm.addressRequired',
+          });
+          const addressNotRecognizedMessage = intl.formatMessage({
+            id: 'ProviderSettingsForm.addressNotRecognized',
+          });
+
+          const publicData = currentUser?.attributes?.profile?.publicData || {};
+          const currentAddress = publicData?.providerAddress;
+          const currentApartmentUnit = publicData?.apartmentUnit;
+
+          // Check if address has changed by comparing the search string
+          const currentAddressSearch =
+            currentAddress?.search || currentAddress || '';
+          const newAddressSearch = values.pub_providerAddress?.search || '';
           const addressChanged =
-            values.pub_providerAddress !== currentAddress ||
+            newAddressSearch !== currentAddressSearch ||
             values.apartmentUnit !== currentApartmentUnit;
 
           const classes = classNames(rootClassName || css.root, className);
           const submittedOnce = Object.keys(this.submittedValues).length > 0;
+
           const pristineSinceLastSubmit =
             submittedOnce && isEqual(values, this.submittedValues);
 
@@ -97,6 +114,10 @@ class ProviderSettingsFormComponent extends Component {
                     placeholder={intl.formatMessage({
                       id: 'ProviderSettingsForm.homeAddressPlaceholder',
                     })}
+                    validate={composeValidators(
+                      autocompleteSearchRequired(addressRequiredMessage),
+                      autocompletePlaceSelected(addressNotRecognizedMessage)
+                    )}
                   />
                 </div>
 

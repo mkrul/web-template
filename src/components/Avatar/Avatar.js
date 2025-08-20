@@ -45,7 +45,7 @@ const AVATAR_IMAGE_VARIANTS = [
  * @param {boolean} props.disableProfileLink
  * @returns {JSX.Element} search icon
  */
-export const Avatar = props => {
+export const Avatar = (props) => {
   const intl = useIntl();
   const {
     rootClassName,
@@ -58,27 +58,36 @@ export const Avatar = props => {
   const classes = classNames(rootClassName || css.root, className);
 
   const userIsCurrentUser = user && user.type === 'currentUser';
-  const avatarUser = userIsCurrentUser ? ensureCurrentUser(user) : ensureUser(user);
+  const avatarUser = userIsCurrentUser
+    ? ensureCurrentUser(user)
+    : ensureUser(user);
   // I.e. the status is active, not pending-approval or banned
   const isUnauthorizedUser = userIsCurrentUser && !isUserAuthorized(user);
   const variant =
     user?.attributes?.state === 'pendingApproval'
       ? PROFILE_PAGE_PENDING_APPROVAL_VARIANT
-      : user?.attributes?.state;
+      : user?.attributes?.state || PROFILE_PAGE_PENDING_APPROVAL_VARIANT;
 
-  const isBannedUser = avatarUser.attributes.banned;
-  const isDeletedUser = avatarUser.attributes.deleted;
+  // Add null checks for avatarUser.attributes
+  const isBannedUser = avatarUser?.attributes?.banned;
+  const isDeletedUser = avatarUser?.attributes?.deleted;
 
   const defaultUserDisplayName = isBannedUser
     ? intl.formatMessage({ id: 'Avatar.bannedUserDisplayName' })
     : isDeletedUser
-    ? intl.formatMessage({ id: 'Avatar.deletedUserDisplayName' })
-    : '';
+      ? intl.formatMessage({ id: 'Avatar.deletedUserDisplayName' })
+      : '';
 
   const defaultUserAbbreviatedName = '';
 
-  const displayName = userDisplayNameAsString(avatarUser, defaultUserDisplayName);
-  const abbreviatedName = userAbbreviatedName(avatarUser, defaultUserAbbreviatedName);
+  const displayName = userDisplayNameAsString(
+    avatarUser,
+    defaultUserDisplayName
+  );
+  const abbreviatedName = userAbbreviatedName(
+    avatarUser,
+    defaultUserAbbreviatedName
+  );
   const rootProps = { className: classes, title: displayName };
   const linkProps =
     isUnauthorizedUser && avatarUser.id
@@ -87,8 +96,8 @@ export const Avatar = props => {
           params: { id: avatarUser.id.uuid, variant },
         }
       : avatarUser.id
-      ? { name: 'ProfilePage', params: { id: avatarUser.id.uuid } }
-      : { name: 'ProfileBasePage' };
+        ? { name: 'ProfilePage', params: { id: avatarUser.id.uuid } }
+        : { name: 'ProfileBasePage' };
   const hasProfileImage = avatarUser.profileImage && avatarUser.profileImage.id;
   const profileLinkEnabled = !disableProfileLink;
 
@@ -126,14 +135,18 @@ export const Avatar = props => {
     // Placeholder avatar (initials)
     return (
       <NamedLink {...rootProps} {...linkProps}>
-        <span className={initialsClassName || css.initials}>{abbreviatedName}</span>
+        <span className={initialsClassName || css.initials}>
+          {abbreviatedName}
+        </span>
       </NamedLink>
     );
   } else {
     // Placeholder avatar (initials)
     return (
       <div {...rootProps}>
-        <span className={initialsClassName || css.initials}>{abbreviatedName}</span>
+        <span className={initialsClassName || css.initials}>
+          {abbreviatedName}
+        </span>
       </div>
     );
   }
@@ -141,7 +154,7 @@ export const Avatar = props => {
 
 export default Avatar;
 
-export const AvatarSmall = props => (
+export const AvatarSmall = (props) => (
   <Avatar
     rootClassName={css.smallAvatar}
     initialsClassName={css.initialsSmall}
@@ -151,7 +164,7 @@ export const AvatarSmall = props => (
 );
 AvatarSmall.displayName = 'AvatarSmall';
 
-export const AvatarMedium = props => (
+export const AvatarMedium = (props) => (
   <Avatar
     rootClassName={css.mediumAvatar}
     initialsClassName={css.initialsMedium}
@@ -161,7 +174,7 @@ export const AvatarMedium = props => (
 );
 AvatarMedium.displayName = 'AvatarMedium';
 
-export const AvatarLarge = props => (
+export const AvatarLarge = (props) => (
   <Avatar
     rootClassName={css.largeAvatar}
     initialsClassName={css.initialsLarge}

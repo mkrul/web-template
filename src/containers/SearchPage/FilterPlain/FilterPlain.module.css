@@ -62,6 +62,7 @@
 }
 
 .label {
+  font-size: 16px;
   color: var(--colorGrey700);
 }
 

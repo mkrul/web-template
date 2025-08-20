@@ -293,7 +293,7 @@ const saveEmailAndPhoneNumber = (params) => (dispatch, getState, sdk) => {
       // merge the protected data from the user object returned
       // by the phone update operation
       const protectedData =
-        savePhoneNumberUser.attributes.profile.protectedData;
+        savePhoneNumberUser?.attributes?.profile?.protectedData;
       const phoneNumberMergeSource = {
         attributes: { profile: { protectedData } },
       };

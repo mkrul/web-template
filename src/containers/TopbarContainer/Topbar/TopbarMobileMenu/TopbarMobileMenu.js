@@ -139,6 +139,25 @@ const TopbarMobileMenu = props => {
       <NotificationBadge className={css.notificationBadge} count={notificationCount} />
     ) : null;
 
+  // Add null check for user.attributes.profile
+  if (!user?.attributes?.profile) {
+    return (
+      <div className={css.root}>
+        <AvatarLarge className={css.avatar} user={currentUser} />
+        <div className={css.content}>
+          <span className={css.greeting}>
+            <FormattedMessage id="TopbarMobileMenu.greeting" values={{ displayName: 'User' }} />
+          </span>
+          <InlineTextButton rootClassName={css.logoutButton} onClick={onLogout}>
+            <FormattedMessage id="TopbarMobileMenu.logoutLink" />
+          </InlineTextButton>
+          <div className={css.spacer} />
+        </div>
+        <div className={css.footer}>{createListingsLinkMaybe}</div>
+      </div>
+    );
+  }
+
   const displayName = user.attributes.profile.firstName;
   const currentPageClass = page => {
     const isAccountSettingsPage =

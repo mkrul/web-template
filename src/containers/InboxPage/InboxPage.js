@@ -146,7 +146,7 @@ export const InboxItem = props => {
   const showStock = stockType === STOCK_MULTIPLE_ITEMS || (quantity && unitLineItem.quantity > 1);
   const otherUser = isCustomer ? provider : customer;
   const otherUserDisplayName = <UserDisplayName user={otherUser} intl={intl} />;
-  const isOtherUserBanned = otherUser.attributes.banned;
+  const isOtherUserBanned = otherUser?.attributes?.banned;
 
   const rowNotificationDot = isSaleNotification ? <div className={css.notificationDot} /> : null;
 

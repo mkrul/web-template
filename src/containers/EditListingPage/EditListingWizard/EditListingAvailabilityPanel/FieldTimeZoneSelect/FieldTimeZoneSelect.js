@@ -18,10 +18,8 @@ import { FieldSelect } from '../../../../../components';
  * @returns {JSX.Element} containing FieldSelect
  */
 const FieldTimeZoneSelect = props => {
-  // IANA database contains irrelevant time zones too.
-  const relevantZonesPattern = new RegExp(
-    '^(Africa|America(?!/(Argentina/ComodRivadavia|Knox_IN|Nuuk))|Antarctica(?!/(DumontDUrville|McMurdo))|Asia(?!/Qostanay)|Atlantic|Australia(?!/(ACT|LHI|NSW))|Europe|Indian|Pacific)'
-  );
+  // Only show American timezones
+  const relevantZonesPattern = new RegExp('^America/');
 
   return (
     <FieldSelect {...props}>

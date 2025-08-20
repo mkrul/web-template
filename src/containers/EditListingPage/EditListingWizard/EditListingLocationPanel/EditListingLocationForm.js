@@ -17,6 +17,7 @@ import {
   FieldLocationAutocompleteInput,
   Button,
   FieldTextInput,
+  NamedLink,
 } from '../../../../components';
 
 // Import modules from this directory
@@ -100,7 +101,16 @@ export const EditListingLocationForm = (props) => (
           ) : null}
 
           <p className={css.addressDescription}>
-            <FormattedMessage id="EditListingLocationForm.addressDescription" />
+            <FormattedMessage
+              id="EditListingLocationForm.addressDescription"
+              values={{
+                providerSettingsLink: (
+                  <NamedLink name="ProviderSettingsPage">
+                    <FormattedMessage id="ProviderSettingsPage.heading" />
+                  </NamedLink>
+                ),
+              }}
+            />
           </p>
 
           <FieldLocationAutocompleteInput

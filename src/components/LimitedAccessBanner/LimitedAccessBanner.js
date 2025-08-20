@@ -43,6 +43,11 @@ const LimitedAccessBanner = props => {
   const showBanner =
     user.id && isAuthenticated && isLoggedInAs && !disabledPages.includes(currentPage);
 
+  // Add null check for user.attributes.profile
+  if (!user?.attributes?.profile) {
+    return null;
+  }
+
   const { firstName, lastName } = user.attributes.profile;
 
   const limitedRights = authScopes?.indexOf('user:limited') >= 0;

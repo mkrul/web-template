@@ -20,6 +20,7 @@ const MISSING_INFORMATION_MODAL_WHITELIST = [
   'EmailVerificationPage',
   'PasswordResetPage',
   'StripePayoutPage',
+  'ProviderSettingsPage',
 ];
 
 const EMAIL_VERIFICATION = 'EMAIL_VERIFICATION';
@@ -32,11 +33,17 @@ class ModalMissingInformation extends Component {
       showMissingInformationReminder: null,
       hasSeenMissingInformationReminder: false,
     };
-    this.handleMissingInformationReminder = this.handleMissingInformationReminder.bind(this);
+    this.handleMissingInformationReminder =
+      this.handleMissingInformationReminder.bind(this);
   }
 
   componentDidUpdate() {
-    const { currentUser, currentUserHasListings, currentUserHasOrders, location } = this.props;
+    const {
+      currentUser,
+      currentUserHasListings,
+      currentUserHasOrders,
+      location,
+    } = this.props;
     const user = ensureCurrentUser(currentUser);
     this.handleMissingInformationReminder(
       user,
@@ -53,17 +60,27 @@ class ModalMissingInformation extends Component {
     newLocation
   ) {
     const routes = this.props.routeConfiguration;
-    const whitelistedPaths = MISSING_INFORMATION_MODAL_WHITELIST.map(page =>
+    const whitelistedPaths = MISSING_INFORMATION_MODAL_WHITELIST.map((page) =>
       pathByRouteName(page, routes)
     );
 
     // Is the current page whitelisted?
     const isPageWhitelisted = whitelistedPaths.includes(newLocation.pathname);
 
+    // If page is whitelisted, clear any existing modal state
+    if (isPageWhitelisted && this.state.showMissingInformationReminder) {
+      this.setState({
+        showMissingInformationReminder: null,
+        hasSeenMissingInformationReminder: true,
+      });
+      return;
+    }
+
     // Track if path changes inside Page level component
     const pathChanged = newLocation.pathname !== this.props.location.pathname;
     const notRemindedYet =
-      !this.state.showMissingInformationReminder && !this.state.hasSeenMissingInformationReminder;
+      !this.state.showMissingInformationReminder &&
+      !this.state.hasSeenMissingInformationReminder;
 
     // Is the reminder already shown on current page
     const showOnPathChange = notRemindedYet || pathChanged;
@@ -75,7 +92,8 @@ class ModalMissingInformation extends Component {
       const hasOrders = currentUserHasOrders === true;
       const hasListingsOrOrders = currentUserHasListings || hasOrders;
 
-      const emailUnverified = !!currentUser.id && !currentUser.attributes.emailVerified;
+      const emailUnverified =
+        !!currentUser.id && !currentUser.attributes.emailVerified;
       const emailVerificationNeeded = hasListingsOrOrders && emailUnverified;
 
       // Show reminder
@@ -158,10 +176,15 @@ class ModalMissingInformation extends Component {
  * @param {boolean} props.sendVerificationEmailInProgress
  * @returns {JSX.Element} Modal element if user needs to be reminded
  */
-const EnhancedModalMissingInformation = props => {
+const EnhancedModalMissingInformation = (props) => {
   const routeConfiguration = useRouteConfiguration();
 
-  return <ModalMissingInformation routeConfiguration={routeConfiguration} {...props} />;
+  return (
+    <ModalMissingInformation
+      routeConfiguration={routeConfiguration}
+      {...props}
+    />
+  );
 };
 
 export default EnhancedModalMissingInformation;

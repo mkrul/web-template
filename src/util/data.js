@@ -266,7 +266,16 @@ export const ensureOwnListing = listing => {
  */
 export const ensureUser = user => {
   const empty = { id: null, type: 'user', attributes: { profile: {} } };
-  return { ...empty, ...user };
+  const ensuredUser = { ...empty, ...user };
+  
+  // Ensure attributes object exists and has profile
+  if (!ensuredUser.attributes) {
+    ensuredUser.attributes = { profile: {} };
+  } else if (!ensuredUser.attributes.profile) {
+    ensuredUser.attributes.profile = {};
+  }
+  
+  return ensuredUser;
 };
 
 /**
@@ -276,7 +285,16 @@ export const ensureUser = user => {
  */
 export const ensureCurrentUser = user => {
   const empty = { id: null, type: 'currentUser', attributes: { profile: {} }, profileImage: {} };
-  return { ...empty, ...user };
+  const ensuredUser = { ...empty, ...user };
+  
+  // Ensure attributes object exists and has profile
+  if (!ensuredUser.attributes) {
+    ensuredUser.attributes = { profile: {} };
+  } else if (!ensuredUser.attributes.profile) {
+    ensuredUser.attributes.profile = {};
+  }
+  
+  return ensuredUser;
 };
 
 /**

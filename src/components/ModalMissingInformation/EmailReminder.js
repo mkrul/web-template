@@ -14,7 +14,7 @@ const EmailReminder = props => {
     onResendVerificationEmail,
   } = props;
 
-  const email = user.id ? <span className={css.email}>{user.attributes.email}</span> : '';
+  const email = user?.id && user?.attributes?.email ? <span className={css.email}>{user.attributes.email}</span> : '';
 
   const resendEmailLink = (
     <InlineTextButton rootClassName={css.helperLink} onClick={onResendVerificationEmail}>

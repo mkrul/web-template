@@ -45,7 +45,7 @@ class PasswordChangeForm extends Component {
 
   handleResetPassword() {
     this.setState({ showResetPasswordMessage: true });
-    const email = this.props.currentUser.attributes.email;
+    const email = this.props.currentUser?.attributes?.email;
 
     this.props.onResetPassword(email);
   }

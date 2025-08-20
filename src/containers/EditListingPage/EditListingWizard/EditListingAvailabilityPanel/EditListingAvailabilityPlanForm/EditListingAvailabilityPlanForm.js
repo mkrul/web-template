@@ -4,7 +4,13 @@ import arrayMutators from 'final-form-arrays';
 import classNames from 'classnames';
 
 import { FormattedMessage, useIntl } from '../../../../../util/reactIntl';
-import { Form, Heading, H3, PrimaryButton } from '../../../../../components';
+import {
+  Form,
+  Heading,
+  H3,
+  PrimaryButton,
+  FieldCheckbox,
+} from '../../../../../components';
 import FieldTimeZoneSelect from '../FieldTimeZoneSelect';
 import AvailabilityPlanEntries from './AvailabilityPlanEntries';
 
@@ -135,6 +141,22 @@ const EditListingAvailabilityPlanForm = (props) => {
 
         const submitDisabled = submitInProgress || hasUnfinishedEntries;
 
+        // Check if all days are selected
+        const allDaysSelected = weekdays.every((day) =>
+          values.activePlanDays?.includes(day)
+        );
+
+        // Handle select all checkbox change
+        const handleSelectAllChange = (event) => {
+          if (event.target.checked) {
+            // Select all days
+            formApi.change('activePlanDays', [...weekdays]);
+          } else {
+            // Deselect all days
+            formApi.change('activePlanDays', []);
+          }
+        };
+
         return (
           <Form id={formId} className={classes} onSubmit={handleSubmit}>
             <H3 as="h2" className={css.heading}>
@@ -157,6 +179,17 @@ const EditListingAvailabilityPlanForm = (props) => {
             <Heading as="h3" rootClassName={css.subheading}>
               <FormattedMessage id="EditListingAvailabilityPlanForm.hoursOfOperationTitle" />
             </Heading>
+            <div className={css.selectAllContainer}>
+              <FieldCheckbox
+                id="selectAll"
+                name="selectAll"
+                label={
+                  <FormattedMessage id="EditListingAvailabilityPlanForm.selectAll" />
+                }
+                checked={allDaysSelected}
+                onChange={handleSelectAllChange}
+              />
+            </div>
             <div className={css.week}>
               {weekdays.map((w) => {
                 return (
