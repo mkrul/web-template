@@ -75,6 +75,12 @@ export const AccountSettingsPageComponent = (props) => {
   const currentEmail = user.attributes.email || '';
 
   const handleSubmit = (values) => {
+    console.log('Form submitted with values:', {
+      email: values.email,
+      hasNewPassword: !!values.newPassword,
+      hasCurrentPassword: !!values.currentPassword,
+      currentEmail,
+    });
     return onSubmitContactDetails({
       ...values,
       currentEmail,

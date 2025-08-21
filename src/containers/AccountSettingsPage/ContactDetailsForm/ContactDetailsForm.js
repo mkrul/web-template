@@ -310,11 +310,29 @@ class ContactDetailsFormComponent extends Component {
           });
           const passwordTouched =
             this.submittedValues.currentPassword !== values.currentPassword;
+          console.log('Error debugging:', {
+            saveEmailError,
+            changePasswordError,
+            isChangeEmailWrongPassword:
+              isChangeEmailWrongPassword(saveEmailError),
+            isChangePasswordWrongPassword:
+              isChangePasswordWrongPassword(changePasswordError),
+          });
+
           const passwordErrorText =
             isChangeEmailWrongPassword(saveEmailError) ||
             isChangePasswordWrongPassword(changePasswordError)
               ? passwordFailedMessage
               : null;
+
+          console.log('Password error text:', {
+            passwordErrorText,
+            passwordFailedMessage,
+            isChangeEmailWrongPassword:
+              isChangeEmailWrongPassword(saveEmailError),
+            isChangePasswordWrongPassword:
+              isChangePasswordWrongPassword(changePasswordError),
+          });
 
           // Check for password change errors
           const isPasswordChangeError =
@@ -405,8 +423,12 @@ class ContactDetailsFormComponent extends Component {
             <Form
               className={classes}
               onSubmit={(e) => {
+                console.log('Form onSubmit called with values:', values);
                 this.submittedValues = values;
-                handleSubmit(e);
+                return handleSubmit(e).catch((error) => {
+                  console.log('Form submission error caught:', error);
+                  // Don't re-throw to prevent unhandled promise rejection
+                });
               }}
             >
               <div className={css.contactDetailsSection}>
@@ -447,7 +469,7 @@ class ContactDetailsFormComponent extends Component {
                   label={passwordLabel}
                   placeholder={passwordPlaceholder}
                   validate={passwordValidators}
-                  customErrorText={passwordTouched ? null : passwordErrorText}
+                  customErrorText={passwordErrorText}
                 />
               </div>
               <p className={css.confirmChangesInfo}>

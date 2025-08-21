@@ -252,12 +252,29 @@ export const changePassword = (params) => (dispatch, getState, sdk) => {
   dispatch(changePasswordRequest());
   const { newPassword, currentPassword } = params;
 
+  console.log('Attempting password change with params:', {
+    hasNewPassword: !!newPassword,
+    hasCurrentPassword: !!currentPassword,
+    newPasswordLength: newPassword?.length,
+    currentPasswordLength: currentPassword?.length,
+  });
+
   return sdk.currentUser
     .changePassword({ newPassword, currentPassword })
-    .then(() => dispatch(changePasswordSuccess()))
+    .then(() => {
+      console.log('Password change successful');
+      dispatch(changePasswordSuccess());
+    })
     .catch((e) => {
+      console.log('Password change failed:', e);
+      console.log('Error details:', {
+        status: e.status,
+        message: e.message,
+        data: e.data,
+      });
       dispatch(changePasswordError(storableError(e)));
-      throw e;
+      // Don't re-throw the error to prevent unhandled promise rejection
+      return Promise.reject(e);
     });
 };
 
@@ -285,7 +302,13 @@ export const saveContactDetails = (params) => (dispatch, getState, sdk) => {
     apartmentUnit !== currentApartmentUnit;
 
   if (passwordChanged) {
-    return dispatch(changePassword({ newPassword, currentPassword }));
+    return dispatch(changePassword({ newPassword, currentPassword })).catch(
+      (e) => {
+        // The error is already handled in changePassword, just re-throw to prevent unhandled promise rejection
+        console.log('Password change error caught in saveContactDetails:', e);
+        return Promise.reject(e);
+      }
+    );
   } else if (emailChanged) {
     return dispatch(saveEmail({ email, currentPassword }));
   } else if (addressChanged) {
