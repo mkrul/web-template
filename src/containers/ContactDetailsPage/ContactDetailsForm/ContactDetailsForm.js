@@ -18,52 +18,11 @@ import {
   isTooManyEmailVerificationRequestsError,
 } from '../../../util/errors';
 
-import {
-  FieldPhoneNumberInput,
-  Form,
-  PrimaryButton,
-  FieldTextInput,
-  H4,
-} from '../../../components';
+import { Form, PrimaryButton, FieldTextInput, H4 } from '../../../components';
 
 import css from './ContactDetailsForm.module.css';
 
 const SHOW_EMAIL_SENT_TIMEOUT = 2000;
-
-const PhoneNumberMaybe = (props) => {
-  const { formId, userTypeConfig, intl } = props;
-
-  const isDisabled = userTypeConfig?.defaultUserFields?.phoneNumber === false;
-  if (isDisabled) {
-    return null;
-  }
-
-  const { required } = userTypeConfig?.phoneNumberSettings || {};
-  const isRequired = required === true;
-
-  const validateMaybe = isRequired
-    ? {
-        validate: validators.required(
-          intl.formatMessage({
-            id: 'ContactDetailsForm.phoneRequired',
-          })
-        ),
-      }
-    : {};
-
-  return (
-    <FieldPhoneNumberInput
-      className={css.phone}
-      name="phoneNumber"
-      id={formId ? `${formId}.phoneNumber` : 'phoneNumber'}
-      label={intl.formatMessage({ id: 'ContactDetailsForm.phoneLabel' })}
-      placeholder={intl.formatMessage({
-        id: 'ContactDetailsForm.phonePlaceholder',
-      })}
-      {...validateMaybe}
-    />
-  );
-};
 
 /**
  * The ContactDetailsForm component.
@@ -74,7 +33,6 @@ const PhoneNumberMaybe = (props) => {
  * @param {string} [props.className] - The class name
  * @param {string} [props.formId] - The form id
  * @param {propTypes.error} [props.saveEmailError] - The save email error
- * @param {propTypes.error} [props.savePhoneNumberError] - The save phone number error
  * @param {boolean} props.inProgress - Whether the form is in progress
  * @param {intlShape} props.intl - The intl object
  * @param {Function} props.onResendVerificationEmail - The resend verification email function
@@ -129,7 +87,6 @@ class ContactDetailsFormComponent extends Component {
             rootClassName,
             className,
             saveEmailError,
-            savePhoneNumberError,
             currentUser,
             formId,
             handleSubmit,
@@ -140,9 +97,8 @@ class ContactDetailsFormComponent extends Component {
             sendVerificationEmailInProgress = false,
             resetPasswordInProgress = false,
             values,
-            userTypeConfig,
           } = fieldRenderProps;
-          const { email, phoneNumber } = values;
+          const { email } = values;
 
           const user = ensureCurrentUser(currentUser);
 
@@ -259,15 +215,6 @@ class ContactDetailsFormComponent extends Component {
             );
           }
 
-          // phone
-          const protectedData = profile.protectedData || {};
-          const currentPhoneNumber = protectedData.phoneNumber;
-
-          // has the phone number changed
-          const phoneNumberChanged =
-            currentPhoneNumber !== phoneNumber &&
-            !(typeof currentPhoneNumber === 'undefined' && phoneNumber === '');
-
           // password
           const passwordLabel = intl.formatMessage({
             id: 'ContactDetailsForm.passwordLabel',
@@ -320,22 +267,10 @@ class ContactDetailsFormComponent extends Component {
 
           let genericError = null;
 
-          if (isGenericEmailError && savePhoneNumberError) {
-            genericError = (
-              <span className={css.error}>
-                <FormattedMessage id="ContactDetailsForm.genericFailure" />
-              </span>
-            );
-          } else if (isGenericEmailError) {
+          if (isGenericEmailError) {
             genericError = (
               <span className={css.error}>
                 <FormattedMessage id="ContactDetailsForm.genericEmailFailure" />
-              </span>
-            );
-          } else if (savePhoneNumberError) {
-            genericError = (
-              <span className={css.error}>
-                <FormattedMessage id="ContactDetailsForm.genericPhoneNumberFailure" />
               </span>
             );
           }
@@ -384,10 +319,7 @@ class ContactDetailsFormComponent extends Component {
           const pristineSinceLastSubmit =
             submittedOnce && isEqual(values, this.submittedValues);
           const submitDisabled =
-            invalid ||
-            pristineSinceLastSubmit ||
-            inProgress ||
-            !(emailChanged || phoneNumberChanged);
+            invalid || pristineSinceLastSubmit || inProgress || !emailChanged;
 
           return (
             <Form
@@ -411,12 +343,6 @@ class ContactDetailsFormComponent extends Component {
                   customErrorText={emailTouched ? null : emailTakenErrorText}
                 />
                 {emailVerifiedInfo}
-
-                <PhoneNumberMaybe
-                  formId={formId}
-                  userTypeConfig={userTypeConfig}
-                  intl={intl}
-                />
               </div>
 
               <div className={confirmClasses}>

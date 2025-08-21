@@ -52,7 +52,6 @@ export const ContactDetailsPageComponent = (props) => {
   const intl = useIntl();
   const {
     saveEmailError,
-    savePhoneNumberError,
     saveContactDetailsInProgress,
     currentUser,
     contactDetailsChanged,
@@ -70,27 +69,11 @@ export const ContactDetailsPageComponent = (props) => {
 
   const user = ensureCurrentUser(currentUser);
   const currentEmail = user.attributes.email || '';
-  const publicData = user.attributes.profile.publicData || {};
-  const userType = publicData?.userType;
-  const protectedData = user.attributes.profile.protectedData || {};
-  const currentPhoneNumber = protectedData.phoneNumber || '';
-  const userTypeConfig =
-    userType && userTypes.find((config) => config.userType === userType);
-  const isPhoneNumberIncluded =
-    userTypeConfig?.defaultUserFields?.phoneNumber !== false;
-  // ContactDetailsForm decides if it's allowed to show the input field.
-  const phoneNumberMaybe =
-    isPhoneNumberIncluded && currentPhoneNumber
-      ? { phoneNumber: currentPhoneNumber }
-      : {};
 
   const handleSubmit = (values) => {
-    const phoneNumber = values.phoneNumber ? values.phoneNumber : null;
     return onSubmitContactDetails({
       ...values,
-      phoneNumber,
       currentEmail,
-      currentPhoneNumber,
     });
   };
 
@@ -99,10 +82,8 @@ export const ContactDetailsPageComponent = (props) => {
       className={css.form}
       initialValues={{
         email: currentEmail,
-        ...phoneNumberMaybe,
       }}
       saveEmailError={saveEmailError}
-      savePhoneNumberError={savePhoneNumberError}
       currentUser={currentUser}
       onResendVerificationEmail={onResendVerificationEmail}
       onResetPassword={onResetPassword}
@@ -114,7 +95,6 @@ export const ContactDetailsPageComponent = (props) => {
       sendVerificationEmailError={sendVerificationEmailError}
       resetPasswordInProgress={resetPasswordInProgress}
       resetPasswordError={resetPasswordError}
-      userTypeConfig={userTypeConfig}
     />
   ) : null;
 
@@ -174,7 +154,6 @@ const mapStateToProps = (state) => {
   } = state.user;
   const {
     saveEmailError,
-    savePhoneNumberError,
     saveContactDetailsInProgress,
     contactDetailsChanged,
     resetPasswordInProgress,
@@ -182,7 +161,6 @@ const mapStateToProps = (state) => {
   } = state.ContactDetailsPage;
   return {
     saveEmailError,
-    savePhoneNumberError,
     saveContactDetailsInProgress,
     currentUser,
     contactDetailsChanged,

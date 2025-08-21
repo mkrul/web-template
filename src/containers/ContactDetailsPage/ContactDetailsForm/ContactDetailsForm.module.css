@@ -31,16 +31,6 @@
   }
 }
 
-.phone {
-  margin-top: 24px;
-
-  @media (--viewportMedium) {
-    margin-top: 32px;
-  }
-}
-
-
-
 .confirmChangesSection {
   flex-grow: 1;
   display: flex;

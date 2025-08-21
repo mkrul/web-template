@@ -102,10 +102,16 @@ export const ProviderSettingsPageComponent = (props) => {
   }
 
   const publicData = user.attributes.profile.publicData || {};
+  const protectedData = user.attributes.profile.protectedData || {};
+  const { userTypes = [] } = config.user;
+  const userType = publicData?.userType;
+  const userTypeConfig =
+    userType && userTypes.find((config) => config.userType === userType);
 
   const handleSubmit = (values) => {
     const pub_providerAddress = values.pub_providerAddress || null;
     const apartmentUnit = values.apartmentUnit?.trim() || null;
+    const phoneNumber = values.phoneNumber || null;
 
     // Check if address has changed
     const currentAddressSearch =
@@ -113,6 +119,7 @@ export const ProviderSettingsPageComponent = (props) => {
     const newAddressSearch = pub_providerAddress?.search || '';
     const addressChanged = newAddressSearch !== currentAddressSearch;
     const apartmentChanged = apartmentUnit !== publicData?.apartmentUnit;
+    const phoneNumberChanged = phoneNumber !== protectedData?.phoneNumber;
 
     // If address or apartment changed, show confirmation modal
     if (addressChanged || apartmentChanged) {
@@ -120,8 +127,10 @@ export const ProviderSettingsPageComponent = (props) => {
         ...values,
         pub_providerAddress,
         apartmentUnit,
+        phoneNumber,
         currentProviderAddress: publicData?.providerAddress,
         currentApartmentUnit: publicData?.apartmentUnit,
+        currentPhoneNumber: protectedData?.phoneNumber,
       });
       setIsConfirmationModalOpen(true);
     } else {
@@ -130,8 +139,10 @@ export const ProviderSettingsPageComponent = (props) => {
         ...values,
         pub_providerAddress,
         apartmentUnit,
+        phoneNumber,
         currentProviderAddress: publicData?.providerAddress,
         currentApartmentUnit: publicData?.apartmentUnit,
+        currentPhoneNumber: protectedData?.phoneNumber,
       });
     }
   };
@@ -189,9 +200,11 @@ export const ProviderSettingsPageComponent = (props) => {
       initialValues={{
         pub_providerAddress: initialAddressValue,
         apartmentUnit: publicData?.apartmentUnit,
+        phoneNumber: protectedData?.phoneNumber,
       }}
       saveProviderSettingsError={saveProviderSettingsError}
       currentUser={currentUser}
+      userTypeConfig={userTypeConfig}
       onSubmit={handleSubmit}
       onChange={handleFormChange}
       inProgress={saveProviderSettingsInProgress}

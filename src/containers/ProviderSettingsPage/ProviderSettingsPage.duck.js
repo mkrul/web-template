@@ -85,24 +85,28 @@ export const saveProviderSettings = (params) => (dispatch, getState, sdk) => {
   const {
     pub_providerAddress,
     apartmentUnit,
+    phoneNumber,
     currentProviderAddress,
     currentApartmentUnit,
+    currentPhoneNumber,
   } = params;
 
-  // Only update if address fields have changed
+  // Only update if fields have changed
   const currentAddressSearch =
     currentProviderAddress?.search || currentProviderAddress || '';
   const newAddressSearch = pub_providerAddress?.search || '';
   const addressChanged = newAddressSearch !== currentAddressSearch;
   const apartmentChanged = apartmentUnit !== currentApartmentUnit;
+  const phoneNumberChanged = phoneNumber !== currentPhoneNumber;
 
-  if (!addressChanged && !apartmentChanged) {
+  if (!addressChanged && !apartmentChanged && !phoneNumberChanged) {
     dispatch(saveProviderSettingsSuccess());
     return Promise.resolve();
   }
 
   const bodyParams = {
     publicData: {},
+    protectedData: {},
   };
 
   if (addressChanged) {
@@ -110,6 +114,9 @@ export const saveProviderSettings = (params) => (dispatch, getState, sdk) => {
   }
   if (apartmentChanged) {
     bodyParams.publicData.apartmentUnit = apartmentUnit;
+  }
+  if (phoneNumberChanged) {
+    bodyParams.protectedData.phoneNumber = phoneNumber;
   }
 
   return sdk.currentUser
@@ -137,6 +144,10 @@ export const saveProviderSettings = (params) => (dispatch, getState, sdk) => {
             publicData: {
               ...existingUser?.attributes?.profile?.publicData,
               ...currentUser.attributes?.profile?.publicData,
+            },
+            protectedData: {
+              ...existingUser?.attributes?.profile?.protectedData,
+              ...currentUser.attributes?.profile?.protectedData,
             },
           },
         },

@@ -300,13 +300,6 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       loadData: pageDataLoadingAPI.ContactDetailsPage.loadData,
     },
     {
-      path: '/account/change-password',
-      name: 'PasswordChangePage',
-      auth: true,
-      authPage: 'LoginPage',
-      component: PasswordChangePage,
-    },
-    {
       path: '/account/payments',
       name: 'StripePayoutPage',
       auth: true,
@@ -336,6 +329,13 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       auth: true,
       authPage: 'LoginPage',
       component: ProviderSettingsPage,
+    },
+    {
+      path: '/account/change-password',
+      name: 'PasswordChangePage',
+      auth: true,
+      authPage: 'LoginPage',
+      component: PasswordChangePage,
     },
     {
       path: '/terms-of-service',
