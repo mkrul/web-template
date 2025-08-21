@@ -142,10 +142,6 @@ export const saveProviderSettings = (params) => (dispatch, getState, sdk) => {
         },
       };
 
-      console.log(
-        'ProviderSettings: Dispatching currentUserShowSuccess with merged user:',
-        mergedUser
-      );
       dispatch(currentUserShowSuccess(mergedUser));
 
       // Update all provider's listings if address or apartment unit changed

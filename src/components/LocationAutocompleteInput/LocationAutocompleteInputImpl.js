@@ -258,13 +258,19 @@ class LocationAutocompleteInputImplementation extends Component {
     const onChange = this.props.input.onChange;
     const predictions = this.currentPredictions();
     const newValue = e.target.value;
+    const currentValue = this.props.input.value;
 
     // Clear the current values since the input content is changed
-    onChange({
+    const newFormValue = {
       search: newValue,
       predictions: newValue ? predictions : [],
       selectedPlace: null,
-    });
+      // Include fetching state to help validation function
+      isFetchingPredictions: this.state.fetchingPredictions,
+      isFetchingPlaceDetails: this.state.fetchingPlaceDetails,
+    };
+
+    onChange(newFormValue);
 
     // Clear highlighted prediction since the input value changed and
     // results will change as well
@@ -319,9 +325,18 @@ class LocationAutocompleteInputImplementation extends Component {
   selectPrediction(prediction) {
     const currentLocationBoundsDistance =
       this.props.config.maps?.search?.currentLocationBoundsDistance;
+
+    // Don't clear selectedPlace immediately to prevent validation errors
+    // Instead, set fetching state and let the place details fetch complete
     this.props.input.onChange({
-      ...this.props.input,
-      selectedPlace: null,
+      ...this.props.input.value,
+      // Keep the current search value to prevent validation errors
+      search: this.props.input.value?.search || '',
+      // Don't clear selectedPlace yet - let the fetch complete first
+      selectedPlace: this.props.input.value?.selectedPlace || null,
+      // Include fetching state to help validation function
+      isFetchingPredictions: this.state.fetchingPredictions,
+      isFetchingPlaceDetails: true,
     });
 
     // Don't show spinner for delivery address (hideSpinner prop)
@@ -338,19 +353,30 @@ class LocationAutocompleteInputImplementation extends Component {
           return;
         }
         this.setState({ fetchingPlaceDetails: false });
-        this.props.input.onChange({
+
+        const newFormValue = {
           search: place.address,
           predictions: [],
           selectedPlace: place,
-        });
+          // Include fetching state to help validation function
+          isFetchingPredictions: false,
+          isFetchingPlaceDetails: false,
+        };
+
+        this.props.input.onChange(newFormValue);
       })
       .catch((e) => {
         this.setState({ fetchingPlaceDetails: false });
-        // eslint-disable-next-line no-console
-        console.error(e);
+        console.error(
+          'LocationAutocompleteInput: Error fetching place details:',
+          e
+        );
         this.props.input.onChange({
           ...this.props.input.value,
           selectedPlace: null,
+          // Include fetching state to help validation function
+          isFetchingPredictions: false,
+          isFetchingPlaceDetails: false,
         });
       });
   }
@@ -400,6 +426,9 @@ class LocationAutocompleteInputImplementation extends Component {
             search: results.search,
             predictions: results.predictions,
             selectedPlace: null,
+            // Include fetching state to help validation function
+            isFetchingPredictions: false,
+            isFetchingPlaceDetails: this.state.fetchingPlaceDetails,
           });
         }
       })
@@ -411,6 +440,9 @@ class LocationAutocompleteInputImplementation extends Component {
         onChange({
           ...value,
           selectedPlace: null,
+          // Include fetching state to help validation function
+          isFetchingPredictions: false,
+          isFetchingPlaceDetails: this.state.fetchingPlaceDetails,
         });
       });
   }

@@ -131,7 +131,8 @@ export const requiredPhotos = (message, category) => (value) => {
 };
 
 export const autocompleteSearchRequired = (message) => (value) => {
-  return value && value.search ? VALID : message;
+  const result = value && value.search ? VALID : message;
+  return result;
 };
 
 export const autocompletePlaceSelected = (message) => (value) => {
@@ -140,7 +141,9 @@ export const autocompletePlaceSelected = (message) => (value) => {
     value.selectedPlace &&
     value.selectedPlace.address &&
     value.selectedPlace.origin instanceof LatLng;
-  return selectedPlaceIsValid ? VALID : message;
+
+  const result = selectedPlaceIsValid ? VALID : message;
+  return result;
 };
 
 export const bookingDateRequired = (inValidDateMessage) => (value) => {

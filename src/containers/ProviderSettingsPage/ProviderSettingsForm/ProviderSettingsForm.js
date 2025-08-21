@@ -33,6 +33,13 @@ class ProviderSettingsFormComponent extends Component {
     super(props);
     this.submittedValues = {};
     this.currentUserData = null;
+    this.validationTimeout = null;
+  }
+
+  componentWillUnmount() {
+    if (this.validationTimeout) {
+      clearTimeout(this.validationTimeout);
+    }
   }
 
   render() {
@@ -94,16 +101,6 @@ class ProviderSettingsFormComponent extends Component {
             newAddressSearch === currentAddressSearch &&
             normalizedNewApartmentUnit !== normalizedCurrentApartmentUnit;
 
-          // Debug logging to help troubleshoot apartment unit changes
-          if (normalizedNewApartmentUnit !== normalizedCurrentApartmentUnit) {
-            console.log('Apartment unit change detected:', {
-              current: normalizedCurrentApartmentUnit,
-              new: normalizedNewApartmentUnit,
-              addressChanged,
-              onlyApartmentUnitChanged,
-            });
-          }
-
           const classes = classNames(rootClassName || css.root, className);
           const submittedOnce = Object.keys(this.submittedValues).length > 0;
 
@@ -112,21 +109,102 @@ class ProviderSettingsFormComponent extends Component {
 
           // Create conditional validation for address field
           const addressValidation = (value) => {
+            // Clear any existing timeout
+            if (this.validationTimeout) {
+              clearTimeout(this.validationTimeout);
+            }
+
             // If only apartment unit changed, skip address validation
             if (onlyApartmentUnitChanged) {
               return undefined;
             }
 
-            // Otherwise, apply normal address validation
-            const searchRequired = autocompleteSearchRequired(
-              addressRequiredMessage
-            )(value);
-            if (searchRequired) return searchRequired;
+            // If the component is currently fetching predictions or place details,
+            // skip validation to prevent premature error messages
+            if (
+              value &&
+              (value.isFetchingPredictions || value.isFetchingPlaceDetails)
+            ) {
+              return undefined;
+            }
 
-            const placeSelected = autocompletePlaceSelected(
-              addressNotRecognizedMessage
-            )(value);
-            return placeSelected;
+            // If this is the initial load with existing data, skip validation
+            // to prevent showing errors for valid existing addresses
+            if (
+              value &&
+              value.selectedPlace &&
+              value.selectedPlace.address &&
+              !value.search
+            ) {
+              return undefined;
+            }
+
+            // If we have a valid selectedPlace, always skip search validation
+            // This prevents the "Address is required" error when a place is already selected
+            if (value && value.selectedPlace && value.selectedPlace.address) {
+              const placeSelected = autocompletePlaceSelected(
+                addressNotRecognizedMessage
+              )(value);
+
+              return placeSelected;
+            }
+
+            // If we have a selectedPlace but no search value, this might be an intermediate state
+            // during the address selection process - skip validation to prevent premature errors
+            if (value && value.selectedPlace && !value.search) {
+              return undefined;
+            }
+
+            // If there's a search value but no selectedPlace, and we have predictions,
+            // the user is likely in the process of selecting from search results
+            // Allow a grace period for the selection to complete
+            if (
+              value &&
+              value.search &&
+              !value.selectedPlace &&
+              value.predictions &&
+              value.predictions.length > 0
+            ) {
+              return undefined;
+            }
+
+            // If there's a search value but no selectedPlace and no predictions,
+            // the user might be typing and predictions are being fetched
+            // Allow a brief grace period for predictions to load
+            if (
+              value &&
+              value.search &&
+              !value.selectedPlace &&
+              (!value.predictions || value.predictions.length === 0)
+            ) {
+              return undefined;
+            }
+
+            // If we don't have a selectedPlace, validate that we have a search value
+            // This is the case when the user has typed something but hasn't selected from results
+            if (!value || !value.search) {
+              const searchRequired = autocompleteSearchRequired(
+                addressRequiredMessage
+              )(value);
+
+              if (searchRequired) {
+                return searchRequired;
+              }
+            }
+
+            // If we have a search value but no selectedPlace, and no predictions,
+            // this might be a case where the user typed something but no results were found
+            // In this case, we should show the "Please select an address from the suggestions" message
+            if (value && value.search && !value.selectedPlace) {
+              const placeSelected = autocompletePlaceSelected(
+                addressNotRecognizedMessage
+              )(value);
+
+              return placeSelected;
+            }
+
+            // If we get here, something unexpected happened
+            return undefined;
           };
 
           // Calculate effective invalid state - ignore address validation errors when only apartment unit changed
@@ -137,21 +215,6 @@ class ProviderSettingsFormComponent extends Component {
             pristineSinceLastSubmit ||
             inProgress ||
             !addressChanged;
-
-          // Debug logging to see which condition is disabling the submit button
-          if (addressChanged && submitDisabled) {
-            console.log('Submit button disabled despite address change:', {
-              invalid,
-              effectiveInvalid,
-              pristineSinceLastSubmit,
-              inProgress,
-              addressChanged,
-              onlyApartmentUnitChanged,
-              submitDisabled,
-              formValues: values,
-              currentAddress: currentAddress,
-            });
-          }
 
           let genericError = null;
           if (saveProviderSettingsError) {

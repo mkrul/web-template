@@ -63,11 +63,17 @@ const LocationAutocompleteInputComponent = (props) => {
     </label>
   ) : null;
 
+  // Hide error messages during search process to prevent premature validation errors
+  const shouldHideErrorMessage =
+    hideErrorMessage ||
+    (value && (value.isFetchingPredictions || value.isFetchingPlaceDetails)) ||
+    (value && value.search && !value.selectedPlace);
+
   return (
     <div className={rootClassName}>
       {labelInfo}
       <LocationAutocompleteInputImpl {...locationAutocompleteProps} />
-      {hideErrorMessage ? null : <ValidationError fieldMeta={meta} />}
+      {shouldHideErrorMessage ? null : <ValidationError fieldMeta={meta} />}
     </div>
   );
 };

@@ -57,7 +57,6 @@ export const ProviderSettingsPageComponent = (props) => {
 
   // Guard against undefined currentUser
   if (!currentUser) {
-    console.log('ProviderSettings: currentUser is null/undefined');
     return (
       <Page title="Provider Settings" scrollingDisabled={scrollingDisabled}>
         <LayoutSideNavigation
@@ -79,11 +78,9 @@ export const ProviderSettingsPageComponent = (props) => {
   }
 
   const user = ensureCurrentUser(currentUser);
-  console.log('ProviderSettings: User object after ensureCurrentUser:', user);
 
   // Additional guard to ensure user has the expected structure
   if (!user?.attributes?.profile) {
-    console.log('ProviderSettings: user.attributes.profile is missing:', user);
     return (
       <Page title="Provider Settings" scrollingDisabled={scrollingDisabled}>
         <LayoutSideNavigation
@@ -105,7 +102,6 @@ export const ProviderSettingsPageComponent = (props) => {
   }
 
   const publicData = user.attributes.profile.publicData || {};
-  console.log('ProviderSettings: publicData:', publicData);
 
   const handleSubmit = (values) => {
     const pub_providerAddress = values.pub_providerAddress || null;
@@ -179,11 +175,13 @@ export const ProviderSettingsPageComponent = (props) => {
 
   // Debug logging for initial values
   const initialAddressValue = formatAddressForForm(publicData?.providerAddress);
-  console.log('ProviderSettings initial values:', {
-    addressData: publicData?.providerAddress,
-    formattedAddress: initialAddressValue,
-    apartmentUnit: publicData?.apartmentUnit,
-  });
+
+  // Add logging to the onChange prop
+  const handleFormChange = (values) => {
+    if (onChange) {
+      onChange(values);
+    }
+  };
 
   const providerSettingsForm = user.id ? (
     <ProviderSettingsForm
@@ -195,7 +193,7 @@ export const ProviderSettingsPageComponent = (props) => {
       saveProviderSettingsError={saveProviderSettingsError}
       currentUser={currentUser}
       onSubmit={handleSubmit}
-      onChange={onChange}
+      onChange={handleFormChange}
       inProgress={saveProviderSettingsInProgress}
       ready={providerSettingsChanged}
     />
