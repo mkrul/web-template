@@ -16,8 +16,9 @@ import css from './UserNav.module.css';
  * @param {string} props.currentPage - The current page (e.g. 'ManageListingsPage')
  * @returns {JSX.Element} User navigation component
  */
-const UserNav = props => {
-  const { className, rootClassName, currentPage, showManageListingsLink } = props;
+const UserNav = (props) => {
+  const { className, rootClassName, currentPage, showManageListingsLink } =
+    props;
   const classes = classNames(rootClassName || css.root, className);
 
   const manageListingsTabMaybe = showManageListingsLink
@@ -47,13 +48,18 @@ const UserNav = props => {
       selected: ACCOUNT_SETTINGS_PAGES.includes(currentPage),
       disabled: false,
       linkProps: {
-        name: 'ContactDetailsPage',
+        name: 'AccountSettingsPage',
       },
     },
   ];
 
   return (
-    <LinkTabNavHorizontal className={classes} tabRootClassName={css.tab} tabs={tabs} skin="dark" />
+    <LinkTabNavHorizontal
+      className={classes}
+      tabRootClassName={css.tab}
+      tabs={tabs}
+      skin="dark"
+    />
   );
 };
 

@@ -1,11 +1,15 @@
 import React from 'react';
 import { FormattedMessage } from '../../util/reactIntl';
 import { isTooManyEmailVerificationRequestsError } from '../../util/errors';
-import { IconEmailAttention, InlineTextButton, NamedLink } from '../../components';
+import {
+  IconEmailAttention,
+  InlineTextButton,
+  NamedLink,
+} from '../../components';
 
 import css from './ModalMissingInformation.module.css';
 
-const EmailReminder = props => {
+const EmailReminder = (props) => {
   const {
     className,
     user,
@@ -14,16 +18,24 @@ const EmailReminder = props => {
     onResendVerificationEmail,
   } = props;
 
-  const email = user?.id && user?.attributes?.email ? <span className={css.email}>{user.attributes.email}</span> : '';
+  const email =
+    user?.id && user?.attributes?.email ? (
+      <span className={css.email}>{user.attributes.email}</span>
+    ) : (
+      ''
+    );
 
   const resendEmailLink = (
-    <InlineTextButton rootClassName={css.helperLink} onClick={onResendVerificationEmail}>
+    <InlineTextButton
+      rootClassName={css.helperLink}
+      onClick={onResendVerificationEmail}
+    >
       <FormattedMessage id="ModalMissingInformation.resendEmailLinkText" />
     </InlineTextButton>
   );
 
   const fixEmailLink = (
-    <NamedLink className={css.helperLink} name="ContactDetailsPage">
+    <NamedLink className={css.helperLink} name="AccountSettingsPage">
       <FormattedMessage id="ModalMissingInformation.fixEmailLinkText" />
     </NamedLink>
   );
@@ -49,7 +61,10 @@ const EmailReminder = props => {
         <FormattedMessage id="ModalMissingInformation.verifyEmailText" />
       </p>
       <p className={css.modalMessage}>
-        <FormattedMessage id="ModalMissingInformation.checkInbox" values={{ email }} />
+        <FormattedMessage
+          id="ModalMissingInformation.checkInbox"
+          values={{ email }}
+        />
       </p>
       {resendErrorMessage}
 
@@ -65,7 +80,10 @@ const EmailReminder = props => {
           )}
         </p>
         <p className={css.helperText}>
-          <FormattedMessage id="ModalMissingInformation.fixEmail" values={{ fixEmailLink }} />
+          <FormattedMessage
+            id="ModalMissingInformation.fixEmail"
+            values={{ fixEmailLink }}
+          />
         </p>
       </div>
     </div>

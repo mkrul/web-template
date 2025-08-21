@@ -131,24 +131,15 @@ const LayoutWrapperAccountSettingsSideNav = (props) => {
   const tabs = [
     {
       text: (
-        <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.contactDetailsTabTitle" />
+        <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.accountSettingsTabTitle" />
       ),
-      selected: currentPage === 'ContactDetailsPage',
-      id: 'ContactDetailsPageTab',
+      selected: currentPage === 'AccountSettingsPage',
+      id: 'AccountSettingsPageTab',
       linkProps: {
-        name: 'ContactDetailsPage',
+        name: 'AccountSettingsPage',
       },
     },
-    {
-      text: (
-        <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.passwordTabTitle" />
-      ),
-      selected: currentPage === 'PasswordChangePage',
-      id: 'PasswordChangePageTab',
-      linkProps: {
-        name: 'PasswordChangePage',
-      },
-    },
+
     {
       text: (
         <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.providerSettingsTabTitle" />

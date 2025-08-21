@@ -2,18 +2,21 @@ import React, { act } from 'react';
 import '@testing-library/jest-dom';
 
 import { createCurrentUser, fakeIntl } from '../../util/testData';
-import { renderWithProviders as render, testingLibrary } from '../../util/testHelpers';
+import {
+  renderWithProviders as render,
+  testingLibrary,
+} from '../../util/testHelpers';
 
-import { ContactDetailsPageComponent } from './ContactDetailsPage';
+import { AccountSettingsPageComponent } from './AccountSettingsPage';
 
 const { screen, userEvent } = testingLibrary;
 
 const noop = () => null;
 
-describe('ContactDetailsPageComponent', () => {
+describe('AccountSettingsPageComponent', () => {
   it('Check that newPassword input shows error and submit is enabled if form is filled', async () => {
     render(
-      <ContactDetailsPageComponent
+      <AccountSettingsPageComponent
         params={{ displayName: 'my-shop' }}
         history={{ push: noop }}
         location={{ search: '' }}
@@ -38,7 +41,9 @@ describe('ContactDetailsPageComponent', () => {
     expect(emailInput).toBeInTheDocument();
 
     // Save button is disabled
-    expect(screen.getByRole('button', { name: 'ContactDetailsForm.saveChanges' })).toBeDisabled();
+    expect(
+      screen.getByRole('button', { name: 'ContactDetailsForm.saveChanges' })
+    ).toBeDisabled();
 
     const phoneLabel = 'ContactDetailsForm.phoneLabel';
     const phoneInput = screen.getByText(phoneLabel);
@@ -49,6 +54,8 @@ describe('ContactDetailsPageComponent', () => {
     });
 
     // Save button is enabled
-    expect(screen.getByRole('button', { name: 'ContactDetailsForm.saveChanges' })).toBeEnabled();
+    expect(
+      screen.getByRole('button', { name: 'ContactDetailsForm.saveChanges' })
+    ).toBeEnabled();
   });
 });

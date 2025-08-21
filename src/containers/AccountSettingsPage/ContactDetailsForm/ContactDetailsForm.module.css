@@ -32,11 +32,11 @@
 }
 
 .newPasswordSection {
-  margin-bottom: 46px;
+  margin-bottom: 10px;
   padding-top: 6px;
 
   @media (--viewportMedium) {
-    margin-bottom: 56px;
+    margin-bottom: 10px;
     padding-top: 0;
   }
 }
@@ -45,7 +45,7 @@
   flex-grow: 1;
   display: flex;
   flex-direction: column;
-  margin-bottom: 60px;
+  margin-bottom: 20px;
   padding: 0;
   opacity: 0;
 }
@@ -118,19 +118,21 @@
 }
 
 .confirmChangesInfo {
+  font-size: 15px;
+  color: var(--colorGrey300);
   margin-top: 0;
-  margin-bottom: 37px;
+  margin-bottom: 10px;
 
   @media (--viewportMedium) {
-    margin-bottom: 48px;
+    margin-bottom: 10px;
   }
 }
 
 .bottomWrapper {
-  margin-top: 46px;
+  margin-top: 0;
 
   @media (--viewportMedium) {
-    margin-top: 96px;
+    margin-top: 0;
   }
 }
 

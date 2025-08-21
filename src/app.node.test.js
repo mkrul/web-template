@@ -52,7 +52,7 @@ describe('Application - node environment', () => {
       '/sale/1234': loginPath,
       '/listings': loginPath,
       '/account': loginPath,
-      '/account/contact-details': loginPath,
+      '/account/account-settings': loginPath,
       '/account/change-password': loginPath,
       '/account/payments': loginPath,
       '/verify-email': loginPath,

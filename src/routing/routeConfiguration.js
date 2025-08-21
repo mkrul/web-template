@@ -15,7 +15,7 @@ const pageDataLoadingAPI = getPageDataLoadingAPI();
 const AuthenticationPage = loadable(() => import(/* webpackChunkName: "AuthenticationPage" */ '../containers/AuthenticationPage/AuthenticationPage'));
 const CheckoutPage = loadable(() => import(/* webpackChunkName: "CheckoutPage" */ '../containers/CheckoutPage/CheckoutPage'));
 const CMSPage = loadable(() => import(/* webpackChunkName: "CMSPage" */ '../containers/CMSPage/CMSPage'));
-const ContactDetailsPage = loadable(() => import(/* webpackChunkName: "ContactDetailsPage" */ '../containers/ContactDetailsPage/ContactDetailsPage'));
+const AccountSettingsPage = loadable(() => import(/* webpackChunkName: "AccountSettingsPage" */ '../containers/AccountSettingsPage/AccountSettingsPage'));
 const EditListingPage = loadable(() => import(/* webpackChunkName: "EditListingPage" */ '../containers/EditListingPage/EditListingPage'));
 const EmailVerificationPage = loadable(() => import(/* webpackChunkName: "EmailVerificationPage" */ '../containers/EmailVerificationPage/EmailVerificationPage'));
 const InboxPage = loadable(() => import(/* webpackChunkName: "InboxPage" */ '../containers/InboxPage/InboxPage'));
@@ -23,7 +23,7 @@ const LandingPage = loadable(() => import(/* webpackChunkName: "LandingPage" */ 
 const ListingPageCoverPhoto = loadable(() => import(/* webpackChunkName: "ListingPageCoverPhoto" */ /* webpackPrefetch: true */ '../containers/ListingPage/ListingPageCoverPhoto'));
 const ListingPageCarousel = loadable(() => import(/* webpackChunkName: "ListingPageCarousel" */ /* webpackPrefetch: true */ '../containers/ListingPage/ListingPageCarousel'));
 const ManageListingsPage = loadable(() => import(/* webpackChunkName: "ManageListingsPage" */ '../containers/ManageListingsPage/ManageListingsPage'));
-const PasswordChangePage = loadable(() => import(/* webpackChunkName: "PasswordChangePage" */ '../containers/PasswordChangePage/PasswordChangePage'));
+
 const PasswordRecoveryPage = loadable(() => import(/* webpackChunkName: "PasswordRecoveryPage" */ '../containers/PasswordRecoveryPage/PasswordRecoveryPage'));
 const PasswordResetPage = loadable(() => import(/* webpackChunkName: "PasswordResetPage" */ '../containers/PasswordResetPage/PasswordResetPage'));
 const PaymentMethodsPage = loadable(() => import(/* webpackChunkName: "PaymentMethodsPage" */ '../containers/PaymentMethodsPage/PaymentMethodsPage'));
@@ -42,8 +42,7 @@ const NoAccessPage = loadable(() => import(/* webpackChunkName: "NoAccessPage" *
 const StyleguidePage = loadable(() => import(/* webpackChunkName: "StyleguidePage" */ '../containers/StyleguidePage/StyleguidePage'));
 
 export const ACCOUNT_SETTINGS_PAGES = [
-  'ContactDetailsPage',
-  'PasswordChangePage',
+  'AccountSettingsPage',
   'StripePayoutPage',
   'PaymentMethodsPage',
   'ProviderSettingsPage',
@@ -285,19 +284,19 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       loadData: pageDataLoadingAPI.ManageListingsPage.loadData,
     },
     {
-      path: '/account',
+      path: '/account/account-settings',
       name: 'AccountSettingsPage',
       auth: true,
       authPage: 'LoginPage',
-      component: () => <NamedRedirect name="ContactDetailsPage" />,
+      component: AccountSettingsPage,
+      loadData: pageDataLoadingAPI.AccountSettingsPage.loadData,
     },
     {
-      path: '/account/contact-details',
-      name: 'ContactDetailsPage',
+      path: '/account',
+      name: 'AccountPage',
       auth: true,
       authPage: 'LoginPage',
-      component: ContactDetailsPage,
-      loadData: pageDataLoadingAPI.ContactDetailsPage.loadData,
+      component: () => <NamedRedirect name="AccountSettingsPage" />,
     },
     {
       path: '/account/payments',
@@ -330,13 +329,7 @@ const routeConfiguration = (layoutConfig, accessControlConfig) => {
       authPage: 'LoginPage',
       component: ProviderSettingsPage,
     },
-    {
-      path: '/account/change-password',
-      name: 'PasswordChangePage',
-      auth: true,
-      authPage: 'LoginPage',
-      component: PasswordChangePage,
-    },
+
     {
       path: '/terms-of-service',
       name: 'TermsOfServicePage',

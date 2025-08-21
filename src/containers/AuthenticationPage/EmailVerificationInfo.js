@@ -31,7 +31,7 @@ const EmailVerificationInfo = (props) => {
   );
 
   const fixEmailLink = (
-    <NamedLink className={css.modalHelperLink} name="ContactDetailsPage">
+    <NamedLink className={css.modalHelperLink} name="AccountSettingsPage">
       <FormattedMessage id="AuthenticationPage.fixEmailLinkText" />
     </NamedLink>
   );

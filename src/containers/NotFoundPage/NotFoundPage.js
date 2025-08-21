@@ -15,8 +15,6 @@ import { Heading, Page, LayoutSingleColumn } from '../../components';
 import TopbarContainer from '../../containers/TopbarContainer/TopbarContainer';
 import FooterContainer from '../../containers/FooterContainer/FooterContainer';
 
-import SearchForm from './SearchForm/SearchForm';
-
 import css from './NotFoundPage.module.css';
 
 export class NotFoundPageComponent extends Component {
@@ -45,17 +43,12 @@ export class NotFoundPageComponent extends Component {
       id: 'NotFoundPage.title',
     });
 
-    const handleSearchSubmit = values => {
-      const { keywords, location } = values;
-      const { search, selectedPlace } = location || {};
-      const { origin, bounds } = selectedPlace || {};
-      const searchParams = keywords ? { keywords } : { address: search, origin, bounds };
-      history.push(createResourceLocatorString('SearchPage', routeConfiguration, {}, searchParams));
-    };
-
     return (
       <Page title={title} scrollingDisabled={scrollingDisabled}>
-        <LayoutSingleColumn topbar={<TopbarContainer />} footer={<FooterContainer />}>
+        <LayoutSingleColumn
+          topbar={<TopbarContainer />}
+          footer={<FooterContainer />}
+        >
           <div className={css.root}>
             <div className={css.content}>
               <div className={css.number}>404</div>
@@ -63,13 +56,11 @@ export class NotFoundPageComponent extends Component {
                 <FormattedMessage id="NotFoundPage.heading" />
               </Heading>
               <p className={css.description}>
-                <FormattedMessage id="NotFoundPage.description" values={{ marketplaceName }} />
+                <FormattedMessage
+                  id="NotFoundPage.description"
+                  values={{ marketplaceName }}
+                />
               </p>
-              <SearchForm
-                className={css.searchForm}
-                isKeywordSearch={isKeywordSearch}
-                onSubmit={handleSearchSubmit}
-              />
             </div>
           </div>
         </LayoutSingleColumn>
@@ -88,7 +79,7 @@ export class NotFoundPageComponent extends Component {
  * @param {boolean} props.isKeywordSearch - Whether the search is a keyword search
  * @returns {JSX.Element} Enhanced not found page component
  */
-const EnhancedNotFoundPage = props => {
+const EnhancedNotFoundPage = (props) => {
   const routeConfiguration = useRouteConfiguration();
   const config = useConfiguration();
   const history = useHistory();
@@ -106,7 +97,7 @@ const EnhancedNotFoundPage = props => {
   );
 };
 
-const mapStateToProps = state => {
+const mapStateToProps = (state) => {
   return {
     scrollingDisabled: isScrollingDisabled(state),
   };

@@ -15,6 +15,7 @@ import { ensureCurrentUser } from '../../../util/data';
 import {
   isChangeEmailTakenError,
   isChangeEmailWrongPassword,
+  isChangePasswordWrongPassword,
   isTooManyEmailVerificationRequestsError,
 } from '../../../util/errors';
 
@@ -311,7 +312,7 @@ class ContactDetailsFormComponent extends Component {
             this.submittedValues.currentPassword !== values.currentPassword;
           const passwordErrorText =
             isChangeEmailWrongPassword(saveEmailError) ||
-            isChangeEmailWrongPassword(changePasswordError)
+            isChangePasswordWrongPassword(changePasswordError)
               ? passwordFailedMessage
               : null;
 
@@ -437,18 +438,6 @@ class ContactDetailsFormComponent extends Component {
               </div>
 
               <div className={confirmClasses}>
-                <H4 as="h3" className={css.confirmChangesTitle}>
-                  <FormattedMessage id="ContactDetailsForm.confirmChangesTitle" />
-                </H4>
-                <p className={css.confirmChangesInfo}>
-                  <FormattedMessage id="ContactDetailsForm.confirmChangesInfo" />
-                  <br />
-                  <FormattedMessage
-                    id="ContactDetailsForm.resetPasswordInfo"
-                    values={{ resetPasswordLink }}
-                  />
-                </p>
-
                 <FieldTextInput
                   className={css.password}
                   type="password"
@@ -461,6 +450,14 @@ class ContactDetailsFormComponent extends Component {
                   customErrorText={passwordTouched ? null : passwordErrorText}
                 />
               </div>
+              <p className={css.confirmChangesInfo}>
+                <FormattedMessage id="ContactDetailsForm.confirmChangesInfo" />
+                <br />
+                <FormattedMessage
+                  id="ContactDetailsForm.resetPasswordInfo"
+                  values={{ resetPasswordLink }}
+                />
+              </p>
               <div className={css.bottomWrapper}>
                 {genericError}
                 <PrimaryButton

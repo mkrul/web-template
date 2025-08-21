@@ -27,8 +27,8 @@ import {
   saveContactDetailsClear,
   resetPassword,
   changePassword,
-} from './ContactDetailsPage.duck';
-import css from './ContactDetailsPage.module.css';
+} from './AccountSettingsPage.duck';
+import css from './AccountSettingsPage.module.css';
 
 /**
  * @param {Object} props
@@ -48,7 +48,7 @@ import css from './ContactDetailsPage.module.css';
  * @param {propTypes.error} [props.resetPasswordError] - The reset password error
  * @returns {JSX.Element}
  */
-export const ContactDetailsPageComponent = (props) => {
+export const AccountSettingsPageComponent = (props) => {
   const config = useConfiguration();
   const intl = useIntl();
   const {
@@ -103,7 +103,7 @@ export const ContactDetailsPageComponent = (props) => {
     />
   ) : null;
 
-  const title = intl.formatMessage({ id: 'ContactDetailsPage.title' });
+  const title = intl.formatMessage({ id: 'AccountSettingsPage.title' });
 
   const showManageListingsLink = showCreateListingLinkForUser(
     config,
@@ -114,7 +114,7 @@ export const ContactDetailsPageComponent = (props) => {
     currentUser
   );
   const accountSettingsNavProps = {
-    currentPage: 'ContactDetailsPage',
+    currentPage: 'AccountSettingsPage',
     showPaymentMethods,
     showPayoutDetails,
   };
@@ -129,7 +129,7 @@ export const ContactDetailsPageComponent = (props) => {
               mobileClassName={css.mobileTopbar}
             />
             <UserNav
-              currentPage="ContactDetailsPage"
+              currentPage="AccountSettingsPage"
               showManageListingsLink={showManageListingsLink}
             />
           </>
@@ -141,7 +141,7 @@ export const ContactDetailsPageComponent = (props) => {
       >
         <div className={css.content}>
           <H3 as="h1" className={css.heading}>
-            <FormattedMessage id="ContactDetailsPage.heading" />
+            <FormattedMessage id="AccountSettingsPage.heading" />
           </H3>
           {contactInfoForm}
         </div>
@@ -166,7 +166,7 @@ const mapStateToProps = (state) => {
     passwordChanged,
     resetPasswordInProgress,
     resetPasswordError,
-  } = state.ContactDetailsPage;
+  } = state.AccountSettingsPage;
   return {
     saveEmailError,
     saveContactDetailsInProgress,
@@ -190,8 +190,8 @@ const mapDispatchToProps = (dispatch) => ({
   onResetPassword: (values) => dispatch(resetPassword(values)),
 });
 
-const ContactDetailsPage = compose(
+const AccountSettingsPage = compose(
   connect(mapStateToProps, mapDispatchToProps)
-)(ContactDetailsPageComponent);
+)(AccountSettingsPageComponent);
 
-export default ContactDetailsPage;
+export default AccountSettingsPage;

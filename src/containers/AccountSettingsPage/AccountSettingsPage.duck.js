@@ -9,27 +9,27 @@ import {
 // ================ Action types ================ //
 
 export const SAVE_CONTACT_DETAILS_REQUEST =
-  'app/ContactDetailsPage/SAVE_CONTACT_DETAILS_REQUEST';
+  'app/AccountSettingsPage/SAVE_CONTACT_DETAILS_REQUEST';
 export const SAVE_CONTACT_DETAILS_SUCCESS =
-  'app/ContactDetailsPage/SAVE_CONTACT_DETAILS_SUCCESS';
-export const SAVE_EMAIL_ERROR = 'app/ContactDetailsPage/SAVE_EMAIL_ERROR';
+  'app/AccountSettingsPage/SAVE_CONTACT_DETAILS_SUCCESS';
+export const SAVE_EMAIL_ERROR = 'app/AccountSettingsPage/SAVE_EMAIL_ERROR';
 
 export const SAVE_CONTACT_DETAILS_CLEAR =
-  'app/ContactDetailsPage/SAVE_CONTACT_DETAILS_CLEAR';
+  'app/AccountSettingsPage/SAVE_CONTACT_DETAILS_CLEAR';
 
 export const CHANGE_PASSWORD_REQUEST =
-  'app/ContactDetailsPage/CHANGE_PASSWORD_REQUEST';
+  'app/AccountSettingsPage/CHANGE_PASSWORD_REQUEST';
 export const CHANGE_PASSWORD_SUCCESS =
-  'app/ContactDetailsPage/CHANGE_PASSWORD_SUCCESS';
+  'app/AccountSettingsPage/CHANGE_PASSWORD_SUCCESS';
 export const CHANGE_PASSWORD_ERROR =
-  'app/ContactDetailsPage/CHANGE_PASSWORD_ERROR';
+  'app/AccountSettingsPage/CHANGE_PASSWORD_ERROR';
 
 export const RESET_PASSWORD_REQUEST =
-  'app/ContactDetailsPage/RESET_PASSWORD_REQUEST';
+  'app/AccountSettingsPage/RESET_PASSWORD_REQUEST';
 export const RESET_PASSWORD_SUCCESS =
-  'app/ContactDetailsPage/RESET_PASSWORD_SUCCESS';
+  'app/AccountSettingsPage/RESET_PASSWORD_SUCCESS';
 export const RESET_PASSWORD_ERROR =
-  'app/ContactDetailsPage/RESET_PASSWORD_ERROR';
+  'app/AccountSettingsPage/RESET_PASSWORD_ERROR';
 
 // ================ Reducer ================ //
 
