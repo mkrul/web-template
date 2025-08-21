@@ -159,6 +159,12 @@
   "ContactDetailsForm.resetPasswordLinkSent": "Anweisungen zum Zurücksetzen deines Passworts wurden an {email} gesendet.",
   "ContactDetailsForm.resetPasswordLinkText": "Zurücksetzungsanweisungen senden.",
   "ContactDetailsForm.saveChanges": "Änderungen speichern",
+  "ContactDetailsForm.newPasswordLabel": "Neues Passwort",
+  "ContactDetailsForm.newPasswordPlaceholder": "Gebe dein neues Passwort ein",
+  "ContactDetailsForm.newPasswordRequired": "Ein neues Passwort wird benötigt.",
+  "ContactDetailsForm.passwordTooShort": "Das Passwort muss mindestens {minLength} Zeichen lang sein.",
+  "ContactDetailsForm.passwordTooLong": "Das Passwort muss weniger als {maxLength} Zeichen lang sein.",
+  "ContactDetailsForm.passwordChangeFailed": "Passwortänderung fehlgeschlagen. Bitte versuche es erneut.",
   "ContactDetailsForm.tooManyVerificationRequests": "Für diese E-Mail-Adresse wurden zu viele Bestätigungsanfragen gesendet.",
 
 

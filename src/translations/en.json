@@ -160,6 +160,12 @@
   "ContactDetailsForm.resetPasswordLinkSent": "Instructions to reset your password have been sent to {email}.",
   "ContactDetailsForm.resetPasswordLinkText": "Send reset instructions.",
   "ContactDetailsForm.saveChanges": "Save changes",
+  "ContactDetailsForm.newPasswordLabel": "New password",
+  "ContactDetailsForm.newPasswordPlaceholder": "Enter your new password",
+  "ContactDetailsForm.newPasswordRequired": "New password is required.",
+  "ContactDetailsForm.passwordTooShort": "Password must be at least {minLength} characters long.",
+  "ContactDetailsForm.passwordTooLong": "Password must be less than {maxLength} characters long.",
+  "ContactDetailsForm.passwordChangeFailed": "Password change failed. Please try again.",
   "ContactDetailsForm.tooManyVerificationRequests": "Too many verification requests have been sent for this email.",
 
   "ContactDetailsPage.heading": "Contact details",

@@ -159,6 +159,12 @@
   "ContactDetailsForm.resetPasswordLinkSent": "Enviamos instrucciones para restablecer tu contraseña a {email}.",
   "ContactDetailsForm.resetPasswordLinkText": "Enviar las instrucciones de restablecimiento",
   "ContactDetailsForm.saveChanges": "Guardar cambios",
+  "ContactDetailsForm.newPasswordLabel": "Contraseña nueva",
+  "ContactDetailsForm.newPasswordPlaceholder": "Introduce tu nueva contraseña",
+  "ContactDetailsForm.newPasswordRequired": "Se requiere una nueva contraseña.",
+  "ContactDetailsForm.passwordTooShort": "La contraseña debe tener al menos {minLength} caracteres.",
+  "ContactDetailsForm.passwordTooLong": "La contraseña debe tener menos de {maxLength} caracteres.",
+  "ContactDetailsForm.passwordChangeFailed": "Error al cambiar la contraseña. Inténtalo de nuevo.",
   "ContactDetailsForm.tooManyVerificationRequests": "Se han enviado demasiadas solicitudes de verificación de correo.",
 
   "ContactDetailsPage.heading": "Datos de contacto",

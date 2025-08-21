@@ -87,6 +87,7 @@ class ContactDetailsFormComponent extends Component {
             rootClassName,
             className,
             saveEmailError,
+            changePasswordError,
             currentUser,
             formId,
             handleSubmit,
@@ -98,7 +99,7 @@ class ContactDetailsFormComponent extends Component {
             resetPasswordInProgress = false,
             values,
           } = fieldRenderProps;
-          const { email } = values;
+          const { email, newPassword } = values;
 
           const user = ensureCurrentUser(currentUser);
 
@@ -117,6 +118,9 @@ class ContactDetailsFormComponent extends Component {
 
           // has the email changed
           const emailChanged = currentEmail !== email;
+
+          // has the password changed
+          const passwordChanged = newPassword && newPassword.trim() !== '';
 
           const emailLabel = intl.formatMessage({
             id: 'ContactDetailsForm.emailLabel',
@@ -244,8 +248,60 @@ class ContactDetailsFormComponent extends Component {
             validators.PASSWORD_MIN_LENGTH
           );
 
-          const passwordValidators = emailChanged
-            ? validators.composeValidators(passwordRequired, passwordMinLength)
+          const passwordValidators =
+            emailChanged || passwordChanged
+              ? validators.composeValidators(
+                  passwordRequired,
+                  passwordMinLength
+                )
+              : null;
+
+          // new password
+          const newPasswordLabel = intl.formatMessage({
+            id: 'ContactDetailsForm.newPasswordLabel',
+          });
+          const newPasswordPlaceholder = intl.formatMessage({
+            id: 'ContactDetailsForm.newPasswordPlaceholder',
+          });
+          const newPasswordRequiredMessage = intl.formatMessage({
+            id: 'ContactDetailsForm.newPasswordRequired',
+          });
+          const newPasswordRequired = validators.requiredStringNoTrim(
+            newPasswordRequiredMessage
+          );
+
+          const newPasswordMinLengthMessage = intl.formatMessage(
+            {
+              id: 'ContactDetailsForm.passwordTooShort',
+            },
+            {
+              minLength: validators.PASSWORD_MIN_LENGTH,
+            }
+          );
+          const newPasswordMaxLengthMessage = intl.formatMessage(
+            {
+              id: 'ContactDetailsForm.passwordTooLong',
+            },
+            {
+              maxLength: validators.PASSWORD_MAX_LENGTH,
+            }
+          );
+
+          const newPasswordMinLengthValidator = validators.minLength(
+            newPasswordMinLengthMessage,
+            validators.PASSWORD_MIN_LENGTH
+          );
+          const newPasswordMaxLengthValidator = validators.maxLength(
+            newPasswordMaxLengthMessage,
+            validators.PASSWORD_MAX_LENGTH
+          );
+
+          const newPasswordValidators = passwordChanged
+            ? validators.composeValidators(
+                newPasswordRequired,
+                newPasswordMinLengthValidator,
+                newPasswordMaxLengthValidator
+              )
             : null;
 
           const passwordFailedMessage = intl.formatMessage({
@@ -253,17 +309,31 @@ class ContactDetailsFormComponent extends Component {
           });
           const passwordTouched =
             this.submittedValues.currentPassword !== values.currentPassword;
-          const passwordErrorText = isChangeEmailWrongPassword(saveEmailError)
-            ? passwordFailedMessage
-            : null;
+          const passwordErrorText =
+            isChangeEmailWrongPassword(saveEmailError) ||
+            isChangeEmailWrongPassword(changePasswordError)
+              ? passwordFailedMessage
+              : null;
+
+          // Check for password change errors
+          const isPasswordChangeError =
+            changePasswordError && !passwordErrorText;
+          let passwordChangeErrorText = null;
+          if (isPasswordChangeError) {
+            passwordChangeErrorText = intl.formatMessage({
+              id: 'ContactDetailsForm.passwordChangeFailed',
+            });
+          }
 
           const confirmClasses = classNames(css.confirmChangesSection, {
-            [css.confirmChangesSectionVisible]: emailChanged,
+            [css.confirmChangesSectionVisible]: emailChanged || passwordChanged,
           });
 
           // generic error
           const isGenericEmailError =
             saveEmailError && !(emailTakenErrorText || passwordErrorText);
+          const isGenericPasswordError =
+            changePasswordError && !passwordChangeErrorText;
 
           let genericError = null;
 
@@ -271,6 +341,12 @@ class ContactDetailsFormComponent extends Component {
             genericError = (
               <span className={css.error}>
                 <FormattedMessage id="ContactDetailsForm.genericEmailFailure" />
+              </span>
+            );
+          } else if (isGenericPasswordError) {
+            genericError = (
+              <span className={css.error}>
+                <FormattedMessage id="ContactDetailsForm.passwordChangeFailed" />
               </span>
             );
           }
@@ -319,7 +395,10 @@ class ContactDetailsFormComponent extends Component {
           const pristineSinceLastSubmit =
             submittedOnce && isEqual(values, this.submittedValues);
           const submitDisabled =
-            invalid || pristineSinceLastSubmit || inProgress || !emailChanged;
+            invalid ||
+            pristineSinceLastSubmit ||
+            inProgress ||
+            (!emailChanged && !passwordChanged);
 
           return (
             <Form
@@ -343,6 +422,18 @@ class ContactDetailsFormComponent extends Component {
                   customErrorText={emailTouched ? null : emailTakenErrorText}
                 />
                 {emailVerifiedInfo}
+              </div>
+
+              <div className={css.newPasswordSection}>
+                <FieldTextInput
+                  type="password"
+                  name="newPassword"
+                  id={formId ? `${formId}.newPassword` : 'newPassword'}
+                  autoComplete="new-password"
+                  label={newPasswordLabel}
+                  placeholder={newPasswordPlaceholder}
+                  validate={newPasswordValidators}
+                />
               </div>
 
               <div className={confirmClasses}>

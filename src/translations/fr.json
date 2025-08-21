@@ -159,6 +159,12 @@
   "ContactDetailsForm.resetPasswordLinkSent": "Les instructions pour réinitialiser votre mot de passe ont été envoyées à {email}.",
   "ContactDetailsForm.resetPasswordLinkText": "Envoyer les instructions de réinitialisation.",
   "ContactDetailsForm.saveChanges": "Enregistrer",
+  "ContactDetailsForm.newPasswordLabel": "Nouveau mot de passe",
+  "ContactDetailsForm.newPasswordPlaceholder": "Entrez votre nouveau mot de passe",
+  "ContactDetailsForm.newPasswordRequired": "Nouveau mot de passe obligatoire.",
+  "ContactDetailsForm.passwordTooShort": "Le mot de passe doit contenir au moins {minLength} caractères.",
+  "ContactDetailsForm.passwordTooLong": "Le mot de passe doit contenir moins de {maxLength} caractères.",
+  "ContactDetailsForm.passwordChangeFailed": "Échec du changement de mot de passe. Veuillez réessayer.",
   "ContactDetailsForm.tooManyVerificationRequests": "Trop de demandes de confirmation ont été envoyé à cet email.",
 
   "ContactDetailsPage.heading": "Informations de contact",

@@ -17,6 +17,13 @@ export const SAVE_EMAIL_ERROR = 'app/ContactDetailsPage/SAVE_EMAIL_ERROR';
 export const SAVE_CONTACT_DETAILS_CLEAR =
   'app/ContactDetailsPage/SAVE_CONTACT_DETAILS_CLEAR';
 
+export const CHANGE_PASSWORD_REQUEST =
+  'app/ContactDetailsPage/CHANGE_PASSWORD_REQUEST';
+export const CHANGE_PASSWORD_SUCCESS =
+  'app/ContactDetailsPage/CHANGE_PASSWORD_SUCCESS';
+export const CHANGE_PASSWORD_ERROR =
+  'app/ContactDetailsPage/CHANGE_PASSWORD_ERROR';
+
 export const RESET_PASSWORD_REQUEST =
   'app/ContactDetailsPage/RESET_PASSWORD_REQUEST';
 export const RESET_PASSWORD_SUCCESS =
@@ -30,6 +37,9 @@ const initialState = {
   saveEmailError: null,
   saveContactDetailsInProgress: false,
   contactDetailsChanged: false,
+  changePasswordError: null,
+  changePasswordInProgress: false,
+  passwordChanged: false,
   resetPasswordInProgress: false,
   resetPasswordError: null,
 };
@@ -57,12 +67,35 @@ export default function reducer(state = initialState, action = {}) {
         saveEmailError: payload,
       };
 
+    case CHANGE_PASSWORD_REQUEST:
+      return {
+        ...state,
+        changePasswordInProgress: true,
+        changePasswordError: null,
+        passwordChanged: false,
+      };
+    case CHANGE_PASSWORD_SUCCESS:
+      return {
+        ...state,
+        changePasswordInProgress: false,
+        passwordChanged: true,
+      };
+    case CHANGE_PASSWORD_ERROR:
+      return {
+        ...state,
+        changePasswordInProgress: false,
+        changePasswordError: payload,
+      };
+
     case SAVE_CONTACT_DETAILS_CLEAR:
       return {
         ...state,
         saveContactDetailsInProgress: false,
         saveEmailError: null,
         contactDetailsChanged: false,
+        changePasswordError: null,
+        changePasswordInProgress: false,
+        passwordChanged: false,
       };
 
     case RESET_PASSWORD_REQUEST:
@@ -102,6 +135,14 @@ export const saveEmailError = (error) => ({
 
 export const saveContactDetailsClear = () => ({
   type: SAVE_CONTACT_DETAILS_CLEAR,
+});
+
+export const changePasswordRequest = () => ({ type: CHANGE_PASSWORD_REQUEST });
+export const changePasswordSuccess = () => ({ type: CHANGE_PASSWORD_SUCCESS });
+export const changePasswordError = (error) => ({
+  type: CHANGE_PASSWORD_ERROR,
+  payload: error,
+  error: true,
 });
 
 export const resetPasswordRequest = () => ({ type: RESET_PASSWORD_REQUEST });
@@ -205,6 +246,22 @@ const saveAddress = (params) => (dispatch, getState, sdk) => {
 };
 
 /**
+ * Change password
+ */
+export const changePassword = (params) => (dispatch, getState, sdk) => {
+  dispatch(changePasswordRequest());
+  const { newPassword, currentPassword } = params;
+
+  return sdk.currentUser
+    .changePassword({ newPassword, currentPassword })
+    .then(() => dispatch(changePasswordSuccess()))
+    .catch((e) => {
+      dispatch(changePasswordError(storableError(e)));
+      throw e;
+    });
+};
+
+/**
  * Update contact details, actions depend on which data has changed
  */
 export const saveContactDetails = (params) => (dispatch, getState, sdk) => {
@@ -214,6 +271,7 @@ export const saveContactDetails = (params) => (dispatch, getState, sdk) => {
     email,
     currentEmail,
     currentPassword,
+    newPassword,
     pub_providerAddress,
     apartmentUnit,
     currentAddress,
@@ -221,11 +279,14 @@ export const saveContactDetails = (params) => (dispatch, getState, sdk) => {
   } = params;
 
   const emailChanged = email !== currentEmail;
+  const passwordChanged = newPassword && newPassword.trim() !== '';
   const addressChanged =
     pub_providerAddress !== currentAddress ||
     apartmentUnit !== currentApartmentUnit;
 
-  if (emailChanged) {
+  if (passwordChanged) {
+    return dispatch(changePassword({ newPassword, currentPassword }));
+  } else if (emailChanged) {
     return dispatch(saveEmail({ email, currentPassword }));
   } else if (addressChanged) {
     return dispatch(saveAddress({ pub_providerAddress, apartmentUnit }));

@@ -26,6 +26,7 @@ import {
   saveContactDetails,
   saveContactDetailsClear,
   resetPassword,
+  changePassword,
 } from './ContactDetailsPage.duck';
 import css from './ContactDetailsPage.module.css';
 
@@ -55,6 +56,9 @@ export const ContactDetailsPageComponent = (props) => {
     saveContactDetailsInProgress,
     currentUser,
     contactDetailsChanged,
+    changePasswordError,
+    changePasswordInProgress,
+    passwordChanged,
     onChange,
     scrollingDisabled,
     sendVerificationEmailInProgress = false,
@@ -84,13 +88,14 @@ export const ContactDetailsPageComponent = (props) => {
         email: currentEmail,
       }}
       saveEmailError={saveEmailError}
+      changePasswordError={changePasswordError}
       currentUser={currentUser}
       onResendVerificationEmail={onResendVerificationEmail}
       onResetPassword={onResetPassword}
       onSubmit={handleSubmit}
       onChange={onChange}
-      inProgress={saveContactDetailsInProgress}
-      ready={contactDetailsChanged}
+      inProgress={saveContactDetailsInProgress || changePasswordInProgress}
+      ready={contactDetailsChanged || passwordChanged}
       sendVerificationEmailInProgress={sendVerificationEmailInProgress}
       sendVerificationEmailError={sendVerificationEmailError}
       resetPasswordInProgress={resetPasswordInProgress}
@@ -156,6 +161,9 @@ const mapStateToProps = (state) => {
     saveEmailError,
     saveContactDetailsInProgress,
     contactDetailsChanged,
+    changePasswordError,
+    changePasswordInProgress,
+    passwordChanged,
     resetPasswordInProgress,
     resetPasswordError,
   } = state.ContactDetailsPage;
@@ -164,6 +172,9 @@ const mapStateToProps = (state) => {
     saveContactDetailsInProgress,
     currentUser,
     contactDetailsChanged,
+    changePasswordError,
+    changePasswordInProgress,
+    passwordChanged,
     scrollingDisabled: isScrollingDisabled(state),
     sendVerificationEmailInProgress,
     sendVerificationEmailError,

@@ -22,6 +22,16 @@
 }
 .contactDetailsSection {
   margin-top: 16px;
+  margin-bottom: 35px;
+  padding-top: 6px;
+
+  @media (--viewportMedium) {
+    margin-bottom: 35px;
+    padding-top: 0;
+  }
+}
+
+.newPasswordSection {
   margin-bottom: 46px;
   padding-top: 6px;
 
