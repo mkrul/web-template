@@ -94,15 +94,12 @@ const FieldSelectListingType = (props) => {
       onListingTypeChange(selectedListingType);
     }
   };
-  const getListingTypeLabel = (listingType) => {
-    const listingTypeConfig = listingTypes.find(
-      (config) => config.listingType === listingType
-    );
-    return listingTypeConfig ? listingTypeConfig.label : listingType;
-  };
 
-  // For draft flows, don't show the listing type selection - it's already defaulted to 'daily-booking'
-  return hasMultipleListingTypes && !hasExistingListingType && !isDraftFlow ? (
+  // For draft flows or when there's only one listing type, only render hidden fields
+  const shouldShowSelection =
+    hasMultipleListingTypes && !hasExistingListingType && !isDraftFlow;
+
+  return shouldShowSelection ? (
     <>
       <FieldSelect
         id={formId ? `${formId}.${name}` : name}
@@ -135,18 +132,6 @@ const FieldSelectListingType = (props) => {
       <FieldHidden name="transactionProcessAlias" />
       <FieldHidden name="unitType" />
     </>
-  ) : hasMultipleListingTypes && hasExistingListingType ? (
-    <div className={css.listingTypeSelect}>
-      <Heading as="h5" rootClassName={css.selectedLabel}>
-        {intl.formatMessage({ id: 'EditListingDetailsForm.listingTypeLabel' })}
-      </Heading>
-      <p className={css.selectedValue}>
-        {getListingTypeLabel(formApi.getFieldState(name)?.value)}
-      </p>
-      <FieldHidden name={name} />
-      <FieldHidden name="transactionProcessAlias" />
-      <FieldHidden name="unitType" />
-    </div>
   ) : (
     <>
       <FieldHidden name={name} />
@@ -441,6 +426,10 @@ const EditListingDetailsForm = (props) => (
       return (
         <Form className={classes} onSubmit={handleSubmit}>
           <ErrorMessage fetchErrors={fetchErrors} />
+
+          <p className={css.detailsDescription}>
+            <FormattedMessage id="EditListingDetailsForm.detailsDescription" />
+          </p>
 
           <FieldSelectListingType
             name="listingType"

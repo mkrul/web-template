@@ -293,6 +293,7 @@
   "EditListingDetailsForm.description": "Descripción del anuncio",
   "EditListingDetailsForm.descriptionPlaceholder": "Describe esta caja con más detalle.",
   "EditListingDetailsForm.descriptionRequired": "Necesitas añadir una descripción.",
+  "EditListingDetailsForm.detailsDescription": "¿Qué tipo de caja estás listando en nuestro marketplace? Por favor incluye una descripción detallada de la caja y selecciona si es adecuada para viajes en automóvil.",
   "EditListingDetailsForm.incompatibleCurrency": "{marketplaceName} usa {marketplaceCurrency} como su moneda. Este tipo de anuncio utiliza pagos en línea, pero el sistema de pago de Sharetribe do suporta pagos con {marketplaceCurrency}. Si quieres publicar anuncios en este tipo de anuncio, necesitas cambiar la moneda de tu marketplace.",
   "EditListingDetailsForm.listingTypeLabel": "Tipo de anuncio",
   "EditListingDetailsForm.listingTypePlaceholder": "Seleccionar tipo de anuncio",

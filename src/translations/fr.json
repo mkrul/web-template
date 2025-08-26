@@ -293,6 +293,7 @@
   "EditListingDetailsForm.description": "Descriptif de l'annonce",
   "EditListingDetailsForm.descriptionPlaceholder": "Décrivez cette caisse plus en détail.",
   "EditListingDetailsForm.descriptionRequired": "Vous devez ajouter une description.",
+  "EditListingDetailsForm.detailsDescription": "Quel type de caisse listez-vous sur notre marketplace ? Veuillez inclure une description détaillée de la caisse et sélectionner si elle convient aux voyages en voiture.",
   "EditListingDetailsForm.incompatibleCurrency": "{marketplaceName} utilise {marketplaceCurrency} comme devise. Cette annonce requiert le paiement en ligne, mais le système de paiement de Sharetribe ne supporte pas {marketplaceCurrency} comme devise. Si vous souhaitez publier une annonce de ce type, la devise de la place de marché doit être changée.",
   "EditListingDetailsForm.listingTypeLabel": "Type d'annonce",
   "EditListingDetailsForm.listingTypePlaceholder": "Sélectionner le type d'annonce",
