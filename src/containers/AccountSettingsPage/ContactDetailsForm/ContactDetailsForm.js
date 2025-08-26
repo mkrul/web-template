@@ -471,9 +471,11 @@ class ContactDetailsFormComponent extends Component {
                   validate={passwordValidators}
                   customErrorText={passwordErrorText}
                 />
+                <span className={css.infoText}>
+                  <FormattedMessage id="ContactDetailsForm.confirmChangesInfo" />
+                </span>
               </div>
               <p className={css.confirmChangesInfo}>
-                <FormattedMessage id="ContactDetailsForm.confirmChangesInfo" />
                 <br />
                 <FormattedMessage
                   id="ContactDetailsForm.resetPasswordInfo"

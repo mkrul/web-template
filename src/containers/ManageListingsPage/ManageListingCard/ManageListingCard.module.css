@@ -197,6 +197,8 @@
   flex-shrink: 0;
   margin-bottom: 4px;
   color: var(--colorGrey700);
+  font-size: 16px;
+  padding: 5px 0 3px 0;
 }
 
 .priceValue {
@@ -230,8 +232,12 @@
 }
 
 .noPrice {
-  composes: perUnit;
+  composes: textSmall from global;
   padding: 5px 0 3px 0;
+  font-size: 16px;
+  margin-bottom: 4px;
+  font-weight: var(--fontWeightSemiBold);
+  color: var(--marketplaceColor);
 }
 
 .mainInfo {
@@ -361,6 +367,7 @@
   text-decoration: underline;
   color: var(--colorGrey700);
   white-space: pre;
+  font-size: 16px;
 
   &:hover {
     text-decoration: underline;
