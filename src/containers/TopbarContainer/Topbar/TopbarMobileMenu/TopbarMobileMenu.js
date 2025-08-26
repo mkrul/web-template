@@ -21,13 +21,17 @@ import css from './TopbarMobileMenu.module.css';
 
 const CustomLinkComponent = ({ linkConfig, currentPage }) => {
   const { group, text, type, href, route } = linkConfig;
-  const getCurrentPageClass = page => {
-    const hasPageName = name => currentPage?.indexOf(name) === 0;
-    const isCMSPage = pageId => hasPageName('CMSPage') && currentPage === `${page}:${pageId}`;
-    const isInboxPage = tab => hasPageName('InboxPage') && currentPage === `${page}:${tab}`;
+  const getCurrentPageClass = (page) => {
+    const hasPageName = (name) => currentPage?.indexOf(name) === 0;
+    const isCMSPage = (pageId) =>
+      hasPageName('CMSPage') && currentPage === `${page}:${pageId}`;
+    const isInboxPage = (tab) =>
+      hasPageName('InboxPage') && currentPage === `${page}:${tab}`;
     const isCurrentPage = currentPage === page;
 
-    return isCMSPage(route?.params?.pageId) || isInboxPage(route?.params?.tab) || isCurrentPage
+    return isCMSPage(route?.params?.pageId) ||
+      isInboxPage(route?.params?.tab) ||
+      isCurrentPage
       ? css.currentPage
       : null;
   };
@@ -67,7 +71,7 @@ const CustomLinkComponent = ({ linkConfig, currentPage }) => {
  * @param {Function} props.onLogout
  * @returns {JSX.Element} search icon
  */
-const TopbarMobileMenu = props => {
+const TopbarMobileMenu = (props) => {
   const {
     isAuthenticated,
     currentPage,
@@ -112,7 +116,10 @@ const TopbarMobileMenu = props => {
 
     const signupOrLogin = (
       <span className={css.authenticationLinks}>
-        <FormattedMessage id="TopbarMobileMenu.signupOrLogin" values={{ signup, login }} />
+        <FormattedMessage
+          id="TopbarMobileMenu.signupOrLogin"
+          values={{ signup, login }}
+        />
       </span>
     );
     return (
@@ -136,7 +143,10 @@ const TopbarMobileMenu = props => {
 
   const notificationCountBadge =
     notificationCount > 0 ? (
-      <NotificationBadge className={css.notificationBadge} count={notificationCount} />
+      <NotificationBadge
+        className={css.notificationBadge}
+        count={notificationCount}
+      />
     ) : null;
 
   // Add null check for user.attributes.profile
@@ -146,7 +156,10 @@ const TopbarMobileMenu = props => {
         <AvatarLarge className={css.avatar} user={currentUser} />
         <div className={css.content}>
           <span className={css.greeting}>
-            <FormattedMessage id="TopbarMobileMenu.greeting" values={{ displayName: 'User' }} />
+            <FormattedMessage
+              id="TopbarMobileMenu.greeting"
+              values={{ displayName: 'User' }}
+            />
           </span>
           <InlineTextButton rootClassName={css.logoutButton} onClick={onLogout}>
             <FormattedMessage id="TopbarMobileMenu.logoutLink" />
@@ -159,16 +172,24 @@ const TopbarMobileMenu = props => {
   }
 
   const displayName = user.attributes.profile.firstName;
-  const currentPageClass = page => {
+  const currentPageClass = (page) => {
     const isAccountSettingsPage =
-      page === 'AccountSettingsPage' && ACCOUNT_SETTINGS_PAGES.includes(currentPage);
-    const isInboxPage = currentPage?.indexOf('InboxPage') === 0 && page?.indexOf('InboxPage') === 0;
-    return currentPage === page || isAccountSettingsPage || isInboxPage ? css.currentPage : null;
+      page === 'AccountSettingsPage' &&
+      ACCOUNT_SETTINGS_PAGES.includes(currentPage);
+    const isInboxPage =
+      currentPage?.indexOf('InboxPage') === 0 &&
+      page?.indexOf('InboxPage') === 0;
+    return currentPage === page || isAccountSettingsPage || isInboxPage
+      ? css.currentPage
+      : null;
   };
 
   const manageListingsLinkMaybe = showCreateListingsLink ? (
     <NamedLink
-      className={classNames(css.navigationLink, currentPageClass('ManageListingsPage'))}
+      className={classNames(
+        css.navigationLink,
+        currentPageClass('ManageListingsPage')
+      )}
       name="ManageListingsPage"
     >
       <FormattedMessage id="TopbarMobileMenu.yourListingsLink" />
@@ -180,15 +201,18 @@ const TopbarMobileMenu = props => {
       <AvatarLarge className={css.avatar} user={currentUser} />
       <div className={css.content}>
         <span className={css.greeting}>
-          <FormattedMessage id="TopbarMobileMenu.greeting" values={{ displayName }} />
+          <FormattedMessage
+            id="TopbarMobileMenu.greeting"
+            values={{ displayName }}
+          />
         </span>
-        <InlineTextButton rootClassName={css.logoutButton} onClick={onLogout}>
-          <FormattedMessage id="TopbarMobileMenu.logoutLink" />
-        </InlineTextButton>
 
         <div className={css.accountLinksWrapper}>
           <NamedLink
-            className={classNames(css.inbox, currentPageClass(`InboxPage:${inboxTab}`))}
+            className={classNames(
+              css.inbox,
+              currentPageClass(`InboxPage:${inboxTab}`)
+            )}
             name="InboxPage"
             params={{ tab: inboxTab }}
           >
@@ -197,17 +221,26 @@ const TopbarMobileMenu = props => {
           </NamedLink>
           {manageListingsLinkMaybe}
           <NamedLink
-            className={classNames(css.navigationLink, currentPageClass('ProfileSettingsPage'))}
+            className={classNames(
+              css.navigationLink,
+              currentPageClass('ProfileSettingsPage')
+            )}
             name="ProfileSettingsPage"
           >
             <FormattedMessage id="TopbarMobileMenu.profileSettingsLink" />
           </NamedLink>
           <NamedLink
-            className={classNames(css.navigationLink, currentPageClass('AccountSettingsPage'))}
+            className={classNames(
+              css.navigationLink,
+              currentPageClass('AccountSettingsPage')
+            )}
             name="AccountSettingsPage"
           >
             <FormattedMessage id="TopbarMobileMenu.accountSettingsLink" />
           </NamedLink>
+          <InlineTextButton rootClassName={css.logoutButton} onClick={onLogout}>
+            <FormattedMessage id="TopbarMobileMenu.logoutLink" />
+          </InlineTextButton>
         </div>
         <div className={css.customLinksWrapper}>{extraLinks}</div>
         <div className={css.spacer} />
