@@ -80,13 +80,32 @@
 }
 
 .infoText {
-  composes: h5 from global;
+  composes: marketplaceModalHelperText from global;
 
   color: var(--colorGrey300);
   padding: 0;
   margin: 14px 0 0 0;
-  line-height: 1.25;
+  line-height: 22px;
+  font-size: 15px;
+}
+
+.paymentLabel {
+  font-weight: var(--fontWeightSemiBold);
   font-size: 16px;
+  line-height: 18px;
+  display: block;
+  margin-top: 0;
+  margin-bottom: 6px;
+
+  @media (--viewportMedium) {
+    font-weight: var(--fontWeightSemiBold);
+    font-size: 16px;
+    line-height: 16px;
+    margin-top: 0;
+    margin-bottom: 0;
+    padding-top: 3px;
+    padding-bottom: 13px;
+  }
 }
 
 .submitButton {

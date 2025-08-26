@@ -55,9 +55,6 @@ const DisplayNameMaybe = (props) => {
 
   return (
     <div className={css.sectionContainer}>
-      <H4 as="h2" className={css.sectionTitle}>
-        <FormattedMessage id="ProfileSettingsForm.displayNameHeading" />
-      </H4>
       <FieldTextInput
         className={css.row}
         type="text"
@@ -297,9 +294,6 @@ class ProfileSettingsFormComponent extends Component {
               }}
             >
               <div className={css.sectionContainer}>
-                <H4 as="h2" className={css.sectionTitle}>
-                  <FormattedMessage id="ProfileSettingsForm.yourProfilePicture" />
-                </H4>
                 <Field
                   accept={ACCEPT_IMAGES}
                   id="profileImage"
@@ -370,9 +364,6 @@ class ProfileSettingsFormComponent extends Component {
                 </div>
               </div>
               <div className={css.sectionContainer}>
-                <H4 as="h2" className={css.sectionTitle}>
-                  <FormattedMessage id="ProfileSettingsForm.yourName" />
-                </H4>
                 <div className={css.nameContainer}>
                   <FieldTextInput
                     className={css.firstName}
@@ -398,9 +389,6 @@ class ProfileSettingsFormComponent extends Component {
               <DisplayNameMaybe userTypeConfig={userTypeConfig} intl={intl} />
 
               <div className={classNames(css.sectionContainer)}>
-                <H4 as="h2" className={css.sectionTitle}>
-                  <FormattedMessage id="ProfileSettingsForm.bioHeading" />
-                </H4>
                 <FieldTextInput
                   type="textarea"
                   id="bio"

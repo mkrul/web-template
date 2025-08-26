@@ -44,11 +44,17 @@
   color: var(--failColor);
 }
 
+.providerInfoDescription {
+  font-size: 15px;
+  line-height: 22px;
+  margin-bottom: 26px;
+}
+
 .disclaimerText {
   margin-bottom: 24px;
   text-align: left;
-  font-size: 13.5px;
-  line-height: 1.3;
+  font-size: 15px;
+  line-height: 22px;
   padding-top: 0;
   color: var(--colorGrey300);
 }

@@ -263,10 +263,6 @@ class PaymentMethodsForm extends Component {
           <span className={css.error}>{this.state.error}</span>
         ) : null}
         <div className={css.paymentAddressField}>
-          <H4 as="h3" className={css.billingDetailsHeading}>
-            <FormattedMessage id="PaymentMethodsForm.billingDetails" />
-          </H4>
-
           <FieldTextInput
             className={css.field}
             type="text"
@@ -274,6 +270,7 @@ class PaymentMethodsForm extends Component {
             name="name"
             autoComplete="cc-name"
             label={billingDetailsNameLabel}
+            labelClassName={css.paymentLabel}
             placeholder={billingDetailsNamePlaceholder}
           />
 

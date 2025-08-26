@@ -23,7 +23,7 @@
 }
 
 .sectionContainer h3 {
-  font-size: 15px;
+  font-size: 16px;
 }
 
 .formRow {
@@ -58,7 +58,7 @@
   composes: marketplaceModalHelperText from global;
   margin-bottom: 12px;
   text-align: center;
-  line-height: 1.25;
+  line-height: 22px;
   font-size: 15px;
 
   @media (--viewportMedium) {

@@ -283,7 +283,7 @@ class ProviderSettingsFormComponent extends Component {
                 handleSubmit(e);
               }}
             >
-              <p>
+              <p className={css.providerInfoDescription}>
                 <FormattedMessage id="ProviderSettingsForm.providerInfoDescription" />
               </p>
               <div className={css.providerInfoSection}>
