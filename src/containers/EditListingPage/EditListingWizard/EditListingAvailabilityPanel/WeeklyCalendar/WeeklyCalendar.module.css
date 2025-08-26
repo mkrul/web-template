@@ -32,6 +32,7 @@
 .sectionTitle {
   margin-right: 5px;
   color: var(--colorGrey700);
+  font-size: 16px;
 }
 
 .weekPickerLabel {
