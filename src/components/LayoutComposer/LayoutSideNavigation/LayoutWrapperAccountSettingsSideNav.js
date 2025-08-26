@@ -102,7 +102,14 @@ const LayoutWrapperAccountSettingsSideNav = (props) => {
     ? [
         {
           text: (
-            <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.paymentsTabTitle" />
+            <>
+              <span className={css.mobileText}>
+                <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.paymentsTabTitle" />
+              </span>
+              <span className={css.desktopText}>
+                <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.paymentsTabTitleDesktop" />
+              </span>
+            </>
           ),
           selected: currentPage === 'StripePayoutPage',
           id: 'StripePayoutPageTab',
@@ -117,7 +124,14 @@ const LayoutWrapperAccountSettingsSideNav = (props) => {
     ? [
         {
           text: (
-            <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.paymentMethodsTabTitle" />
+            <>
+              <span className={css.mobileText}>
+                <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.paymentMethodsTabTitle" />
+              </span>
+              <span className={css.desktopText}>
+                <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.paymentMethodsTabTitleDesktop" />
+              </span>
+            </>
           ),
           selected: currentPage === 'PaymentMethodsPage',
           id: 'PaymentMethodsPageTab',
@@ -131,7 +145,14 @@ const LayoutWrapperAccountSettingsSideNav = (props) => {
   const tabs = [
     {
       text: (
-        <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.accountSettingsTabTitle" />
+        <>
+          <span className={css.mobileText}>
+            <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.accountSettingsTabTitle" />
+          </span>
+          <span className={css.desktopText}>
+            <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.accountSettingsTabTitleDesktop" />
+          </span>
+        </>
       ),
       selected: currentPage === 'AccountSettingsPage',
       id: 'AccountSettingsPageTab',
@@ -142,7 +163,14 @@ const LayoutWrapperAccountSettingsSideNav = (props) => {
 
     {
       text: (
-        <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.providerSettingsTabTitle" />
+        <>
+          <span className={css.mobileText}>
+            <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.providerSettingsTabTitle" />
+          </span>
+          <span className={css.desktopText}>
+            <FormattedMessage id="LayoutWrapperAccountSettingsSideNav.providerSettingsTabTitleDesktop" />
+          </span>
+        </>
       ),
       selected: currentPage === 'ProviderSettingsPage',
       id: 'ProviderSettingsPageTab',

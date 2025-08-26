@@ -115,3 +115,19 @@
     margin-left: 0;
   }
 }
+
+.mobileText {
+  display: inline;
+
+  @media (--viewportLarge) {
+    display: none;
+  }
+}
+
+.desktopText {
+  display: none;
+
+  @media (--viewportLarge) {
+    display: inline;
+  }
+}
