@@ -90,7 +90,7 @@ const initialState = {
 };
 
 /**
- * Payment methods form that asks for credit card info using Stripe Elements.
+ * Payment Methods form that asks for credit card info using Stripe Elements.
  *
  * When the card is valid and the user submits the form, a request is
  * sent to the Stripe API to handle card setup. `stripe.handleCardSetup`

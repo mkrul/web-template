@@ -61,7 +61,7 @@ import css from './PaymentMethodsPage.module.css';
  * @param {Function} props.fetchStripeCustomer - The function to fetch stripe customer
  * @param {Function} props.onManageDisableScrolling - The function to manage disable scrolling
  * @param {boolean} props.stripeCustomerFetched - Whether the stripe customer is fetched
- * @returns {JSX.Element} Payment methods page component
+ * @returns {JSX.Element} Payment Methods page component
  */
 const PaymentMethodsPageComponent = (props) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
