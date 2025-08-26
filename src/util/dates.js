@@ -54,7 +54,7 @@ export const bookingTimeUnits = {
  * @param {number} unitCount the number of units in the duration
  * @returns Moment rounded to the start of the specified duration interval
  */
-moment.fn.startOfMinuteBasedInterval = function(unitCount) {
+moment.fn.startOfMinuteBasedInterval = function (unitCount) {
   const durationInMs = moment.duration(unitCount, 'minutes').asMilliseconds();
 
   // Calculate the number of durations since 1970-01-01 00:00:00
@@ -69,12 +69,19 @@ moment.fn.startOfMinuteBasedInterval = function(unitCount) {
  * @returns {Boolean} true if the browser returns current time zone.
  */
 export const isTimeZoneSupported = () => {
-  if (!Intl || typeof Intl === 'undefined' || typeof Intl.DateTimeFormat === 'undefined') {
+  if (
+    !Intl ||
+    typeof Intl === 'undefined' ||
+    typeof Intl.DateTimeFormat === 'undefined'
+  ) {
     return false;
   }
 
   const dtf = new Intl.DateTimeFormat();
-  if (typeof dtf === 'undefined' || typeof dtf.resolvedOptions === 'undefined') {
+  if (
+    typeof dtf === 'undefined' ||
+    typeof dtf.resolvedOptions === 'undefined'
+  ) {
     return false;
   }
 
@@ -127,7 +134,7 @@ export const getDefaultTimeZoneOnBrowser = () => {
  *
  * @returns {Boolean} true if the browser recognizes the key.
  */
-export const isValidTimeZone = timeZone => {
+export const isValidTimeZone = (timeZone) => {
   try {
     new Intl.DateTimeFormat('en-US', { timeZone }).format();
     return true;
@@ -143,9 +150,11 @@ export const isValidTimeZone = timeZone => {
  *
  * @returns {Array} an array of relevant time zones.
  */
-export const getTimeZoneNames = relevantZonesRegExp => {
+export const getTimeZoneNames = (relevantZonesRegExp) => {
   const allTimeZones = moment.tz.names();
-  return relevantZonesRegExp ? allTimeZones.filter(z => relevantZonesRegExp.test(z)) : allTimeZones;
+  return relevantZonesRegExp
+    ? allTimeZones.filter((z) => relevantZonesRegExp.test(z))
+    : allTimeZones;
 };
 
 /**
@@ -167,8 +176,10 @@ export const isDST = (date, timeZone) => {
  *
  * @returns {boolean} true if given parameter is a Date object.
  */
-export const isDate = d =>
-  d && Object.prototype.toString.call(d) === '[object Date]' && !Number.isNaN(d.getTime());
+export const isDate = (d) =>
+  d &&
+  Object.prototype.toString.call(d) === '[object Date]' &&
+  !Number.isNaN(d.getTime());
 
 /**
  * Check if the given parameters represent the same Date value (timestamps are compared)
@@ -178,7 +189,8 @@ export const isDate = d =>
  *
  * @returns {boolean} true if given parameters have the same timestamp.
  */
-export const isSameDate = (a, b) => a && isDate(a) && b && isDate(b) && a.getTime() === b.getTime();
+export const isSameDate = (a, b) =>
+  a && isDate(a) && b && isDate(b) && a.getTime() === b.getTime();
 
 /**
  * Compare is dateA is after dateB
@@ -279,7 +291,7 @@ export const isDayMomentInsideRange = (dayMoment, start, end, timeZone) => {
  *
  * @returns {Date} timestamp converted to date
  */
-export const timestampToDate = timestamp => {
+export const timestampToDate = (timestamp) => {
   return new Date(Number.parseInt(timestamp, 10));
 };
 
@@ -297,7 +309,9 @@ export const timestampToDate = timestamp => {
  * @returns {Date} date in given time zone
  */
 export const timeOfDayFromLocalToTimeZone = (date, timeZone) => {
-  return moment.tz(moment(date).format('YYYY-MM-DD HH:mm:ss'), timeZone).toDate();
+  return moment
+    .tz(moment(date).format('YYYY-MM-DD HH:mm:ss'), timeZone)
+    .toDate();
 };
 
 /**
@@ -311,9 +325,7 @@ export const timeOfDayFromLocalToTimeZone = (date, timeZone) => {
  */
 export const timeOfDayFromTimeZoneToLocal = (date, timeZone) => {
   return moment(
-    moment(date)
-      .tz(timeZone)
-      .format('YYYY-MM-DD HH:mm:ss')
+    moment(date).tz(timeZone).format('YYYY-MM-DD HH:mm:ss')
   ).toDate();
 };
 
@@ -326,12 +338,14 @@ export const timeOfDayFromTimeZoneToLocal = (date, timeZone) => {
  *
  * @returns {Date} date object converted to the start of given unit
  */
-export const getStartOf = (date, unit, timeZone, offset = 0, offsetUnit = 'days') => {
-  const m = timeZone
-    ? moment(date)
-        .clone()
-        .tz(timeZone)
-    : moment(date).clone();
+export const getStartOf = (
+  date,
+  unit,
+  timeZone,
+  offset = 0,
+  offsetUnit = 'days'
+) => {
+  const m = timeZone ? moment(date).clone().tz(timeZone) : moment(date).clone();
 
   const startOfUnit = m.startOf(unit);
   // Note: there is an issue with the Moment library when dealing with
@@ -354,11 +368,8 @@ export const getStartOf = (date, unit, timeZone, offset = 0, offsetUnit = 'days'
     offset === 0
       ? startOfUnit
       : ['day', 'week', 'month'].includes(unit)
-      ? startOfUnit
-          .add(offset, offsetUnit)
-          .add(10, 'hours')
-          .startOf(unit)
-      : startOfUnit.add(offset, offsetUnit);
+        ? startOfUnit.add(offset, offsetUnit).add(10, 'hours').startOf(unit)
+        : startOfUnit.add(offset, offsetUnit);
   return startOfUnitWithOffset.toDate();
 };
 
@@ -373,11 +384,7 @@ export const getStartOf = (date, unit, timeZone, offset = 0, offsetUnit = 'days'
  * @returns {Date} date with given offset added
  */
 export const addTime = (date, offset, unit, timeZone) => {
-  const m = timeZone
-    ? moment(date)
-        .clone()
-        .tz(timeZone)
-    : moment(date).clone();
+  const m = timeZone ? moment(date).clone().tz(timeZone) : moment(date).clone();
   return m.add(offset, unit).toDate();
 };
 
@@ -392,11 +399,7 @@ export const addTime = (date, offset, unit, timeZone) => {
  * @returns {Date} date with given offset subtracted
  */
 export const subtractTime = (date, offset, unit, timeZone) => {
-  const m = timeZone
-    ? moment(date)
-        .clone()
-        .tz(timeZone)
-    : moment(date).clone();
+  const m = timeZone ? moment(date).clone().tz(timeZone) : moment(date).clone();
   return m.subtract(offset, unit).toDate();
 };
 
@@ -460,7 +463,7 @@ export const diffInTime = (startDate, endDate, unit, useFloat = false) => {
 // Parsing and formatting //
 ////////////////////////////
 
-const getTimeZoneMaybe = timeZone => {
+const getTimeZoneMaybe = (timeZone) => {
   if (timeZone) {
     if (!isTimeZoneSupported()) {
       throw new Error(`Your browser doesn't support time zones.`);
@@ -486,9 +489,12 @@ const getTimeZoneMaybe = timeZone => {
  * @returns {String} formatted date
  */
 export const formatDateWithProximity = (date, intl, todayString, opts = {}) => {
-  const paramsValid = intl && date instanceof Date && typeof todayString === 'string';
+  const paramsValid =
+    intl && date instanceof Date && typeof todayString === 'string';
   if (!paramsValid) {
-    throw new Error(`Invalid params for formatDate: (${date}, ${intl}, ${todayString})`);
+    throw new Error(
+      `Invalid params for formatDate: (${date}, ${intl}, ${todayString})`
+    );
   }
 
   // If timeZone parameter is set, use it as formatting option
@@ -574,7 +580,9 @@ export const formatDateIntoPartials = (date, intl, opts = {}) => {
 
   // isSame: if the two moments have different time zones, the time zone of the first moment will be used for the comparison.
   const localizedNow = timeZoneMaybe.timeZone ? now.tz(timeZone) : now;
-  const yearMaybe = localizedNow.isSame(date, 'year') ? {} : { year: 'numeric' };
+  const yearMaybe = localizedNow.isSame(date, 'year')
+    ? {}
+    : { year: 'numeric' };
 
   return {
     date: intl.formatDate(date, {
@@ -646,9 +654,7 @@ export const parseDateTimeString = (dateTimeString, timeZone = null) => {
  */
 export const stringifyDateToISO8601 = (date, timeZone = null) => {
   return timeZone
-    ? moment(date)
-        .tz(timeZone)
-        .format('YYYY-MM-DD')
+    ? moment(date).tz(timeZone).format('YYYY-MM-DD')
     : moment(date).format('YYYY-MM-DD');
 };
 
@@ -666,7 +672,7 @@ export const stringifyDateToISO8601 = (date, timeZone = null) => {
 
 // Helper function for exported function: getSharpHours
 // Recursively find boundaries for bookable time slots.
-const findBookingUnitBoundaries = params => {
+const findBookingUnitBoundaries = (params) => {
   const {
     cumulatedResults,
     currentBoundary,
@@ -680,7 +686,9 @@ const findBookingUnitBoundaries = params => {
   } = params;
 
   if (moment(currentBoundary).isBetween(startMoment, endMoment, null, '[]')) {
-    const timeOfDay = formatDateIntoPartials(currentBoundary, intl, { timeZone })?.time;
+    const timeOfDay = formatDateIntoPartials(currentBoundary, intl, {
+      timeZone,
+    })?.time;
 
     // NOTE: the daylight saving time (DST) can create the same time of day two times.
     const newBoundary = [
@@ -693,7 +701,12 @@ const findBookingUnitBoundaries = params => {
     return findBookingUnitBoundaries({
       ...params,
       cumulatedResults: [...cumulatedResults, ...newBoundary],
-      currentBoundary: nextBoundaryFn(currentBoundary, unitCount, timeUnit, timeZone),
+      currentBoundary: nextBoundaryFn(
+        currentBoundary,
+        unitCount,
+        timeUnit,
+        timeZone
+      ),
     });
   }
   return cumulatedResults;
@@ -715,7 +728,12 @@ const findBookingUnitBoundaries = params => {
  *
  * @returns {Array} an array of boundary data. e.g. [{timestamp: 1707484800000, timeOfDay: '12:00'}]
  */
-export const findNextBoundary = (currentDate, unitCount, timeUnit, timeZone) => {
+export const findNextBoundary = (
+  currentDate,
+  unitCount,
+  timeUnit,
+  timeZone
+) => {
   const customTimeUnitConfig = bookingTimeUnits[timeUnit]?.isCustom
     ? bookingTimeUnits[timeUnit]
     : null;
@@ -755,7 +773,14 @@ export const findNextBoundary = (currentDate, unitCount, timeUnit, timeZone) => 
  * @param {Object} intl - The intl object.
  * @returns {Array} The boundaries of the time unit.
  */
-export const getBoundaries = (startTime, endTime, unitCount, timeUnit, timeZone, intl) => {
+export const getBoundaries = (
+  startTime,
+  endTime,
+  unitCount,
+  timeUnit,
+  timeZone,
+  intl
+) => {
   if (!moment.tz.zone(timeZone)) {
     throw new Error(
       'Time zones are not loaded into moment-timezone. "getBoundaries" function uses time zones.'
@@ -766,7 +791,12 @@ export const getBoundaries = (startTime, endTime, unitCount, timeUnit, timeZone,
   // I.e. startTime might be a sharp hour.
   const millisecondBeforeStartTime = new Date(startTime.getTime() - 1);
   return findBookingUnitBoundaries({
-    currentBoundary: findNextBoundary(millisecondBeforeStartTime, 1, timeUnit, timeZone),
+    currentBoundary: findNextBoundary(
+      millisecondBeforeStartTime,
+      1,
+      timeUnit,
+      timeZone
+    ),
     startMoment: moment(startTime),
     endMoment: moment(endTime),
     nextBoundaryFn: findNextBoundary,
@@ -890,9 +920,7 @@ export const getEndHours = (startTime, endTime, timeZone, intl) => {
  */
 export const monthIdString = (date, timeZone = null) => {
   return timeZone
-    ? moment(date)
-        .tz(timeZone)
-        .format('YYYY-MM')
+    ? moment(date).tz(timeZone).format('YYYY-MM')
     : moment(date).format('YYYY-MM');
 };
 
@@ -907,11 +935,7 @@ export const monthIdString = (date, timeZone = null) => {
  * @returns {String} string in '0000-00-00T00:00:00.000Z' format
  */
 export const getExclusiveEndDate = (dateString, timeZone) => {
-  return moment
-    .tz(dateString, timeZone)
-    .add(1, 'days')
-    .startOf('day')
-    .toDate();
+  return moment.tz(dateString, timeZone).add(1, 'days').startOf('day').toDate();
 };
 
 /**
@@ -921,11 +945,7 @@ export const getExclusiveEndDate = (dateString, timeZone) => {
  * @returns the day of week number 0(Sun) ... 6(Sat)
  */
 export const getDayOfWeek = (date, timeZone) => {
-  return timeZone
-    ? moment(date)
-        .tz(timeZone)
-        .day()
-    : moment(date).day();
+  return timeZone ? moment(date).tz(timeZone).day() : moment(date).day();
 };
 
 /**
@@ -941,7 +961,9 @@ const getStartOfWeekAsMoment = (dayMoment, timeZone, firstDayOfWeek) => {
   let d = m.startOf('day');
   const diffToSunday = d.day();
   const adjustOffset =
-    diffToSunday === 0 && firstDayOfWeek > 0 ? -7 + firstDayOfWeek : firstDayOfWeek;
+    diffToSunday === 0 && firstDayOfWeek > 0
+      ? -7 + firstDayOfWeek
+      : firstDayOfWeek;
   const startOfWeek = d.date() - diffToSunday + adjustOffset; // adjust when day is sunday
   return d.clone().date(startOfWeek);
 };
@@ -956,7 +978,11 @@ const getStartOfWeekAsMoment = (dayMoment, timeZone, firstDayOfWeek) => {
  * @returns return moment object representing the end day of the week where dayMoment belongs to
  */
 const getEndOfWeekAsMoment = (dayMoment, timeZone, firstDayOfWeek) => {
-  const startOfWeek = getStartOfWeekAsMoment(dayMoment, timeZone, firstDayOfWeek);
+  const startOfWeek = getStartOfWeekAsMoment(
+    dayMoment,
+    timeZone,
+    firstDayOfWeek
+  );
   const endOfWeek = startOfWeek.add(6, 'days').startOf('day');
   return endOfWeek;
 };
