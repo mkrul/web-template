@@ -31,11 +31,11 @@
 }
 
 .newPasswordSection {
-  margin-bottom: 10px;
+  margin-bottom: 20px;
   padding-top: 6px;
 
   @media (--viewportMedium) {
-    margin-bottom: 10px;
+    margin-bottom: 20px;
     padding-top: 0;
   }
 }

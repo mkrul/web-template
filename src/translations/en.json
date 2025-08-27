@@ -132,7 +132,7 @@
   "ConfirmSignupForm.homeAddressRequired": "You need to add your home address.",
   "ConfirmSignupForm.homeAddressDisclaimer": "* Your address is kept private and is only used for shipping purposes. We will never share your home address with other third parties or renters.",
   "ConfirmSignupForm.signUp": "Continue with {idp}",
-  "ContactDetailsForm.confirmChangesInfo": "To change your email address, please enter your current password.",
+  "ContactDetailsForm.confirmChangesInfo": "To change your email address, please enter your current password below.",
   "ContactDetailsForm.confirmChangesTitle": "Confirm your changes",
   "ContactDetailsForm.emailInvalid": "A valid email address is required.",
   "ContactDetailsForm.emailLabel": "Your email address",

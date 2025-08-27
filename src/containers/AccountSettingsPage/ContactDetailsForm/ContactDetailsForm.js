@@ -345,7 +345,7 @@ class ContactDetailsFormComponent extends Component {
           }
 
           const confirmClasses = classNames(css.confirmChangesSection, {
-            [css.confirmChangesSectionVisible]: emailChanged || passwordChanged,
+            [css.confirmChangesSectionVisible]: true,
           });
 
           // generic error
@@ -445,6 +445,9 @@ class ContactDetailsFormComponent extends Component {
                   customErrorText={emailTouched ? null : emailTakenErrorText}
                 />
                 {emailVerifiedInfo}
+                <span className={css.infoText}>
+                  <FormattedMessage id="ContactDetailsForm.confirmChangesInfo" />
+                </span>
               </div>
 
               <div className={css.newPasswordSection}>
@@ -471,9 +474,6 @@ class ContactDetailsFormComponent extends Component {
                   validate={passwordValidators}
                   customErrorText={passwordErrorText}
                 />
-                <span className={css.infoText}>
-                  <FormattedMessage id="ContactDetailsForm.confirmChangesInfo" />
-                </span>
               </div>
               <p className={css.confirmChangesInfo}>
                 <br />
