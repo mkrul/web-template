@@ -25,6 +25,7 @@ import ContactDetailsForm from './ContactDetailsForm/ContactDetailsForm';
 import {
   saveContactDetails,
   saveContactDetailsClear,
+  saveContactDetailsResetProgress,
   resetPassword,
   changePassword,
 } from './AccountSettingsPage.duck';
@@ -75,7 +76,7 @@ export const AccountSettingsPageComponent = (props) => {
   const currentEmail = user.attributes.email || '';
 
   const handleSubmit = (values) => {
-    console.log('Form submitted with values:', {
+    console.log('AccountSettingsPage handleSubmit called with values:', {
       email: values.email,
       hasNewPassword: !!values.newPassword,
       hasCurrentPassword: !!values.currentPassword,
@@ -84,6 +85,14 @@ export const AccountSettingsPageComponent = (props) => {
     return onSubmitContactDetails({
       ...values,
       currentEmail,
+    }).catch((error) => {
+      console.log('AccountSettingsPage onSubmitContactDetails error:', {
+        error,
+        status: error?.status,
+        message: error?.message,
+        data: error?.data,
+      });
+      return Promise.reject(error);
     });
   };
 

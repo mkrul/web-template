@@ -803,7 +803,7 @@ textarea {
 
 .textSmall {
   font-size: 15px;
-  line-height: 18px;
+  line-height: 22px;
   font-weight: var(--fontWeightMedium);
   letter-spacing: -0.1px;
 

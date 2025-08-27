@@ -317,6 +317,8 @@ class ContactDetailsFormComponent extends Component {
               isChangeEmailWrongPassword(saveEmailError),
             isChangePasswordWrongPassword:
               isChangePasswordWrongPassword(changePasswordError),
+            changePasswordErrorStatus: changePasswordError?.status,
+            changePasswordErrorMessage: changePasswordError?.message,
           });
 
           const passwordErrorText =
@@ -419,14 +421,38 @@ class ContactDetailsFormComponent extends Component {
             inProgress ||
             (!emailChanged && !passwordChanged);
 
+          console.log('ContactDetailsForm render state:', {
+            inProgress,
+            submitDisabled,
+            invalid,
+            pristineSinceLastSubmit,
+            emailChanged,
+            passwordChanged,
+            submittedOnce,
+            submittedValues: this.submittedValues,
+          });
+
           return (
             <Form
               className={classes}
               onSubmit={(e) => {
-                console.log('Form onSubmit called with values:', values);
+                console.log('ContactDetailsForm onSubmit called with values:', {
+                  email: values.email,
+                  hasNewPassword: !!values.newPassword,
+                  hasCurrentPassword: !!values.currentPassword,
+                  newPasswordLength: values.newPassword?.length,
+                  currentPasswordLength: values.currentPassword?.length,
+                });
                 this.submittedValues = values;
                 return handleSubmit(e).catch((error) => {
-                  console.log('Form submission error caught:', error);
+                  console.log('ContactDetailsForm submission error caught:', {
+                    error,
+                    status: error?.status,
+                    message: error?.message,
+                    data: error?.data,
+                  });
+                  // Reset submittedValues on error so user can try again
+                  this.submittedValues = {};
                   // Don't re-throw to prevent unhandled promise rejection
                 });
               }}
@@ -450,18 +476,6 @@ class ContactDetailsFormComponent extends Component {
                 </span>
               </div>
 
-              <div className={css.newPasswordSection}>
-                <FieldTextInput
-                  type="password"
-                  name="newPassword"
-                  id={formId ? `${formId}.newPassword` : 'newPassword'}
-                  autoComplete="new-password"
-                  label={newPasswordLabel}
-                  placeholder={newPasswordPlaceholder}
-                  validate={newPasswordValidators}
-                />
-              </div>
-
               <div className={confirmClasses}>
                 <FieldTextInput
                   className={css.password}
@@ -473,6 +487,18 @@ class ContactDetailsFormComponent extends Component {
                   placeholder={passwordPlaceholder}
                   validate={passwordValidators}
                   customErrorText={passwordErrorText}
+                />
+              </div>
+
+              <div className={css.newPasswordSection}>
+                <FieldTextInput
+                  type="password"
+                  name="newPassword"
+                  id={formId ? `${formId}.newPassword` : 'newPassword'}
+                  autoComplete="new-password"
+                  label={newPasswordLabel}
+                  placeholder={newPasswordPlaceholder}
+                  validate={newPasswordValidators}
                 />
               </div>
               <p className={css.confirmChangesInfo}>
