@@ -264,16 +264,22 @@ const updateProviderListings = (
           });
       });
 
+      if (!updatePromises || updatePromises.length === 0) {
+        return Promise.resolve([]);
+      }
+
       return Promise.allSettled(updatePromises);
     })
     .then((results) => {
       // Log results for debugging
-      const successful = results.filter(
-        (r) => r.status === 'fulfilled' && r.value
-      ).length;
-      const failed = results.filter(
-        (r) => r.status === 'rejected' || !r.value
-      ).length;
+      if (results && Array.isArray(results)) {
+        const successful = results.filter(
+          (r) => r.status === 'fulfilled' && r.value
+        ).length;
+        const failed = results.filter(
+          (r) => r.status === 'rejected' || !r.value
+        ).length;
+      }
 
       dispatch(saveProviderSettingsSuccess());
     })
