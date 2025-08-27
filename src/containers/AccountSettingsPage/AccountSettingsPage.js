@@ -76,22 +76,10 @@ export const AccountSettingsPageComponent = (props) => {
   const currentEmail = user.attributes.email || '';
 
   const handleSubmit = (values) => {
-    console.log('AccountSettingsPage handleSubmit called with values:', {
-      email: values.email,
-      hasNewPassword: !!values.newPassword,
-      hasCurrentPassword: !!values.currentPassword,
-      currentEmail,
-    });
     return onSubmitContactDetails({
       ...values,
       currentEmail,
     }).catch((error) => {
-      console.log('AccountSettingsPage onSubmitContactDetails error:', {
-        error,
-        status: error?.status,
-        message: error?.message,
-        data: error?.data,
-      });
       return Promise.reject(error);
     });
   };

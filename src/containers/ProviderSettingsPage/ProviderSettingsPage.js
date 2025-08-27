@@ -7,6 +7,7 @@ import { useConfiguration } from '../../context/configurationContext';
 import { FormattedMessage, useIntl } from '../../util/reactIntl';
 import { propTypes } from '../../util/types';
 import { ensureCurrentUser } from '../../util/data';
+import { parse } from '../../components/FieldPhoneNumberInput/e164Formatter';
 import {
   showCreateListingLinkForUser,
   showPaymentDetailsForUser,
@@ -118,8 +119,27 @@ export const ProviderSettingsPageComponent = (props) => {
       publicData?.providerAddress?.search || publicData?.providerAddress || '';
     const newAddressSearch = pub_providerAddress?.search || '';
     const addressChanged = newAddressSearch !== currentAddressSearch;
-    const apartmentChanged = apartmentUnit !== publicData?.apartmentUnit;
-    const phoneNumberChanged = phoneNumber !== protectedData?.phoneNumber;
+    const normalizedCurrentApartmentUnit = publicData?.apartmentUnit || '';
+    const normalizedNewApartmentUnit = apartmentUnit || '';
+    const apartmentChanged =
+      normalizedCurrentApartmentUnit !== normalizedNewApartmentUnit;
+    // Normalize both phone numbers using the same formatter for accurate comparison
+    const normalizedCurrentPhoneNumber = parse(
+      protectedData?.phoneNumber || ''
+    );
+    const normalizedNewPhoneNumber = parse(phoneNumber || '');
+    const phoneNumberChanged =
+      normalizedCurrentPhoneNumber !== normalizedNewPhoneNumber;
+
+    console.log('ProviderSettingsPage - Phone number comparison:', {
+      currentPhoneNumber: protectedData?.phoneNumber,
+      newPhoneNumber: phoneNumber,
+      normalizedCurrent: normalizedCurrentPhoneNumber,
+      normalizedNew: normalizedNewPhoneNumber,
+      phoneNumberChanged,
+      addressChanged,
+      apartmentChanged,
+    });
 
     // If address or apartment changed, show confirmation modal
     if (addressChanged || apartmentChanged) {

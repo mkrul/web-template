@@ -175,7 +175,7 @@
   "ProviderSettingsForm.providerInfoHeading": "Anbieter-Einstellungen",
   "ProviderSettingsForm.providerInfoDescription": "Wenn Sie Ihre eigenen Kisten auf dem Marktplatz anbieten, ist dies die Adresse, die unser Versandanbieter verwenden wird, um zu bestimmen, wo Ihre Kisten abgeholt und zurückgebracht werden sollen. Wir werden diese Informationen niemals mit Mietern oder anderen Dritten teilen.",
   "ProviderSettingsForm.addressUpdateNotice": "Hinweis: Wenn Sie Ihre Anbieteradresse aktualisieren, werden alle Ihre Anzeigen automatisch mit dieser neuen Adresse aktualisiert.",
-  "ProviderSettingsForm.listingsUpdatedSuccess": "Ihre Anbieteradresse und alle Anzeigen wurden erfolgreich aktualisiert.",
+      "ProviderSettingsForm.listingsUpdatedSuccess": "Ihre Anbietereinstellungen wurden erfolgreich aktualisiert.",
   "ProviderAddressConfirmationModal.close": "Schließen",
   "ProviderAddressConfirmationModal.title": "Anbieteradresse aktualisieren",
   "ProviderAddressConfirmationModal.message": "Durch die Aktualisierung Ihrer Anbieteradresse werden alle Ihre aktiven Kisten-Anzeigen mit der neuen Adresse aktualisiert. Sind Sie sicher, dass Sie fortfahren möchten?",

@@ -49,22 +49,9 @@ const initialState = {
 
 export default function reducer(state = initialState, action = {}) {
   const { type, payload } = action;
-  console.log('AccountSettingsPage reducer called with action:', {
-    type,
-    payload,
-    currentState: {
-      saveContactDetailsInProgress: state.saveContactDetailsInProgress,
-      changePasswordInProgress: state.changePasswordInProgress,
-      saveEmailError: state.saveEmailError,
-      changePasswordError: state.changePasswordError,
-    },
-  });
 
   switch (type) {
     case SAVE_CONTACT_DETAILS_REQUEST:
-      console.log(
-        'SAVE_CONTACT_DETAILS_REQUEST: setting saveContactDetailsInProgress to true'
-      );
       return {
         ...state,
         saveContactDetailsInProgress: true,
@@ -72,18 +59,12 @@ export default function reducer(state = initialState, action = {}) {
         contactDetailsChanged: false,
       };
     case SAVE_CONTACT_DETAILS_SUCCESS:
-      console.log(
-        'SAVE_CONTACT_DETAILS_SUCCESS: setting saveContactDetailsInProgress to false'
-      );
       return {
         ...state,
         saveContactDetailsInProgress: false,
         contactDetailsChanged: true,
       };
     case SAVE_EMAIL_ERROR:
-      console.log(
-        'SAVE_EMAIL_ERROR: setting saveContactDetailsInProgress to false'
-      );
       return {
         ...state,
         saveContactDetailsInProgress: false,
@@ -91,9 +72,6 @@ export default function reducer(state = initialState, action = {}) {
       };
 
     case CHANGE_PASSWORD_REQUEST:
-      console.log(
-        'CHANGE_PASSWORD_REQUEST: setting changePasswordInProgress to true'
-      );
       return {
         ...state,
         changePasswordInProgress: true,
@@ -101,19 +79,12 @@ export default function reducer(state = initialState, action = {}) {
         passwordChanged: false,
       };
     case CHANGE_PASSWORD_SUCCESS:
-      console.log(
-        'CHANGE_PASSWORD_SUCCESS: setting changePasswordInProgress to false'
-      );
       return {
         ...state,
         changePasswordInProgress: false,
         passwordChanged: true,
       };
     case CHANGE_PASSWORD_ERROR:
-      console.log(
-        'CHANGE_PASSWORD_ERROR: setting changePasswordInProgress to false and setting error:',
-        payload
-      );
       return {
         ...state,
         changePasswordInProgress: false,
@@ -121,9 +92,6 @@ export default function reducer(state = initialState, action = {}) {
       };
 
     case SAVE_CONTACT_DETAILS_CLEAR:
-      console.log(
-        'SAVE_CONTACT_DETAILS_CLEAR: resetting all progress states to false'
-      );
       return {
         ...state,
         saveContactDetailsInProgress: false,
@@ -135,9 +103,6 @@ export default function reducer(state = initialState, action = {}) {
       };
 
     case SAVE_CONTACT_DETAILS_RESET_PROGRESS:
-      console.log(
-        'SAVE_CONTACT_DETAILS_RESET_PROGRESS: resetting only saveContactDetailsInProgress to false'
-      );
       return {
         ...state,
         saveContactDetailsInProgress: false,
@@ -298,37 +263,16 @@ const saveAddress = (params) => (dispatch, getState, sdk) => {
  * Change password
  */
 export const changePassword = (params) => (dispatch, getState, sdk) => {
-  console.log('changePassword action dispatched with params:', {
-    hasNewPassword: !!params.newPassword,
-    hasCurrentPassword: !!params.currentPassword,
-    newPasswordLength: params.newPassword?.length,
-    currentPasswordLength: params.currentPassword?.length,
-  });
-
   dispatch(changePasswordRequest());
 
   const { newPassword, currentPassword } = params;
 
-  console.log('Making SDK call to changePassword...');
   return sdk.currentUser
     .changePassword({ newPassword, currentPassword })
     .then((response) => {
-      console.log('SDK changePassword call successful:', {
-        response,
-        responseType: typeof response,
-        hasData: !!response?.data,
-      });
       dispatch(changePasswordSuccess());
     })
     .catch((e) => {
-      console.log('SDK changePassword call failed:', {
-        error: e,
-        status: e.status,
-        statusText: e.statusText,
-        message: e.message,
-        data: e.data,
-        stack: e.stack,
-      });
       dispatch(changePasswordError(storableError(e)));
       // Don't re-throw the error to prevent unhandled promise rejection
       return Promise.reject(e);
@@ -339,17 +283,6 @@ export const changePassword = (params) => (dispatch, getState, sdk) => {
  * Update contact details, actions depend on which data has changed
  */
 export const saveContactDetails = (params) => (dispatch, getState, sdk) => {
-  console.log('saveContactDetails called with params:', {
-    email: params.email,
-    currentEmail: params.currentEmail,
-    hasNewPassword: !!params.newPassword,
-    hasCurrentPassword: !!params.currentPassword,
-    pub_providerAddress: params.pub_providerAddress,
-    apartmentUnit: params.apartmentUnit,
-    currentAddress: params.currentAddress,
-    currentApartmentUnit: params.currentApartmentUnit,
-  });
-
   dispatch(saveContactDetailsRequest());
 
   const {
@@ -365,48 +298,28 @@ export const saveContactDetails = (params) => (dispatch, getState, sdk) => {
 
   const emailChanged = email !== currentEmail;
   const passwordChanged = newPassword && newPassword.trim() !== '';
+  const normalizedCurrentApartmentUnit = currentApartmentUnit || '';
+  const normalizedNewApartmentUnit = apartmentUnit || '';
   const addressChanged =
     pub_providerAddress !== currentAddress ||
-    apartmentUnit !== currentApartmentUnit;
-
-  console.log('Changes detected:', {
-    emailChanged,
-    passwordChanged,
-    addressChanged,
-  });
+    normalizedCurrentApartmentUnit !== normalizedNewApartmentUnit;
 
   if (passwordChanged) {
-    console.log('Password change detected, calling changePassword...');
     return dispatch(changePassword({ newPassword, currentPassword }))
       .then(() => {
-        console.log(
-          'Password change successful, dispatching saveContactDetailsSuccess'
-        );
         dispatch(saveContactDetailsSuccess());
       })
       .catch((e) => {
-        console.log('Password change error caught in saveContactDetails:', {
-          error: e,
-          status: e.status,
-          message: e.message,
-          data: e.data,
-        });
         // The error is already handled in changePassword, but we need to ensure
         // saveContactDetailsInProgress is reset to false without clearing the password error
-        console.log(
-          'Dispatching saveContactDetailsResetProgress to reset loading state'
-        );
         dispatch(saveContactDetailsResetProgress());
         return Promise.reject(e);
       });
   } else if (emailChanged) {
-    console.log('Email change detected, calling saveEmail...');
     return dispatch(saveEmail({ email, currentPassword }));
   } else if (addressChanged) {
-    console.log('Address change detected, calling saveAddress...');
     return dispatch(saveAddress({ pub_providerAddress, apartmentUnit }));
   } else {
-    console.log('No changes detected, dispatching saveContactDetailsSuccess');
     dispatch(saveContactDetailsSuccess());
     return Promise.resolve();
   }

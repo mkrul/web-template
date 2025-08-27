@@ -1,6 +1,7 @@
 import { denormalisedResponseEntities } from '../../util/data';
 import { storableError } from '../../util/errors';
 import { currentUserShowSuccess } from '../../ducks/user.duck';
+import { parse } from '../../components/FieldPhoneNumberInput/e164Formatter';
 
 // ================ Action types ================ //
 
@@ -96,8 +97,25 @@ export const saveProviderSettings = (params) => (dispatch, getState, sdk) => {
     currentProviderAddress?.search || currentProviderAddress || '';
   const newAddressSearch = pub_providerAddress?.search || '';
   const addressChanged = newAddressSearch !== currentAddressSearch;
-  const apartmentChanged = apartmentUnit !== currentApartmentUnit;
-  const phoneNumberChanged = phoneNumber !== currentPhoneNumber;
+  const normalizedCurrentApartmentUnit = currentApartmentUnit || '';
+  const normalizedNewApartmentUnit = apartmentUnit || '';
+  const apartmentChanged =
+    normalizedCurrentApartmentUnit !== normalizedNewApartmentUnit;
+  // Normalize both phone numbers using the same formatter for accurate comparison
+  const normalizedCurrentPhoneNumber = parse(currentPhoneNumber || '');
+  const normalizedNewPhoneNumber = parse(phoneNumber || '');
+  const phoneNumberChanged =
+    normalizedCurrentPhoneNumber !== normalizedNewPhoneNumber;
+
+  console.log('ProviderSettingsPage.duck - Phone number comparison:', {
+    currentPhoneNumber,
+    newPhoneNumber: phoneNumber,
+    normalizedCurrent: normalizedCurrentPhoneNumber,
+    normalizedNew: normalizedNewPhoneNumber,
+    phoneNumberChanged,
+    addressChanged,
+    apartmentChanged,
+  });
 
   if (!addressChanged && !apartmentChanged && !phoneNumberChanged) {
     dispatch(saveProviderSettingsSuccess());
@@ -256,10 +274,6 @@ const updateProviderListings = (
       const failed = results.filter(
         (r) => r.status === 'rejected' || !r.value
       ).length;
-
-      console.log(
-        `ProviderSettings: Updated ${successful} listings, ${failed} failed`
-      );
 
       dispatch(saveProviderSettingsSuccess());
     })

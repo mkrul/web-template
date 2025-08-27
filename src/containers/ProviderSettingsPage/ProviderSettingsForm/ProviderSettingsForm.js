@@ -17,6 +17,7 @@ import {
   composeValidators,
 } from '../../../util/validators';
 import * as validators from '../../../util/validators';
+import { parse } from '../../../components/FieldPhoneNumberInput/e164Formatter';
 
 import {
   Form,
@@ -144,18 +145,46 @@ class ProviderSettingsFormComponent extends Component {
             normalizedNewApartmentUnit !== normalizedCurrentApartmentUnit;
 
           // Check if phone number has changed
+          // Normalize both phone numbers using the same formatter for accurate comparison
+          const normalizedCurrentPhoneNumber = parse(currentPhoneNumber || '');
+          const normalizedNewPhoneNumber = parse(values.phoneNumber || '');
           const phoneNumberChanged =
-            currentPhoneNumber !== values.phoneNumber &&
-            !(
-              typeof currentPhoneNumber === 'undefined' &&
-              values.phoneNumber === ''
-            );
+            normalizedCurrentPhoneNumber !== normalizedNewPhoneNumber;
+
+          console.log('ProviderSettingsForm - Phone number comparison:', {
+            currentPhoneNumber,
+            newPhoneNumber: values.phoneNumber,
+            normalizedCurrent: normalizedCurrentPhoneNumber,
+            normalizedNew: normalizedNewPhoneNumber,
+            phoneNumberChanged,
+            addressChanged,
+            apartmentChanged:
+              normalizedNewApartmentUnit !== normalizedCurrentApartmentUnit,
+          });
 
           const classes = classNames(rootClassName || css.root, className);
           const submittedOnce = Object.keys(this.submittedValues).length > 0;
 
+          // Check if form values have changed since last submission
+          // Only consider it pristine if no fields have actually changed
           const pristineSinceLastSubmit =
-            submittedOnce && isEqual(values, this.submittedValues);
+            submittedOnce &&
+            !addressChanged &&
+            !phoneNumberChanged &&
+            normalizedNewApartmentUnit === normalizedCurrentApartmentUnit;
+
+          console.log(
+            'ProviderSettingsForm - pristineSinceLastSubmit calculation:',
+            {
+              submittedOnce,
+              addressChanged,
+              phoneNumberChanged,
+              apartmentChanged:
+                normalizedNewApartmentUnit !== normalizedCurrentApartmentUnit,
+              pristineSinceLastSubmit,
+              submittedValues: this.submittedValues,
+            }
+          );
 
           // Create conditional validation for address field
           const addressValidation = (value) => {
@@ -166,6 +195,11 @@ class ProviderSettingsFormComponent extends Component {
 
             // If only apartment unit changed, skip address validation
             if (onlyApartmentUnitChanged) {
+              return undefined;
+            }
+
+            // If only phone number changed, skip address validation
+            if (onlyPhoneNumberChanged) {
               return undefined;
             }
 
@@ -258,13 +292,41 @@ class ProviderSettingsFormComponent extends Component {
           };
 
           // Calculate effective invalid state - ignore address validation errors when only apartment unit changed
-          const effectiveInvalid = onlyApartmentUnitChanged ? false : invalid;
+          // or when only phone number changed (but still validate phone number field)
+          const onlyPhoneNumberChanged =
+            !addressChanged &&
+            phoneNumberChanged &&
+            normalizedNewApartmentUnit === normalizedCurrentApartmentUnit;
+
+          // When only phone number is changed, we need to check if there are phone number validation errors
+          // but ignore address validation errors
+          let effectiveInvalid = invalid;
+          if (onlyApartmentUnitChanged) {
+            effectiveInvalid = false;
+          } else if (onlyPhoneNumberChanged) {
+            // For phone number only changes, we need to check if the phone number field has errors
+            // but ignore address field errors
+            const phoneNumberErrors = fieldRenderProps.errors?.phoneNumber;
+            effectiveInvalid = !!phoneNumberErrors;
+          }
 
           const submitDisabled =
             effectiveInvalid ||
             pristineSinceLastSubmit ||
             inProgress ||
             !(addressChanged || phoneNumberChanged);
+
+          console.log('ProviderSettingsForm - Submit button state:', {
+            effectiveInvalid,
+            pristineSinceLastSubmit,
+            inProgress,
+            addressChanged,
+            phoneNumberChanged,
+            onlyPhoneNumberChanged,
+            submitDisabled,
+            submittedOnce,
+            submittedValues: this.submittedValues,
+          });
 
           let genericError = null;
           if (saveProviderSettingsError) {
@@ -279,6 +341,14 @@ class ProviderSettingsFormComponent extends Component {
             <Form
               className={classes}
               onSubmit={(e) => {
+                console.log(
+                  'ProviderSettingsForm - Form submitted with values:',
+                  {
+                    phoneNumber: values.phoneNumber,
+                    address: values.pub_providerAddress,
+                    apartmentUnit: values.apartmentUnit,
+                  }
+                );
                 this.submittedValues = values;
                 handleSubmit(e);
               }}
@@ -319,6 +389,10 @@ class ProviderSettingsFormComponent extends Component {
                   userTypeConfig={userTypeConfig}
                   intl={intl}
                 />
+                {console.log(
+                  'ProviderSettingsForm - PhoneNumberMaybe rendered with value:',
+                  values.phoneNumber
+                )}
               </div>
 
               <p className={`${authCss.modalHelperText} ${css.disclaimerText}`}>

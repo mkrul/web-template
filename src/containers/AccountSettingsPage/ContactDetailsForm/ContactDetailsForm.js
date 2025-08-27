@@ -310,31 +310,12 @@ class ContactDetailsFormComponent extends Component {
           });
           const passwordTouched =
             this.submittedValues.currentPassword !== values.currentPassword;
-          console.log('Error debugging:', {
-            saveEmailError,
-            changePasswordError,
-            isChangeEmailWrongPassword:
-              isChangeEmailWrongPassword(saveEmailError),
-            isChangePasswordWrongPassword:
-              isChangePasswordWrongPassword(changePasswordError),
-            changePasswordErrorStatus: changePasswordError?.status,
-            changePasswordErrorMessage: changePasswordError?.message,
-          });
 
           const passwordErrorText =
             isChangeEmailWrongPassword(saveEmailError) ||
             isChangePasswordWrongPassword(changePasswordError)
               ? passwordFailedMessage
               : null;
-
-          console.log('Password error text:', {
-            passwordErrorText,
-            passwordFailedMessage,
-            isChangeEmailWrongPassword:
-              isChangeEmailWrongPassword(saveEmailError),
-            isChangePasswordWrongPassword:
-              isChangePasswordWrongPassword(changePasswordError),
-          });
 
           // Check for password change errors
           const isPasswordChangeError =
@@ -421,36 +402,12 @@ class ContactDetailsFormComponent extends Component {
             inProgress ||
             (!emailChanged && !passwordChanged);
 
-          console.log('ContactDetailsForm render state:', {
-            inProgress,
-            submitDisabled,
-            invalid,
-            pristineSinceLastSubmit,
-            emailChanged,
-            passwordChanged,
-            submittedOnce,
-            submittedValues: this.submittedValues,
-          });
-
           return (
             <Form
               className={classes}
               onSubmit={(e) => {
-                console.log('ContactDetailsForm onSubmit called with values:', {
-                  email: values.email,
-                  hasNewPassword: !!values.newPassword,
-                  hasCurrentPassword: !!values.currentPassword,
-                  newPasswordLength: values.newPassword?.length,
-                  currentPasswordLength: values.currentPassword?.length,
-                });
                 this.submittedValues = values;
                 return handleSubmit(e).catch((error) => {
-                  console.log('ContactDetailsForm submission error caught:', {
-                    error,
-                    status: error?.status,
-                    message: error?.message,
-                    data: error?.data,
-                  });
                   // Reset submittedValues on error so user can try again
                   this.submittedValues = {};
                   // Don't re-throw to prevent unhandled promise rejection
