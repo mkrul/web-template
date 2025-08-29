@@ -255,21 +255,11 @@ export const ListingPageComponent = props => {
   });
 
   const handleOrderSubmit = values => {
-    console.log('ListingPageCarousel handleOrderSubmit called with:', {
-      values,
-      isOwnListing,
-      currentListingState: currentListing.attributes.state,
-      currentListingId: currentListing.id?.uuid
-    });
-
     const isCurrentlyClosed = currentListing.attributes.state === LISTING_STATE_CLOSED;
-    console.log('ListingPageCarousel handleOrderSubmit: isCurrentlyClosed =', isCurrentlyClosed);
 
     if (isOwnListing || isCurrentlyClosed) {
-      console.log('ListingPageCarousel handleOrderSubmit: scrolling to top (own listing or closed)');
       window.scrollTo(0, 0);
     } else {
-      console.log('ListingPageCarousel handleOrderSubmit: calling onSubmit with values');
       onSubmit(values);
     }
   };

@@ -254,6 +254,15 @@
   text-align: center;
 }
 
+.ownListingMessage {
+  border-left: 1px solid var(--colorGrey100);
+  width: 100%;
+  padding: 15px 24px 15px 24px;
+  text-align: center;
+  color: var(--colorGrey600);
+  font-weight: var(--fontWeightMedium);
+}
+
 .receipt {
   flex-shrink: 0;
 }

@@ -200,20 +200,6 @@ export const handleSubmitInquiry = (parameters) => (values) => {
  * @param {Object} parameters all the info needed to redirect user to CheckoutPage.
  */
 export const handleSubmit = (parameters) => (values) => {
-  console.log('ListingPage.shared handleSubmit called with:', {
-    parameters: {
-      hasHistory: !!parameters.history,
-      hasParams: !!parameters.params,
-      hasCurrentUser: !!parameters.currentUser,
-      hasGetListing: !!parameters.getListing,
-      hasCallSetInitialValues: !!parameters.callSetInitialValues,
-      hasOnInitializeCardPaymentData: !!parameters.onInitializeCardPaymentData,
-      hasRoutes: !!parameters.routes
-    },
-    values,
-    valuesKeys: Object.keys(values || {})
-  });
-
   const {
     history,
     params,
@@ -282,17 +268,7 @@ export const handleSubmit = (parameters) => (values) => {
     ...otherOrderData,
   };
 
-  console.log(
-    'ListingPage handleSubmit - orderData being passed to checkout:',
-    {
-      hasDeliveryMethod: !!deliveryMethod,
-      deliveryMethod,
-      hasSenpexQuote: !!senpexQuote,
-      senpexQuoteToken: senpexQuote?.token,
-      hasDeliveryAddress: !!deliveryAddress,
-      orderDataKeys: Object.keys(orderData),
-    }
-  );
+
 
   const initialValues = {
     listing,

@@ -250,21 +250,11 @@ export const ListingPageComponent = props => {
   });
 
   const handleOrderSubmit = values => {
-    console.log('ListingPageCoverPhoto handleOrderSubmit called with:', {
-      values,
-      isOwnListing,
-      currentListingState: currentListing.attributes.state,
-      currentListingId: currentListing.id?.uuid
-    });
-
     const isCurrentlyClosed = currentListing.attributes.state === LISTING_STATE_CLOSED;
-    console.log('ListingPageCoverPhoto handleOrderSubmit: isCurrentlyClosed =', isCurrentlyClosed);
 
     if (isOwnListing || isCurrentlyClosed) {
-      console.log('ListingPageCoverPhoto handleOrderSubmit: scrolling to top (own listing or closed)');
       window.scrollTo(0, 0);
     } else {
-      console.log('ListingPageCoverPhoto handleOrderSubmit: calling onSubmit with values');
       onSubmit(values);
     }
   };
