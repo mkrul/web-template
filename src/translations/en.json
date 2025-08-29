@@ -608,7 +608,7 @@
   "ManageListingCard.unsupportedPriceTitle": "Unsupported currency ({currency})",
   "ManageListingsPage.createListing": "Post a new listing",
   "ManageListingsPage.loadingOwnListings": "Loading listings…",
-  "ManageListingsPage.noResults": "You haven't listed any listings.",
+  "ManageListingsPage.noResults": "You haven't listed any crates.",
   "ManageListingsPage.queryError": "Query failed. Please try again.",
   "ManageListingsPage.title": "Manage your listings",
   "ManageListingsPage.youHaveListings": "You have {count} {count, plural, one {listing} other {listings}}",

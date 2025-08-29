@@ -113,12 +113,26 @@ const formatMoneyIfSupportedCurrency = (price, intl) => {
 };
 
 const openOrderModal = (isOwnListing, isClosed, history, location) => {
+  console.log('OrderPanel openOrderModal called with:', {
+    isOwnListing,
+    isClosed,
+    locationPathname: location.pathname,
+    locationSearch: location.search,
+    locationState: location.state
+  });
+
   if (isOwnListing || isClosed) {
+    console.log('OrderPanel openOrderModal: scrolling to top (own listing or closed)');
     window.scrollTo(0, 0);
   } else {
     const { pathname, search, state } = location;
     const searchString = `?${stringify({ ...parse(search), orderOpen: true })}`;
-    history.push(`${pathname}${searchString}`, state);
+    const newPath = `${pathname}${searchString}`;
+    console.log('OrderPanel openOrderModal: pushing new location:', {
+      newPath,
+      state
+    });
+    history.push(newPath, state);
   }
 };
 
@@ -137,11 +151,29 @@ const handleSubmit = (
   history,
   location
 ) => {
+  console.log('OrderPanel handleSubmit called with:', {
+    isOwnListing,
+    isClosed,
+    isInquiryWithoutPayment,
+    hasOnSubmit: !!onSubmit,
+    locationPathname: location.pathname,
+    locationSearch: location.search
+  });
+
   // TODO: currently, inquiry-process does not have any form to ask more order data.
   // We can submit without opening any inquiry/order modal.
-  return isInquiryWithoutPayment
-    ? () => onSubmit({})
-    : () => openOrderModal(isOwnListing, isClosed, history, location);
+  const result = isInquiryWithoutPayment
+    ? () => {
+        console.log('OrderPanel handleSubmit: calling onSubmit directly for inquiry');
+        onSubmit({});
+      }
+    : () => {
+        console.log('OrderPanel handleSubmit: calling openOrderModal');
+        openOrderModal(isOwnListing, isClosed, history, location);
+      };
+
+  console.log('OrderPanel handleSubmit: returning function:', result);
+  return result;
 };
 
 const dateFormattingOptions = {
@@ -308,6 +340,14 @@ const OrderPanel = (props) => {
 
   useEffect(() => {
     setMounted(true);
+    console.log('OrderPanel mounted with props:', {
+      hasListing: !!listing,
+      listingId: listing?.id?.uuid,
+      isOwnListing,
+      hasOnSubmit: !!onSubmit,
+      hasHistory: !!history,
+      hasLocation: !!location
+    });
   }, []);
   const {
     rootClassName,
@@ -488,6 +528,22 @@ const OrderPanel = (props) => {
   const classes = classNames(rootClassName || css.root, className);
   const titleClasses = classNames(titleClassName || css.orderTitle);
 
+  console.log('OrderPanel render state:', {
+    isOrderOpen,
+    isClosed,
+    isOwnListing,
+    isOutOfStock,
+    isBooking,
+    isPurchase,
+    showInquiryForm,
+    mounted,
+    hasListing: !!listing,
+    listingId: listing?.id?.uuid,
+    listingState: listing?.attributes?.state,
+    buttonDisabled: isOutOfStock,
+    willShowButton: !isOrderOpen && !isClosed
+  });
+
   return (
     <div className={classes}>
       <ModalInMobile
@@ -625,14 +681,29 @@ const OrderPanel = (props) => {
             </div>
           ) : (
             <PrimaryButton
-              onClick={handleSubmit(
-                isOwnListing,
-                isClosed,
-                showInquiryForm,
-                onSubmit,
-                history,
-                location
-              )}
+              onClick={() => {
+                console.log('OrderPanel PrimaryButton clicked!');
+                console.log('OrderPanel PrimaryButton: button state:', {
+                  isOwnListing,
+                  isClosed,
+                  showInquiryForm,
+                  isOutOfStock,
+                  isBooking,
+                  isPurchase
+                });
+
+                const onClickHandler = handleSubmit(
+                  isOwnListing,
+                  isClosed,
+                  showInquiryForm,
+                  onSubmit,
+                  history,
+                  location
+                );
+
+                console.log('OrderPanel PrimaryButton: calling onClickHandler');
+                onClickHandler();
+              }}
               disabled={isOutOfStock}
             >
               {isBooking ? (

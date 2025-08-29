@@ -21,14 +21,21 @@
 .heading {
   composes: p from global;
   margin: 0;
+  font-size: 16px;
+  line-height: 24px;
 
   @media (--viewportMedium) {
     margin: 0;
+    font-size: 16px;
+    line-height: 24px;
   }
 }
 
 .link {
+  composes: p from global;
   white-space: nowrap;
+  margin: 0;
+  padding: 0;
 }
 
 .mobileBio,
@@ -146,6 +153,9 @@
 .editProfileMobile {
   composes: p from global;
   display: inline;
+  white-space: nowrap;
+  margin: 0;
+  padding: 0;
 
   @media (--viewportMedium) {
     display: none;

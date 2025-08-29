@@ -546,6 +546,8 @@
   composes: p from global;
   padding: 0;
   font-weight: var(--fontWeightBold);
+  font-size: 18px;
+  line-height: 24px;
 
   margin-top: 0;
   margin-bottom: 12px;
@@ -553,6 +555,8 @@
   @media (--viewportMedium) {
     margin-top: 0;
     margin-bottom: 8px;
+    font-size: 18px;
+    line-height: 24px;
   }
 }
 
