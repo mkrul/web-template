@@ -77,37 +77,18 @@ const EditListingPhotosPanel = (props) => {
 
   // Create a wrapper that automatically saves new uploads to server
   const handleImageUpload = (uploadData, listingImageConfig) => {
-    console.log('🔧 [handleImageUpload] Starting upload:', uploadData);
-
     // First, upload the image (this adds it to Redux state)
     return onImageUpload(uploadData, listingImageConfig).then(
       (uploadedImageData) => {
-        console.log(
-          '🔧 [handleImageUpload] Upload completed:',
-          uploadedImageData
-        );
-
         // After successful upload, immediately submit to attach it to the listing
         // Get current listing images
         const currentImages = getInitialValues(props).images || [];
 
         // The uploadedImageData is the direct result from the thunk
         const newlyUploadedImage = uploadedImageData;
-        console.log(
-          '🔧 [handleImageUpload] Newly uploaded image:',
-          newlyUploadedImage
-        );
 
         // Include the newly uploaded image with current listing images
         const allImages = currentImages.concat([newlyUploadedImage]);
-
-        console.log('🔧 [handleImageUpload] Submitting to server:', {
-          allImagesCount: allImages.length,
-          allImages: allImages.map((img) => ({
-            id: img.id,
-            imageId: img.imageId,
-          })),
-        });
 
         // Submit to server to persist the association (automatic save, no redirect)
         return onSubmit({ images: allImages }, true);
